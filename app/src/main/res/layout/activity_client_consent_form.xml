@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center_vertical"
+    tools:context=".Activities.ClientConsentFormActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--Header-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="STI Guidance and Counseling Office\nClient Consent Form"
+                android:textSize="18dp"
+                android:textColor="@color/blue"
+                android:fontFamily="@font/poppins_bold"
+                android:textAlignment="center"/>
+
+            <!--Guidance and Counseling-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="GUIDANCE AND COUNSELING"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Exceptions to Confidentiality-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:justificationMode="inter_word"
+                android:paddingBottom="16dp"
+                android:text="@string/guidance_and_counseling_text" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="EXCEPTIONS TO CONFIDENTIALITY"
+                android:fontFamily="@font/poppins_bold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="16dp"
+                android:fontFamily="@font/poppins_regular"
+                android:justificationMode="inter_word"
+                android:text="@string/exceptions_to_confidentiality_text"/>
+
+            <!--Horizontal line-->
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#000000"
+                android:layout_marginBottom="16dp"/>
+
+            <!--Consent statement-->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:id="@+id/checkboxConsent"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="I have read and understood the above information on the nature and benefits of guidance and counseling and the scope and limits of confidentiality. By signing this form, I give my consent."
+                    android:textSize="12sp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:justificationMode="inter_word"/>
+
+            </LinearLayout>
+
+
+            <!--Name of Student-->
+            <EditText
+                android:id="@+id/edtStudentName"
+                android:hint="Name of Student/Client"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="12dp"
+                android:inputType="text"
+                android:paddingBottom="12dp"/>
+
+            <!--Name of Parents/Guardians-->
+            <EditText
+                android:id="@+id/edtParentName"
+                android:hint="Name of Parents/Guardians"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="12dp"
+                android:inputType="text"
+                android:paddingBottom="12dp"/>
+
+            <!--Name of Guidance Counselor/Associate-->
+            <EditText
+                android:id="@+id/edtGcName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Ms. Rachelle Ann Rose Corpuz, LPT"
+                android:hint="Name of Guidance Counselor/Associate"
+                android:fontFamily="@font/poppins_medium"
+                android:textSize="12dp"
+                android:inputType="text"
+                android:paddingBottom="12dp"
+                android:focusable="false"
+                android:clickable="false"
+                android:enabled="false"
+                android:background="@drawable/disabled_edittext_bg"
+                android:textColor="@color/dimgray"/>
+
+            <!--Date
+            <EditText
+                android:id="@+id/date"
+                android:hint="Date"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="12dp"
+                android:inputType="date"
+                android:paddingBottom="12dp"/>-->
+
+            <!--Submit Button-->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:text="Submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+    </ScrollView>
+</LinearLayout>

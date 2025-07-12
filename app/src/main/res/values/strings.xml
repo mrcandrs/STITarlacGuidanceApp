@@ -1,0 +1,62 @@
+<resources>
+    <string name="app_name">STITarlacGuidanceApp</string>
+    <string name="guidance_and_counseling_text">Guidance and Counseling is a process designed to help you gain a greater understanding of yourself, address your concerns,
+        and learn effective academic, behavioral, personal and interpersonal coping strategies. It involves a helping relationship between you and a counseling staff
+        (registered guidance counselor or trained guidance associate) who has the desire and willingness to help you accomplish your individual goals.\nCounseling involves
+        sharing personal information with your guidance counselor. During the course of counseling, there may be periods of anxiety or confusion. The outcome of counseling
+        is often positive; however, the level of satisfaction for any individual is not predictable. The success of the counseling goals is usually dependent on the
+        participation of the client. Your counselor is available to support you throughout the counseling process. The termination of the counseling shall be after the
+        goals are met, or if there is a need for a referral to other professionals, or the client expresses the intention to terminate such.\nAll interactions with Guidance
+        and Counseling Services, including scheduling of appointments, content of your sessions, progress in counseling, standardized test results, and individual personal
+        records are strictly confidential. No record of counseling is contained in any academic, disciplinary, administrative, personnel, or career placement file. You may
+        request in writing that the guidance and counseling staff release specific information about your counseling to persons you designate.
+    </string>
+    <string name="exceptions_to_confidentiality_text">Because counseling is based on a trusting relationship between the guidance counselor and the client, the former will
+        keep information shared by the latter confidential, except in certain situations in which an ethical responsibility limits confidentiality.\n● The guidance
+        and counseling staff works as a team. Your guidance counselor may consult with other counseling staff and allied professionals to provide the best possible
+        care. These consultations are for professional and training purposes only.\n● If there is evidence of clear and imminent danger of harm and abuse to self and
+        /or from others, a guidance counselor is legally required to report this information to the authorities responsible for ensuring safety.\n● A court order,
+        issued by a judge, may require the Guidance and Counseling Services staff to release information contained in your record.</string>
+
+    <string-array name="inventory_form_gender_options">
+        <item>Select</item>
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="civil_status_options">
+        <item>Select</item>
+        <item>Single</item>
+        <item>Married</item>
+        <item>Separated</item>
+        <item>Widowed</item>
+    </string-array>
+
+    <string-array name="grade_year_options">
+        <item>Grade/Year</item>
+        <item>1st Year</item>
+        <item>2nd Year</item>
+        <item>3rd Year</item>
+        <item>4th Year</item>
+    </string-array>
+
+    <string-array name="career_form_gender_options">
+        <item>Gender</item>
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="parent_status_options">
+        <item>Select status</item>
+        <item>Married</item>
+        <item>Living together</item>
+        <item>Single Parent</item>
+        <item>Separated</item>
+        <item>Divorced/Annulled</item>
+        <item>Widowed/Widower</item>
+        <item>Remarried</item>
+    </string-array>
+
+</resources>

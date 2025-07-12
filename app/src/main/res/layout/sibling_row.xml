@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <EditText
+        android:id="@+id/edtSiblingName"
+        android:hint="Sibling Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <EditText
+        android:id="@+id/edtSiblingAge"
+        android:hint="Age"
+        android:inputType="number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <EditText
+        android:id="@+id/edtSiblingGender"
+        android:hint="Gender"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <EditText
+        android:id="@+id/edtSiblingProgram"
+        android:hint="Program/Occupation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <EditText
+        android:id="@+id/edtSiblingSchool"
+        android:hint="School/Company"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+
+    <Button
+        android:id="@+id/btnRemoveSibling"
+        android:text="Remove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="@font/poppins_regular"/>
+</LinearLayout>

@@ -1,0 +1,1154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".Activities.InventoryFormActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:id="@+id/formContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--Header-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="STI Guidance and Counseling Office\nIndividual Inventory Form"
+                android:textSize="18dp"
+                android:textColor="@color/blue"
+                android:fontFamily="@font/poppins_bold"
+                android:textAlignment="center"/>
+
+            <!--Student Info-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Student Information"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Full Name-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtFullName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFullName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Full Name"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Student Number-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtStudentNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtStudentNumber"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Student Number"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Program and Section-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtProgram"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtProgram"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Program and Section"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Nickname-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtNickname"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtNickname"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nickname"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Status Spinner with visibility toggle -->
+            <TextView android:text="Civil Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="16dp"/>
+            <Spinner
+                android:id="@+id/spinnerStatus"
+                android:theme="@style/InputLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"/>
+
+            <!--Spouse Info (conditionally visible)-->
+            <LinearLayout
+                android:id="@+id/layoutSpouse"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone">
+
+                <!--Spouse Name-->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_edtSpouseName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/blue"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSpouseName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Spouse Name"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/blue"
+                        android:inputType="text">
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--Spouse Age-->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_edtSpouseAge"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/blue"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSpouseAge"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Spouse Age"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/blue"
+                        android:inputType="phone">
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--Spouse Occupation-->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_edtSpouseOccupation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/blue"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSpouseOccupation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Spouse Occupation"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/blue"
+                        android:inputType="text">
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!--Spouse Contact-->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_edtSpouseContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColorHint="@color/blue"
+                    android:layout_marginBottom="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtSpouseContact"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Spouse Contact"
+                        android:fontFamily="@font/poppins_regular"
+                        android:textColor="@color/blue"
+                        android:inputType="phone">
+                    </com.google.android.material.textfield.TextInputEditText>
+
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+
+            <!-- Gender Spinner -->
+            <TextView
+                android:text="Gender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="16dp"/>
+            <Spinner
+                android:id="@+id/spinnerGender"
+                android:theme="@style/InputLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:spinnerMode="dropdown"/>
+
+            <!--Birthday-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtBirthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtBirthday"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Birthday"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:focusable="false"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Religion and Nationality-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Religion and Nationality"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Religion-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtReligion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtReligion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Religion"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Nationality-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtNationality"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtNationality"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Nationality"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Contact Information-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Contact Information"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Cellphone Number-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cellphone Number"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="phone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Email Address 1-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtEmail1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtEmail1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address 1"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="textEmailAddress">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Email Address 2-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtEmail2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtEmail2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Email Address 2"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="textEmailAddress">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Present Address-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtPresentAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtPresentAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Present Address"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Permanent Address-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtPermanentAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtPermanentAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Permanent Address"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Provincial Address-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtProvincialAddress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtProvincialAddress"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Provincial Address"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Family Background-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Family Background"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Father's Name-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtFatherName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFatherName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Father's Name"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Father's Occupation-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_FatherOccupation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFatherOccupation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Father's Occupation"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Father's Contact Number-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_FatherContactNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFatherContactNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Contact Number"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="phone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Father's Monthly Income-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_FatherIncome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFatherIncome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Monthly Income"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="phone|numberDecimal">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <!--Father's Status-->
+            <TextView
+                android:text="Father's Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="16dp"/>
+            <Spinner
+                android:id="@+id/spinnerFatherStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!--Mother's Name-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtMotherName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtMotherName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mother's Name"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Mother's Occupation-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_MotherOccupation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtMotherOccupation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Mother's Occupation"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Mother's Contact Number-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_MotherContactNo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtMotherContactNo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Contact Number"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="phone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Mother's Monthly Income-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_MotherIncome"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtMotherIncome"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Monthly Income"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="phone|numberDecimal">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Mother's Status-->
+            <TextView
+                android:text="Mother's Status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="16dp"/>
+            <Spinner
+                android:id="@+id/spinnerMotherStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <!--Guardian Name-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_GuardianName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtGuardianName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Guardian's Name (if applicable)"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Guardian Contact-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtGuardianContact"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtGuardianContact"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Guardian's Contact Number"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Sibling Order-->
+            <TextView
+                android:text="Sibling Order"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="16dp"/>
+
+            <LinearLayout
+                android:id="@+id/siblingContainer"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+                <Button
+                    android:id="@+id/btnAddSibling"
+                    android:text="Add Sibling"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"/>
+
+
+            <!--Educational Background-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Educational Background"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Elementary-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtElementary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtElementary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Elementary (School Name and Address, Year Graduated)"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Junior High School-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtJuniorHigh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtJuniorHigh"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Junior High School (School Name and Address, Year Graduated)"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Senior High School-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtSeniorHigh"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtSeniorHigh"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Senior High School (School Name and Address, Year Graduated)"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--College-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtCollege"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtCollege"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="College (if any)"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Work Experience-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Work Experience"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <LinearLayout
+                android:id="@+id/workContainer"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+                <Button
+                    android:id="@+id/btnAddWork"
+                    android:text="Add Work Experience"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"/>
+
+            <!--Interests and Recreational Activities-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Interests and Recreational Activities"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Sports-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtSports"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtSports"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Sports:"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Hobbies-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtHobbies"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtHobbies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Hobbies:"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Talents-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtTalents"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtTalents"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Talents:"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Other Activities-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Other Activities:"
+                android:fontFamily="@font/poppins_italic"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Socio-civic:-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtSocioCivic"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtSocioCivic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Socio-civic:"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--School Organizations:-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtSchoolOrgs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtSchoolOrgs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="School Organizations:"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Health History-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Health History"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Hospitalized?-->
+            <CheckBox
+                android:id="@+id/checkboxHospitalized"
+                android:text="Have you been hospitalized?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--Hospitalization Reason-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtHospitalizedReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtHospitalizedReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Hospitalization Reason"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text"
+                    android:visibility="gone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Operated?-->
+            <CheckBox
+                android:id="@+id/checkboxOperation"
+                android:text="Have you had an operation?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--Operation Reason-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtOperationReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtOperationReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Operation Reason"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text"
+                    android:visibility="gone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Currently having illness?-->
+            <CheckBox
+                android:id="@+id/checkboxCurrentIllness"
+                android:text="Do you currently suffer from any illness/condition?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--State Illness-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtCurrentIllness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtCurrentIllness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="State Illness"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text"
+                    android:visibility="gone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Taking prescription drugs?-->
+            <CheckBox
+                android:id="@+id/checkboxPrescriptionDrugs"
+                android:text="Do you take any prescription drugs?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--Prescription Drug name and purpose-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtPrescriptionDrugs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtPrescriptionDrugs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Drug Name/Purpose"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text"
+                    android:visibility="gone">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Have you submitted a medical certificate/assessment report?-->
+            <CheckBox
+                android:id="@+id/checkboxMedCert"
+                android:text="Have you submitted a certificate/assessment report?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <!--Common Family Illness-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtFamilyIllness"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtFamilyIllness"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Common Illness in the Family"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Last Doctor Visit-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtLastDoctorVisit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtLastDoctorVisit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="When did you last see a doctor?"
+                    android:focusable="false"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Doctor Visit Reason-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtDoctorVisitReason"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtDoctorVisitReason"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Reason for Last Visit"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Life Circumstances-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Life Circumstances"
+                android:fontFamily="@font/poppins_semibold"
+                android:paddingTop="10dp"
+                android:textSize="16dp"/>
+
+            <!--Loss Experience-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtLossExperience"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtLossExperience"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Loss Experience"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Problems-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtProblems"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtProblems"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Problems"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Relationship Concerns-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_edtRelationshipConcerns"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="10dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/edtRelationshipConcerns"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Relationship Concerns"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/blue"
+                    android:inputType="text">
+                </com.google.android.material.textfield.TextInputEditText>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!--Submit Button-->
+            <Button
+                android:id="@+id/btnSubmit"
+                android:text="Submit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:fontFamily="@font/poppins_regular"/>
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
