@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="16dp"
+    android:background="@drawable/quote_background">
+
+    <TextView
+        android:id="@+id/tvQuote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Sample quote"
+        android:textSize="16sp"
+        android:textColor="@color/blue"
+        android:fontFamily="@font/poppins_semibold"
+        android:gravity="center"/>
+
+    <TextView
+        android:id="@+id/tvAuthor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="- Author"
+        android:textSize="14sp"
+        android:textColor="@color/darkblue"
+        android:fontFamily="@font/poppins_italic"
+        android:gravity="center"
+        android:layout_marginTop="8dp"/>
+</LinearLayout>
