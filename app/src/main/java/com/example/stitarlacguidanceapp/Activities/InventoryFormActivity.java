@@ -46,6 +46,34 @@ public class InventoryFormActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("InventoryForm", MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+
+        //Live validation for full name
+        addLiveValidation(root.edtFullName, input -> {
+            return input.isEmpty() ? "Full name is required" : null;
+        });
+
+
+        //Live validation for student number
+        addLiveValidation(root.edtStudentNumber, input -> {
+            return input.matches("\\d{11}") ? null : "Student Number must be 11 digits";
+        });
+
+        //Live validation for email 1
+        addLiveValidation(root.edtEmail1, input -> {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+        });
+
+        //Live validation for email 2
+        addLiveValidation(root.edtEmail2, input -> {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+        });
+
+        //Live validation for phone number
+        addLiveValidation(root.edtPhone, input -> {
+            return input.matches("\\d{11}") ? null : "Phone must be 11 digits";
+        });
+
+
         //Gender spinner populate
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
                 this, R.array.inventory_form_gender_options, android.R.layout.simple_spinner_item);
@@ -128,7 +156,7 @@ public class InventoryFormActivity extends AppCompatActivity {
             if (isChecked) {
                 root.edtPrescriptionDrugs.setVisibility(View.VISIBLE);
             } else {
-                root.edtPrescriptionDrugs.setText(""); // Clear user input
+                root.edtPrescriptionDrugs.setText(""); //Clear user input
                 root.edtPrescriptionDrugs.setVisibility(View.GONE);
             }
         });
@@ -380,7 +408,7 @@ public class InventoryFormActivity extends AppCompatActivity {
     }
 
     private boolean isValidDate(String date) {
-        // For simplicity, just check non-empty or add real date parsing if needed
+        //For simplicity, just check non-empty or add real date parsing if needed
         return !isEmpty(date);
     }
 
@@ -404,15 +432,20 @@ public class InventoryFormActivity extends AppCompatActivity {
                     boolean emailExists = response.body().isEmailExists();
                     boolean studentNumberExists = response.body().isStudentNumberExists();
 
+                    //Setting error if email or student number already exists in the database
                     if (emailExists || studentNumberExists) {
-                        String message = "";
-                        if (emailExists) message += "Email already exists.\n";
-                        if (studentNumberExists) message += "Student Number already exists.";
-                        Toast.makeText(InventoryFormActivity.this, message, Toast.LENGTH_LONG).show();
+                        if (emailExists) {
+                            root.edtEmail1.setError("Email already exists");
+                            root.edtEmail1.requestFocus();
+                        }
+                        if (studentNumberExists) {
+                            root.edtStudentNumber.setError("Student Number already exists");
+                            root.edtStudentNumber.requestFocus();
+                        }
                     } else {
-                        //✅ Safe to continue to saveForm
                         saveForm();
                     }
+
                 } else {
                     Toast.makeText(InventoryFormActivity.this, "Server error. Try again later.", Toast.LENGTH_SHORT).show();
                 }
@@ -611,6 +644,25 @@ public class InventoryFormActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private void addLiveValidation(android.widget.EditText editText, ValidationRule rule) {
+        editText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String input = s.toString().trim();
+                String error = rule.validate(input);
+                editText.setError(error); // This will show or clear the error
+            }
+        });
+    }
+
+
+    interface ValidationRule {
+        String validate(String input); //Return null if valid, or error message if invalid
     }
 
 }
