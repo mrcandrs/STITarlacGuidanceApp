@@ -65,7 +65,6 @@ public class ClientConsentFormActivity extends AppCompatActivity {
 
             // Go to next screen
             startActivity(new Intent(ClientConsentFormActivity.this, InventoryFormActivity.class));
-            finish();
         });
 
     }

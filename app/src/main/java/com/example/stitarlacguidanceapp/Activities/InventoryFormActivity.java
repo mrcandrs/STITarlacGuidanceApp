@@ -323,7 +323,6 @@ public class InventoryFormActivity extends AppCompatActivity {
 
         Toast.makeText(this, "Form saved locally", Toast.LENGTH_SHORT).show();
         startActivity(intent);
-        finish();
     }
 
     private String safeText(android.widget.EditText editText) {

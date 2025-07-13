@@ -39,6 +39,7 @@ public class RegistrationActivity extends AppCompatActivity {
         root = ActivityRegistrationBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        //getStringExtra for Student Number
         String studentNumber = getIntent().getStringExtra("StudentNumber");
         if (studentNumber != null) {
             root.edtStudentNumber.setText(studentNumber);
@@ -47,8 +48,38 @@ public class RegistrationActivity extends AppCompatActivity {
             root.edtStudentNumber.setTextColor(Color.LTGRAY);
         }
 
+        //getStringExtra for Full Name
+        String fullName = getIntent().getStringExtra("FullName");
+        if (fullName != null) {
+            root.edtFullName.setText(fullName);
+            root.edtFullName.setEnabled(false);
+            root.edtFullName.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtFullName.setTextColor(Color.LTGRAY);
+        }
+
+        //getStringExtra for Program
+        String program = getIntent().getStringExtra("program");
+        if (program != null) {
+            root.edtProgram.setText(program);
+            root.edtProgram.setEnabled(false);
+            root.edtProgram.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtProgram.setTextColor(Color.LTGRAY);
+        }
+
+        //getStringExtra for Grade/Year
+        String gradeYear = getIntent().getStringExtra("gradeYear");
+        if (gradeYear != null) {
+            root.edtGradeYear.setText(gradeYear);
+            root.edtGradeYear.setEnabled(false);
+            root.edtGradeYear.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtGradeYear.setTextColor(Color.LTGRAY);
+        }
+
         //Set them to EditTexts if you have those
         root.edtStudentNumber.setText(studentNumber);
+        root.edtFullName.setText(fullName);
+        root.edtProgram.setText(program);
+        root.edtGradeYear.setText(gradeYear);
 
         root.btnRegister.setOnClickListener(v -> registerStudent());
         root.btnBack.setOnClickListener(v -> onBackPressed());
@@ -56,6 +87,9 @@ public class RegistrationActivity extends AppCompatActivity {
 
     private void registerStudent() {
         String studentNumber = root.edtStudentNumber.getText().toString();
+        String fullName = root.edtFullName.getText().toString();
+        String program = root.edtProgram.getText().toString();
+        String gradeYear = root.edtGradeYear.getText().toString();
         String email = root.edtEmail.getText().toString();
         String username = root.edtStudentUsername.getText().toString();
         String password = root.edtStudentPassword.getText().toString();
@@ -65,8 +99,8 @@ public class RegistrationActivity extends AppCompatActivity {
             return;
         }
 
-        // Create student object
-        Student student = new Student(studentNumber, email, username, password);
+        //Create student object
+        Student student = new Student(studentNumber, fullName, program, gradeYear, email, username, password);
 
         // -----------------------
         // GET SHARED PREFERENCES
@@ -251,8 +285,10 @@ public class RegistrationActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (response.isSuccessful()) {
-                    Toast.makeText(RegistrationActivity.this, "All forms submitted successfully!", Toast.LENGTH_LONG).show();
-                    finish(); // or go back to login
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    intent.putExtra("registered", true);
+                    startActivity(intent);
                 } else {
                     Log.e("SUBMIT_ERROR", "Code: " + response.code() + ", Message: " + response.message());
 
@@ -264,7 +300,6 @@ public class RegistrationActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         Log.e("SUBMIT_ERROR_BODY", "Error reading error body", e);
                     }
-
                     Toast.makeText(RegistrationActivity.this, "Submission failed: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }

@@ -641,7 +641,7 @@
                     android:hint="Guardian's Contact Number"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/blue"
-                    android:inputType="text">
+                    android:inputType="phone">
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 

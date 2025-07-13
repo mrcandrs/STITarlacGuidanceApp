@@ -27,6 +27,10 @@ public class MainActivity extends AppCompatActivity {
         root = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        if (getIntent().getBooleanExtra("registered", false)) {
+            Toast.makeText(this, "All forms submitted successfully!", Toast.LENGTH_LONG).show();
+        }
+
 
         root.btnLogin.setOnClickListener(v -> performLogin());
         root.btnRegister.setOnClickListener(v -> {

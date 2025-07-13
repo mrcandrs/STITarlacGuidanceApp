@@ -144,11 +144,13 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
                 Toast.makeText(this, "Career Planning Form saved!", Toast.LENGTH_SHORT).show();
                 Intent registrationIntent = new Intent(this, RegistrationActivity.class);
 
-                //Pass student number
+                //Pass data
                 registrationIntent.putExtra("StudentNumber", root.studentNoInput.getText().toString().trim());
+                registrationIntent.putExtra("FullName", root.fullNameInput.getText().toString().trim());
+                registrationIntent.putExtra("program", root.programInput.getText().toString().trim());
+                registrationIntent.putExtra("gradeYear", root.gradeYearSpinner.getSelectedItem().toString().trim());
 
                 startActivity(registrationIntent);
-                finish();
             }
         });
     }
