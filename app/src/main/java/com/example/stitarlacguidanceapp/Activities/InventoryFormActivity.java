@@ -12,7 +12,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.R;
+import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityInventoryFormBinding;
 import com.example.stitarlacguidanceapp.databinding.SiblingRowBinding;
 import com.example.stitarlacguidanceapp.databinding.WorkRowBinding;
@@ -23,6 +26,10 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class InventoryFormActivity extends AppCompatActivity {
 
@@ -82,7 +89,7 @@ public class InventoryFormActivity extends AppCompatActivity {
 
         root.btnAddWork.setOnClickListener(v -> addWorkView());
         root.btnAddSibling.setOnClickListener(v -> addSiblingView());
-        root.btnSubmit.setOnClickListener(v -> saveForm());
+        root.btnSubmit.setOnClickListener(v -> checkDuplicateThenSave());
         root.edtBirthday.setOnClickListener(v -> showBirthdayDatePicker());
         root.edtLastDoctorVisit.setOnClickListener(v -> showLastDoctorVisitDatePicker());
 
@@ -330,18 +337,30 @@ public class InventoryFormActivity extends AppCompatActivity {
     }
 
     private void addWorkView() {
+        if (root.workContainer.getChildCount() >= 5) {
+            Toast.makeText(this, "Maximum of 5 work experiences only.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         WorkRowBinding workBinding = WorkRowBinding.inflate(getLayoutInflater(), root.workContainer, false);
         View workView = workBinding.getRoot();
         workBinding.btnRemoveWork.setOnClickListener(v -> root.workContainer.removeView(workView));
         root.workContainer.addView(workView);
     }
 
+
     private void addSiblingView() {
+        if (root.siblingContainer.getChildCount() >= 5) {
+            Toast.makeText(this, "Maximum of 5 siblings only.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         SiblingRowBinding siblingBinding = SiblingRowBinding.inflate(getLayoutInflater(), root.siblingContainer, false);
         View siblingView = siblingBinding.getRoot();
         siblingBinding.btnRemoveSibling.setOnClickListener(v -> root.siblingContainer.removeView(siblingView));
         root.siblingContainer.addView(siblingView);
     }
+
 
     private boolean isValidEmail(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
@@ -364,6 +383,49 @@ public class InventoryFormActivity extends AppCompatActivity {
         // For simplicity, just check non-empty or add real date parsing if needed
         return !isEmpty(date);
     }
+
+    private void checkDuplicateThenSave() {
+        String studentNumber = root.edtStudentNumber.getText().toString().trim();
+        String email = root.edtEmail1.getText().toString().trim();
+
+        if (!validateForm()) return;
+
+        root.btnSubmit.setEnabled(false);
+
+        StudentApi api = ApiClient.getClient().create(StudentApi.class);
+        Call<DuplicateCheckResponse> call = api.checkDuplicate(studentNumber, email);
+
+        call.enqueue(new Callback<DuplicateCheckResponse>() {
+            @Override
+            public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
+                root.btnSubmit.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean emailExists = response.body().isEmailExists();
+                    boolean studentNumberExists = response.body().isStudentNumberExists();
+
+                    if (emailExists || studentNumberExists) {
+                        String message = "";
+                        if (emailExists) message += "Email already exists.\n";
+                        if (studentNumberExists) message += "Student Number already exists.";
+                        Toast.makeText(InventoryFormActivity.this, message, Toast.LENGTH_LONG).show();
+                    } else {
+                        //✅ Safe to continue to saveForm
+                        saveForm();
+                    }
+                } else {
+                    Toast.makeText(InventoryFormActivity.this, "Server error. Try again later.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
+                root.btnSubmit.setEnabled(true);
+                Toast.makeText(InventoryFormActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     //Validation
     private boolean validateForm() {

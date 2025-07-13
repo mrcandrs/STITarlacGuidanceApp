@@ -6,6 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 import com.example.stitarlacguidanceapp.Models.FullRegistration;
 import com.example.stitarlacguidanceapp.Models.LoginRequest;
@@ -16,6 +17,12 @@ public interface StudentApi {
     // GET all students
     @GET("api/Student")
     Call<List<Student>> getAllStudents();
+
+    @GET("api/student/check-duplicate")
+    Call<DuplicateCheckResponse> checkDuplicate(
+            @Query("studentNumber") String studentNumber,
+            @Query("email") String email
+    );
 
     // POST a new student
     @POST("api/Student")
