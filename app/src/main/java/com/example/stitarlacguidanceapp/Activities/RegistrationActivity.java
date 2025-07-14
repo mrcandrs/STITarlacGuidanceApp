@@ -10,6 +10,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.Models.CareerPlanningForm;
 import com.example.stitarlacguidanceapp.Models.ConsentForm;
 import com.example.stitarlacguidanceapp.Models.FullRegistration;
@@ -18,6 +19,7 @@ import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.Models.Student;
 
+import com.google.android.material.textfield.TextInputEditText;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -38,6 +40,23 @@ public class RegistrationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         root = ActivityRegistrationBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
+
+        //Live validation for email address
+        addLiveValidation(root.layoutEmail, root.edtEmail, input -> {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()
+                    ? null
+                    : "Invalid email address";
+        });
+
+        //Live validation for password
+        addLiveValidation(root.layoutStudentPassword, root.edtStudentPassword, input -> {
+            String passwordPattern = "^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{6,}$";
+            return input.matches(passwordPattern)
+                    ? null
+                    : "Password must be 6+ characters, include 1 uppercase and 1 special character";
+        });
+
+
 
         //getStringExtra for Student Number
         String studentNumber = getIntent().getStringExtra("StudentNumber");
@@ -75,17 +94,113 @@ public class RegistrationActivity extends AppCompatActivity {
             root.edtGradeYear.setTextColor(Color.LTGRAY);
         }
 
-        //Set them to EditTexts if you have those
-        root.edtStudentNumber.setText(studentNumber);
-        root.edtFullName.setText(fullName);
-        root.edtProgram.setText(program);
-        root.edtGradeYear.setText(gradeYear);
 
-        root.btnRegister.setOnClickListener(v -> registerStudent());
+        root.btnRegister.setOnClickListener(v -> checkDuplicateThenSave());
         root.btnBack.setOnClickListener(v -> onBackPressed());
     }
 
+    private void addLiveValidation(com.google.android.material.textfield.TextInputLayout layout,
+                                   android.widget.EditText editText,
+                                   ValidationRule rule) {
+
+        editText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String input = s.toString().trim();
+                String error = rule.validate(input);
+                layout.setError(error); // Show or clear error in TextInputLayout
+            }
+        });
+    }
+
+    private void checkDuplicateThenSave() {
+        String email = root.edtEmail.getText().toString().trim();
+        String username = root.edtStudentUsername.getText().toString().trim();
+
+        root.btnRegister.setEnabled(false);
+
+        StudentApi api = ApiClient.getClient().create(StudentApi.class);
+        Call<DuplicateCheckResponse> call = api.checkDuplicate(email, username);
+
+        call.enqueue(new Callback<DuplicateCheckResponse>() {
+            @Override
+            public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
+                root.btnRegister.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean emailExists = response.body().isEmailExists();
+                    boolean userNameExists = response.body().isUserNameExists();
+
+                    showFieldErrors(emailExists, userNameExists);
+
+                    // ✅ Only call registerStudent if both are false
+                    if (!emailExists && !userNameExists) {
+                        registerStudent();
+                    }
+                } else {
+                    try {
+                        if (response.errorBody() != null) {
+                            String json = response.errorBody().string();
+                            Gson gson = new Gson();
+                            DuplicateCheckResponse error = gson.fromJson(json, DuplicateCheckResponse.class);
+
+                            boolean emailExists = error.isEmailExists();
+                            boolean userNameExists = error.isUserNameExists();
+
+                            Log.d("DUPLICATE_JSON", json);
+                            Log.d("DUPLICATE_CHECK", "emailExists=" + emailExists + ", userNameExists=" + userNameExists);
+
+                            showFieldErrors(emailExists, userNameExists);
+
+                        }
+                    } catch (Exception e) {
+                        Log.e("PARSE_ERROR", "Failed to parse errorBody", e);
+                    }
+
+                    Toast.makeText(RegistrationActivity.this, "Server rejected submission", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
+                root.btnRegister.setEnabled(true);
+                Toast.makeText(RegistrationActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
+    }
+
+    private void showFieldErrors(boolean emailExists, boolean userNameExists) {
+        if (emailExists) {
+            root.layoutEmail.setError("Email already exists");
+            root.edtEmail.post(() -> {
+                root.edtEmail.requestFocus();
+                root.edtEmail.getParent().requestChildFocus(root.edtStudentUsername, root.edtStudentUsername);
+            });
+
+        } else {
+            root.layoutEmail.setError(null);
+        }
+
+        if (userNameExists) {
+            root.layoutStudentUsername.setError("Username already exists");
+            root.edtStudentUsername.post(() -> {
+                root.edtStudentUsername.requestFocus();
+                root.edtStudentUsername.getParent().requestChildFocus(root.edtStudentUsername, root.edtStudentUsername);
+            });
+
+        } else {
+            root.layoutStudentUsername.setError(null);
+        }
+    }
+
+
     private void registerStudent() {
+        root.btnRegister.setEnabled(false);
+
         String studentNumber = root.edtStudentNumber.getText().toString();
         String fullName = root.edtFullName.getText().toString();
         String program = root.edtProgram.getText().toString();
@@ -195,8 +310,10 @@ public class RegistrationActivity extends AppCompatActivity {
         String workJson = inventoryPrefs.getString("WorkExperience", "[]");
 
         Gson gson = new Gson();
-        Type siblingListType = new TypeToken<List<InventoryForm.Sibling>>(){}.getType();
-        Type workListType = new TypeToken<List<InventoryForm.WorkExperience>>(){}.getType();
+        Type siblingListType = new TypeToken<List<InventoryForm.Sibling>>() {
+        }.getType();
+        Type workListType = new TypeToken<List<InventoryForm.WorkExperience>>() {
+        }.getType();
 
         inventoryForm.siblings = gson.fromJson(siblingsJson, siblingListType);
         inventoryForm.workExperience = gson.fromJson(workJson, workListType);
@@ -204,10 +321,6 @@ public class RegistrationActivity extends AppCompatActivity {
         // ✅ Clean the lists of empty entries
         inventoryForm.siblings.removeIf(s -> s.name == null || s.name.trim().isEmpty());
         inventoryForm.workExperience.removeIf(w -> w.company == null || w.company.trim().isEmpty());
-
-        // 🔍 Optional logs to confirm cleaning worked
-        Log.d("SIBLING_CHECK", new Gson().toJson(inventoryForm.siblings));
-        Log.d("WORK_CHECK", new Gson().toJson(inventoryForm.workExperience));
 
 
         // 3. Career Form
@@ -274,7 +387,7 @@ public class RegistrationActivity extends AppCompatActivity {
         fullRegistration.inventoryForm = inventoryForm;
         fullRegistration.careerPlanningForm = careerForm;
 
-        Toast.makeText(this, "Data collected. Ready to submit.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Data collected. Ready to submit.", Toast.LENGTH_SHORT).show();
 
         gson = new GsonBuilder().setPrettyPrinting().create();
         Log.d("FULL_JSON", gson.toJson(fullRegistration));
@@ -296,20 +409,32 @@ public class RegistrationActivity extends AppCompatActivity {
                         if (response.errorBody() != null) {
                             String errorBody = response.errorBody().string();
                             Log.e("SUBMIT_ERROR_BODY", errorBody); // 🔥 This reveals the real problem
+
+                            Gson gson = new Gson();
+                            DuplicateCheckResponse error = gson.fromJson(errorBody, DuplicateCheckResponse.class);
+
+                            boolean emailExists = error.isEmailExists();
+                            boolean userNameExists = error.isUserNameExists();
+
+                            // 🔥 Add this line
+                            showFieldErrors(emailExists, userNameExists);
                         }
                     } catch (Exception e) {
                         Log.e("SUBMIT_ERROR_BODY", "Error reading error body", e);
                     }
-                    Toast.makeText(RegistrationActivity.this, "Submission failed: " + response.message(), Toast.LENGTH_LONG).show();
+                    root.btnRegister.setEnabled(true);
+                    //Toast.makeText(RegistrationActivity.this, "Submission failed: " + response.message(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
                 Toast.makeText(RegistrationActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                root.btnRegister.setEnabled(true);
             }
         });
-
     }
-
+    public interface ValidationRule {
+        String validate(String input);
+    }
 }

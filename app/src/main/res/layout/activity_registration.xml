@@ -71,11 +71,12 @@
 
             <!--Email Address-->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_Email"
+                android:id="@+id/layoutEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="10dp"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtEmail"
@@ -147,11 +148,12 @@
 
             <!--Student Username-->
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/layout_StudentUsername"
+                android:id="@+id/layoutStudentUsername"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="10dp"
+                app:errorEnabled="true">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtStudentUsername"
