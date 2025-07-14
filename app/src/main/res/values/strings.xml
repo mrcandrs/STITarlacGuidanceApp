@@ -25,6 +25,13 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="career_form_course_options">
+        <item>Bachelor of Science in Information Technology (BSIT)</item>
+        <item>Bachelor of Science in Computer Science (BSCS)</item>
+        <item>Bachelor of Science in Hospitality Management (BSHM)</item>
+        <item>Bachelor of Science in Tourism Management (BSTM)</item>
+    </string-array>
+
     <string-array name="civil_status_options">
         <item>Select</item>
         <item>Single</item>

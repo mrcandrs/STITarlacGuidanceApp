@@ -83,6 +83,14 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         setupListeners();
 
+        ArrayAdapter<CharSequence> courseAdapter = ArrayAdapter.createFromResource(
+                this,
+                R.array.career_form_course_options,
+                android.R.layout.simple_dropdown_item_1line //for AutoCompleteTextView
+        );
+        root.courseInput.setAdapter(courseAdapter);
+
+
         ArrayAdapter<CharSequence> gradeAdapter = ArrayAdapter.createFromResource(
                 this,
                 R.array.grade_year_options,
@@ -147,7 +155,7 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
                 //Pass data
                 registrationIntent.putExtra("StudentNumber", root.studentNoInput.getText().toString().trim());
                 registrationIntent.putExtra("FullName", root.fullNameInput.getText().toString().trim());
-                registrationIntent.putExtra("program", root.programInput.getText().toString().trim());
+                registrationIntent.putExtra("program", root.courseInput.getText().toString().trim());
                 registrationIntent.putExtra("gradeYear", root.gradeYearSpinner.getSelectedItem().toString().trim());
 
                 startActivity(registrationIntent);
@@ -160,7 +168,7 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
         View firstInvalidField = null;
 
         String studentNo = root.studentNoInput.getText().toString().trim();
-        String program = root.programInput.getText().toString().trim();
+        String program = root.courseInput.getText().toString().trim();
         String fullName = root.fullNameInput.getText().toString().trim();
         String section = root.sectionInput.getText().toString().trim();
         String contact = root.contactNumberInput.getText().toString().trim();
@@ -173,8 +181,8 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
         }
 
         if (program.isEmpty()) {
-            root.programInput.setError("Required");
-            if (firstInvalidField == null) firstInvalidField = root.programInput;
+            root.courseInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.courseInput;
             isValid = false;
         }
 
@@ -343,7 +351,7 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
 
         //Personal Info
         editor.putString("studentNo", root.studentNoInput.getText().toString());
-        editor.putString("program", root.programInput.getText().toString());
+        editor.putString("program", root.courseInput.getText().toString());
         editor.putString("fullName", root.fullNameInput.getText().toString());
         editor.putString("gradeYear", root.gradeYearSpinner.getSelectedItem().toString());
         editor.putString("section", root.sectionInput.getText().toString());
