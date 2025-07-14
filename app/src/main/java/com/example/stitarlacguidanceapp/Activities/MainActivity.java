@@ -53,15 +53,28 @@ public class MainActivity extends AppCompatActivity {
         call.enqueue(new Callback<Student>() {
             @Override
             public void onResponse(Call<Student> call, Response<Student> response) {
-                if (response.isSuccessful()) {
+                if (response.isSuccessful() && response.body() != null) {
+                    Student student = response.body();
+
+                    // Save student info using SharedPreferences
+                    getSharedPreferences("student_session", MODE_PRIVATE)
+                            .edit()
+                            .putInt("studentId", student.getStudentId())
+                            .putString("fullName", student.getName())
+                            .putString("studentNumber", student.getStudentNumber())
+                            .putString("program", student.getProgram())
+                            .putString("yearLevel", student.getYearLevel())
+                            .apply();
+
                     Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
 
-                    // TODO: Navigate to another screen (e.g., DashboardActivity)
                     startActivity(new Intent(MainActivity.this, StudentDashboardActivity.class));
+                    finish();
                 } else {
                     Toast.makeText(MainActivity.this, "Login failed: Invalid credentials", Toast.LENGTH_SHORT).show();
                 }
             }
+
 
             @Override
             public void onFailure(Call<Student> call, Throwable t) {

@@ -3,9 +3,9 @@ package com.example.stitarlacguidanceapp.Models;
 public class Student {
     public int studentId; //Will be filled by the backend after saving
     public String studentNumber;
-    public String fullName;
+    public String name;
     public String program;
-    public String gradeYear;
+    public String yearLevel;
     public String email;
     public String username;
     public String password;
@@ -15,9 +15,9 @@ public class Student {
 
     public Student(String studentNumber, String fullName, String program, String gradeYear, String email, String username, String password) {
         this.studentNumber = studentNumber;
-        this.fullName = fullName;
+        this.name = fullName;
         this.program = program;
-        this.gradeYear = gradeYear;
+        this.yearLevel = gradeYear;
         this.email = email;
         this.username = username;
         this.password = password;
@@ -39,12 +39,12 @@ public class Student {
         this.studentNumber = studentNumber;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getName() {
+        return name;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setName(String fullName) {
+        this.name = fullName;
     }
 
     public String getProgram() {
@@ -55,12 +55,12 @@ public class Student {
         this.program = program;
     }
 
-    public String getGradeYear() {
-        return gradeYear;
+    public String getYearLevel() {
+        return yearLevel;
     }
 
-    public void setGradeYear(String gradeYear) {
-        this.gradeYear = gradeYear;
+    public void setYearLevel(String gradeYear) {
+        this.yearLevel = gradeYear;
     }
 
     public String getEmail() {

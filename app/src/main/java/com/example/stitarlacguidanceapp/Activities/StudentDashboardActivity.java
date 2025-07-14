@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -34,6 +35,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
         root = ActivityStudentDashboardBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        loadStudentInfo();
+
         viewPager = findViewById(R.id.viewPager);
 
         quoteList = Arrays.asList(
@@ -48,6 +51,21 @@ public class StudentDashboardActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
 
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+    }
+
+    private void loadStudentInfo() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+
+        String fullName = prefs.getString("fullName", "Unknown");
+        String studentNumber = prefs.getString("studentNumber", "");
+        String program = prefs.getString("program", "");
+        String yearLevel = prefs.getString("yearLevel", "");
+
+        // Update your UI (example using ViewBinding or findViewById)
+        root.txtName.setText(fullName);
+        root.txtStudentNo.setText(studentNumber);
+        root.txtCourse.setText(program);
+        root.txtYear.setText(yearLevel);
     }
 
     private final Runnable sliderRunnable = new Runnable() {

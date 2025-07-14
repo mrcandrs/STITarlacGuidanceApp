@@ -40,26 +40,45 @@
 
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
-                android:layout_height="130dp"
+                android:layout_height="wrap_content"
                 app:cardCornerRadius="10dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
-                        android:orientation="horizontal"
-                        android:padding="10dp">
+                        android:padding="10dp"
+                        android:orientation="vertical">
 
-                        <ImageView
-                            android:layout_width="80dp"
-                            android:layout_height="80dp"
-                            android:background="@drawable/profile_picture_background"
-                            android:scaleType="centerCrop"/>
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content">
+
+                            <ImageView
+                                android:id="@+id/imgProfile"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:layout_centerInParent="true"
+                                android:background="@drawable/profile_picture_background"/>
+
+                            <Button
+                                android:id="@+id/btnEdit"
+                                android:layout_width="80dp"
+                                android:layout_height="40dp"
+                                android:layout_alignParentEnd="true"
+                                android:background="@drawable/button_border"
+                                app:backgroundTint="@null"
+                                android:text="Edit"
+                                android:fontFamily="@font/poppins_semibold"
+                                android:textColor="@color/blue"/>
+                        </RelativeLayout>
 
                         <LinearLayout
-                            android:layout_width="wrap_content"
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:orientation="vertical"
+                            android:gravity="center"
+                            android:layout_marginTop="10dp"
                             android:paddingLeft="10dp">
 
                             <TextView
@@ -69,26 +88,22 @@
                                 android:text="Juan Dela Cruz"
                                 android:fontFamily="@font/poppins_bold"
                                 android:textColor="@color/blue"
-                                android:textSize="15sp"/>
+                                android:textSize="16sp"/>
 
                             <TextView
                                 android:id="@+id/txtStudentNo"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Student Number"
-                                android:fontFamily="@font/poppins_regular"
-                                android:textSize="12sp"/>
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal">
+                                android:fontFamily="@font/poppins_semibold"
+                                android:textSize="13sp"/>
 
                                 <TextView
                                     android:id="@+id/txtCourse"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Course"
+                                    android:textSize="12sp"
                                     android:fontFamily="@font/poppins_regular"
                                     android:textColor="@color/dimgray"/>
 
@@ -97,29 +112,9 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:text="Year"
-                                    android:fontFamily="@font/poppins_regular"
-                                    android:textColor="@color/dimgray"
-                                    android:paddingStart="10dp"/>
-                            </LinearLayout>
+                                    android:textSize="12sp"
+                                    android:fontFamily="@font/poppins_regular"/>
                         </LinearLayout>
-
-                        <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content">
-
-                            <Button
-                                android:id="@+id/btnEdit"
-                                android:layout_width="wrap_content"
-                                android:layout_height="40dp"
-                                android:layout_alignParentEnd="true"
-                                android:background="@drawable/button_border"
-                                app:backgroundTint="@null"
-                                android:text="Edit"
-                                android:textColor="@color/blue"
-                                android:fontFamily="@font/poppins_regular"
-                                android:drawableLeft="@drawable/ic_edit_24"
-                                android:drawableTint="@color/blue"/>
-                        </RelativeLayout>
 
                     </LinearLayout>
 
