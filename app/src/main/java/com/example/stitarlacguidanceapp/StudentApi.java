@@ -10,7 +10,8 @@ import retrofit2.http.Query;
 
 import com.example.stitarlacguidanceapp.Models.FullRegistration;
 import com.example.stitarlacguidanceapp.Models.LoginRequest;
-import com.example.stitarlacguidanceapp.Models.Student; // make sure the model path is correct
+import com.example.stitarlacguidanceapp.Models.Student;
+import com.example.stitarlacguidanceapp.Models.StudentUpdateRequest;
 
 public interface StudentApi {
 
@@ -24,6 +25,13 @@ public interface StudentApi {
             @Query("email") String email
     );
 
+    @GET("api/student/check-email-username")
+    Call<DuplicateCheckResponse> checkEmailOrUsername(
+            @Query("email") String email,
+            @Query("username") String username
+    );
+
+
     // POST a new student
     @POST("api/Student")
     Call<Student> createStudent(@Body Student student);
@@ -36,6 +44,11 @@ public interface StudentApi {
 
     @POST("api/student/submit-full-registration")
     Call<Void> submitFullRegistration(@Body FullRegistration data);
+
+    // UPDATE a new student
+    @POST("api/student/update-profile")
+    Call<Void> updateStudentProfile(@Body StudentUpdateRequest request);
+
 
 
 }
