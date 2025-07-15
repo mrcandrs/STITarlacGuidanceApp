@@ -121,17 +121,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         imgProfile = dialogView.findViewById(R.id.imgProfile);
         Button btnChangePhoto = dialogView.findViewById(R.id.btnChangePhoto);
 
-        btnChangePhoto.setOnClickListener(v -> {
-            ImagePicker.with(StudentDashboardActivity.this)
-                    .cropSquare()
-                    .galleryOnly()
-                    .compress(1024)
-                    .maxResultSize(512, 512)
-                    .createIntent(intent -> {
-                        imagePickerLauncher.launch(intent);
-                        return null;
-                    });
-        });
+        btnChangePhoto.setOnClickListener(v -> showImageSourceDialog());
 
         //live validation for email and username if it exists in the database
         edtEmail.addTextChangedListener(new android.text.TextWatcher() {
@@ -251,6 +241,40 @@ public class StudentDashboardActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void showImageSourceDialog() {
+        String[] options = {"Camera", "Gallery"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Photo Source")
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        //Camera
+                        ImagePicker.with(this)
+                                .cropSquare()
+                                .cameraOnly()
+                                .compress(1024)
+                                .maxResultSize(512, 512)
+                                .createIntent(intent -> {
+                                    imagePickerLauncher.launch(intent);
+                                    return null;
+                                });
+                    } else {
+                        //Gallery
+                        ImagePicker.with(this)
+                                .cropSquare()
+                                .galleryOnly()
+                                .compress(1024)
+                                .maxResultSize(512, 512)
+                                .createIntent(intent -> {
+                                    imagePickerLauncher.launch(intent);
+                                    return null;
+                                });
+                    }
+                }).show();
+    }
+
+
 
     private void updateStudentProfile(String email, String username, String password, AlertDialog dialog) {
         int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
