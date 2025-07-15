@@ -24,6 +24,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.bumptech.glide.Glide;
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.Models.Quote;
@@ -66,7 +67,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     Uri uri = result.getData().getData();
                     selectedImageUri = uri;
                     if (imgProfile != null) {
-                        imgProfile.setImageURI(uri); // Show preview
+                        Glide.with(this)
+                                .load(uri)
+                                .circleCrop()
+                                .into(imgProfile); // Show as circular
                     }
                 }
             });
@@ -309,9 +313,24 @@ public class StudentDashboardActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = getSharedPreferences("student_session", MODE_PRIVATE).edit();
                             editor.putString("email", email);
                             editor.putString("username", username);
+                            if (selectedImageUri != null) {
+                                editor.putString("profileUri", selectedImageUri.toString()); // ✅ Save image URI
+                            }
+
                             editor.apply();
+
                             Toast.makeText(StudentDashboardActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
+
+                            // Update the dashboard profile image
+                            ImageView imgDashboardProfile = root.imgProfile;
+                            if (selectedImageUri != null) {
+                                Glide.with(StudentDashboardActivity.this)
+                                        .load(selectedImageUri)
+                                        .circleCrop()
+                                        .into(imgDashboardProfile);
+                            }
+
                         } else {
                             Toast.makeText(StudentDashboardActivity.this, "Update failed: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
@@ -361,12 +380,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
         String studentNumber = prefs.getString("studentNumber", "");
         String program = prefs.getString("program", "");
         String yearLevel = prefs.getString("yearLevel", "");
+        String profileUriString = prefs.getString("profileUri", null);
 
         // Update your UI (example using ViewBinding or findViewById)
         root.txtName.setText(fullName);
         root.txtStudentNo.setText(studentNumber);
         root.txtCourse.setText(program);
         root.txtYear.setText(yearLevel);
+
+        // ✅ Load and display profile image if saved
+        if (profileUriString != null) {
+            Uri profileUri = Uri.parse(profileUriString);
+            root.imgProfile.setImageURI(profileUri);
+        }
     }
 
     private void addLiveValidation(com.google.android.material.textfield.TextInputLayout layout,

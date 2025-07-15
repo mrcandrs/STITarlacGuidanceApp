@@ -43,6 +43,10 @@ dependencies {
     //image picker for camera/gallery
     implementation 'com.github.dhaval2404:imagepicker:2.1'
 
+    //Glide: image loader library
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
+
     implementation libs.appcompat
     implementation libs.material
     implementation libs.activity
