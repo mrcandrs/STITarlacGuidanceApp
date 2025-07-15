@@ -135,9 +135,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 String email = s.toString().trim();
-                String username = edtStudentUsername.getText().toString().trim(); // optional, or pass empty
+                String username = edtStudentUsername.getText().toString().trim();
 
-                checkEmailAndUsername(email, username, layoutEmail, null);
+                checkEmailAndUsername(email, username, layoutEmail, null, () -> {}, () -> {});
             }
         });
 
@@ -148,9 +148,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(android.text.Editable s) {
                 String username = s.toString().trim();
-                String email = edtEmail.getText().toString().trim(); // optional, or pass empty
+                String email = edtEmail.getText().toString().trim();
 
-                checkEmailAndUsername(email, username, null, layoutUsername);
+                checkEmailAndUsername(email, username, null, layoutUsername, () -> {}, () -> {});
             }
         });
 
@@ -240,10 +240,22 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 layoutConfirmPassword.setError(null);
             }
 
-            if (!hasError) {
-                updateStudentProfile(newEmail, newUsername, newPassword, dialog);
-            }
+            // Skip network check if local validation fails
+            if (hasError) return;
+
+            // 🔐 Check for duplicate email/username before updating
+            checkEmailAndUsername(newEmail, newUsername, layoutEmail, layoutUsername,
+                    () -> {
+                        // No duplicates → proceed to update
+                        updateStudentProfile(newEmail, newUsername, newPassword, dialog);
+                    },
+                    () -> {
+                        // Duplicates found → prevent save
+                        Toast.makeText(StudentDashboardActivity.this, "Email or username already exists", Toast.LENGTH_SHORT).show();
+                    }
+            );
         });
+
     }
 
     private void showImageSourceDialog() {
@@ -345,21 +357,37 @@ public class StudentDashboardActivity extends AppCompatActivity {
     }
 
 
-    private void checkEmailAndUsername(String email, String username, TextInputLayout emailLayout, TextInputLayout usernameLayout) {
+    //✅ 6-parameter version
+    private void checkEmailAndUsername(String email, String username, TextInputLayout emailLayout, TextInputLayout usernameLayout, Runnable onValid, Runnable onInvalid) {
+        int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
+
+        Log.d("CHECK", "Checking duplicates for: " + email + " | " + username);
+
         ApiClient.getClient().create(StudentApi.class)
-                .checkEmailOrUsername(email, username)
+                .checkEmailOrUsername(email, username, studentId)
                 .enqueue(new Callback<DuplicateCheckResponse>() {
                     @Override
                     public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
                         if (response.isSuccessful()) {
                             DuplicateCheckResponse result = response.body();
-                            if (result != null) {
-                                if (emailLayout != null) {
-                                    emailLayout.setError(result.isEmailExists() ? "Email already in use" : null);
-                                }
-                                if (usernameLayout != null) {
-                                    usernameLayout.setError(result.isUserNameExists() ? "Username already in use" : null);
-                                }
+                            boolean valid = true;
+
+                            if (emailLayout != null) {
+                                boolean emailTaken = result.isEmailExists();
+                                emailLayout.setError(emailTaken ? "Email already in use" : null);
+                                if (emailTaken) valid = false;
+                            }
+
+                            if (usernameLayout != null) {
+                                boolean usernameTaken = result.isUserNameExists();
+                                usernameLayout.setError(usernameTaken ? "Username already in use" : null);
+                                if (usernameTaken) valid = false;
+                            }
+
+                            if (valid) {
+                                if (onValid != null) onValid.run();
+                            } else {
+                                if (onInvalid != null) onInvalid.run();
                             }
                         }
                     }
@@ -367,11 +395,18 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
                         Log.e("EDIT_PROFILE", "Duplicate check failed", t);
+                        onInvalid.run();
                     }
                 });
     }
 
-
+    //✅ 4-parameter overload for live validation
+    private void checkEmailAndUsername(String email, String username, TextInputLayout emailLayout, TextInputLayout usernameLayout) {
+        checkEmailAndUsername(email, username, emailLayout, usernameLayout,
+                () -> {}, // onValid: do nothing
+                () -> {}  // onInvalid: do nothing
+        );
+    }
 
     private void loadStudentInfo() {
         SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);

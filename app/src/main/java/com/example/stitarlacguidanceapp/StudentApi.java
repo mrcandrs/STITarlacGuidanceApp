@@ -32,9 +32,9 @@ public interface StudentApi {
     @GET("api/student/check-email-username")
     Call<DuplicateCheckResponse> checkEmailOrUsername(
             @Query("email") String email,
-            @Query("username") String username
+            @Query("username") String username,
+            @Query("studentId") int studentId
     );
-
 
     // POST a new student
     @POST("api/Student")
