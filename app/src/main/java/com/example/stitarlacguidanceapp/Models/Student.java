@@ -1,11 +1,16 @@
 package com.example.stitarlacguidanceapp.Models;
 
+import com.google.gson.annotations.SerializedName;
+
 public class Student {
     public int studentId; //Will be filled by the backend after saving
     public String studentNumber;
-    public String name;
+
+    @SerializedName("fullName")
+    public String fullName;
     public String program;
-    public String yearLevel;
+    @SerializedName("gradeYear")
+    public String gradeYear;
     public String email;
     public String username;
     public String password;
@@ -15,9 +20,9 @@ public class Student {
 
     public Student(String studentNumber, String fullName, String program, String gradeYear, String email, String username, String password) {
         this.studentNumber = studentNumber;
-        this.name = fullName;
+        this.fullName = fullName;
         this.program = program;
-        this.yearLevel = gradeYear;
+        this.gradeYear = gradeYear;
         this.email = email;
         this.username = username;
         this.password = password;
@@ -39,12 +44,12 @@ public class Student {
         this.studentNumber = studentNumber;
     }
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setName(String fullName) {
-        this.name = fullName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getProgram() {
@@ -56,11 +61,11 @@ public class Student {
     }
 
     public String getYearLevel() {
-        return yearLevel;
+        return gradeYear;
     }
 
     public void setYearLevel(String gradeYear) {
-        this.yearLevel = gradeYear;
+        this.gradeYear = gradeYear;
     }
 
     public String getEmail() {

@@ -16,6 +16,7 @@ import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityMainBinding;
 import com.example.stitarlacguidanceapp.Models.Student;
 import com.example.stitarlacguidanceapp.Models.LoginRequest;
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -56,11 +57,13 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     Student student = response.body();
 
+                    Log.d("DEBUG_LOGIN", "Student: " + new Gson().toJson(student));
+
                     // Save student info using SharedPreferences
                     getSharedPreferences("student_session", MODE_PRIVATE)
                             .edit()
                             .putInt("studentId", student.getStudentId())
-                            .putString("fullName", student.getName())
+                            .putString("fullName", student.getFullName())
                             .putString("studentNumber", student.getStudentNumber())
                             .putString("program", student.getProgram())
                             .putString("yearLevel", student.getYearLevel())

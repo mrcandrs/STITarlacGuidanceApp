@@ -2,10 +2,14 @@ package com.example.stitarlacguidanceapp;
 
 import java.util.List;
 
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Multipart;
 import retrofit2.http.POST;
+import retrofit2.http.Part;
 import retrofit2.http.Query;
 
 import com.example.stitarlacguidanceapp.Models.FullRegistration;
@@ -48,6 +52,18 @@ public interface StudentApi {
     // UPDATE a new student
     @POST("api/student/update-profile")
     Call<Void> updateStudentProfile(@Body StudentUpdateRequest request);
+
+
+    // POST profile with image
+    @Multipart
+    @POST("api/student/update-profile-with-image")
+    Call<Void> updateStudentProfileWithImage(
+            @Part("studentId") RequestBody studentId,
+            @Part("email") RequestBody email,
+            @Part("username") RequestBody username,
+            @Part("password") RequestBody password,
+            @Part MultipartBody.Part profileImage
+    );
 
 
 

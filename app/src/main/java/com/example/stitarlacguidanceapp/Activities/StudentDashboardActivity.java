@@ -1,15 +1,22 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
@@ -26,13 +33,18 @@ import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBinding;
+import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -45,6 +57,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private int currentPage = 0;
     private final long SLIDE_DELAY = 4000; // 4 seconds
     private List<Quote> quoteList;
+    private Uri selectedImageUri;
+    private ImageView imgProfile;
+
+    private final ActivityResultLauncher<Intent> imagePickerLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                    Uri uri = result.getData().getData();
+                    selectedImageUri = uri;
+                    if (imgProfile != null) {
+                        imgProfile.setImageURI(uri); // Show preview
+                    }
+                }
+            });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +118,20 @@ public class StudentDashboardActivity extends AppCompatActivity {
         TextInputLayout layoutUsername = dialogView.findViewById(R.id.layoutStudentUsername);
         TextInputLayout layoutPassword = dialogView.findViewById(R.id.layoutStudentPassword);
         TextInputLayout layoutConfirmPassword = dialogView.findViewById(R.id.layoutConfirmPassword);
+        imgProfile = dialogView.findViewById(R.id.imgProfile);
+        Button btnChangePhoto = dialogView.findViewById(R.id.btnChangePhoto);
+
+        btnChangePhoto.setOnClickListener(v -> {
+            ImagePicker.with(StudentDashboardActivity.this)
+                    .cropSquare()
+                    .galleryOnly()
+                    .compress(1024)
+                    .maxResultSize(512, 512)
+                    .createIntent(intent -> {
+                        imagePickerLauncher.launch(intent);
+                        return null;
+                    });
+        });
 
         //live validation for email and username if it exists in the database
         edtEmail.addTextChangedListener(new android.text.TextWatcher() {
@@ -161,6 +200,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
                     : "Password must be 6+ characters, include 1 uppercase and 1 special character";
         });
 
+
+
         // Pre-fill with existing values if you have them
         SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
 
@@ -213,17 +254,34 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     private void updateStudentProfile(String email, String username, String password, AlertDialog dialog) {
         int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
-        StudentUpdateRequest request = new StudentUpdateRequest(studentId, email, username, password);
 
-        Log.d("EDIT_PROFILE", "Request: " + new Gson().toJson(request)); // Optional
+        RequestBody studentIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(studentId));
+        RequestBody emailBody = RequestBody.create(MediaType.parse("text/plain"), email);
+        RequestBody usernameBody = RequestBody.create(MediaType.parse("text/plain"), username);
+        RequestBody passwordBody = RequestBody.create(MediaType.parse("text/plain"), password);
+
+        MultipartBody.Part imagePart = null;
+
+        if (selectedImageUri != null) {
+            try {
+                File file = new File(getRealPathFromUri(selectedImageUri));
+                RequestBody reqFile = RequestBody.create(MediaType.parse("image/*"), file);
+                imagePart = MultipartBody.Part.createFormData("ProfileImage", file.getName(), reqFile);
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to process image", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // Pass an empty part so the image isn't required
+            imagePart = MultipartBody.Part.createFormData("ProfileImage", "", RequestBody.create(null, new byte[0]));
+        }
 
         ApiClient.getClient().create(StudentApi.class)
-                .updateStudentProfile(request)
+                .updateStudentProfileWithImage(studentIdBody, emailBody, usernameBody, passwordBody, imagePart)
                 .enqueue(new Callback<Void>() {
                     @Override
                     public void onResponse(Call<Void> call, Response<Void> response) {
                         if (response.isSuccessful()) {
-                            // success
                             SharedPreferences.Editor editor = getSharedPreferences("student_session", MODE_PRIVATE).edit();
                             editor.putString("email", email);
                             editor.putString("username", username);
@@ -231,18 +289,18 @@ public class StudentDashboardActivity extends AppCompatActivity {
                             Toast.makeText(StudentDashboardActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
                         } else {
-                            Log.e("EDIT_PROFILE", "Update failed: " + response.code() + ", " + response.message());
-                            Toast.makeText(StudentDashboardActivity.this, "Update failed!", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(StudentDashboardActivity.this, "Update failed: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-                        Log.e("EDIT_PROFILE", "Network error", t);
+                        t.printStackTrace();
                         Toast.makeText(StudentDashboardActivity.this, "Network error", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     private void checkEmailAndUsername(String email, String username, TextInputLayout emailLayout, TextInputLayout usernameLayout) {
         ApiClient.getClient().create(StudentApi.class)
@@ -326,6 +384,19 @@ public class StudentDashboardActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+    }
+
+    private String getRealPathFromUri(Uri uri) {
+        Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        if (cursor == null) {
+            return uri.getPath();
+        } else {
+            cursor.moveToFirst();
+            int index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+            String path = cursor.getString(index);
+            cursor.close();
+            return path;
+        }
     }
 
 }
