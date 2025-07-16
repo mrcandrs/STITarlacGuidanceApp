@@ -22,6 +22,7 @@
         android:layout_height="170dp"
         android:background="@drawable/profile_picture_background"
         android:layout_marginTop="15dp"
+        android:scaleType="centerCrop"
         android:layout_gravity="center"/>
     
     <Button
