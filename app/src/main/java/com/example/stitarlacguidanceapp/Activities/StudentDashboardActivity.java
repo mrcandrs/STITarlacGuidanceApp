@@ -325,11 +325,14 @@ public class StudentDashboardActivity extends AppCompatActivity {
                             SharedPreferences.Editor editor = getSharedPreferences("student_session", MODE_PRIVATE).edit();
                             editor.putString("email", email);
                             editor.putString("username", username);
-                            if (selectedImageUri != null) {
-                                editor.putString("profileUri", selectedImageUri.toString()); // ✅ Save image URI
-                            }
 
+                            int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
+                            if (selectedImageUri != null) {
+                                String profileKey = "profileUri_" + studentId;
+                                editor.putString(profileKey, selectedImageUri.toString()); // ✅ Save per-student
+                            }
                             editor.apply();
+
 
                             Toast.makeText(StudentDashboardActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
                             dialog.dismiss();
@@ -415,7 +418,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         String studentNumber = prefs.getString("studentNumber", "");
         String program = prefs.getString("program", "");
         String yearLevel = prefs.getString("yearLevel", "");
-        String profileUriString = prefs.getString("profileUri", null);
+        int studentId = prefs.getInt("studentId", -1);
+        String profileKey = "profileUri_" + studentId;
+        String profileUriString = prefs.getString(profileKey, null);
 
         // Update your UI (example using ViewBinding or findViewById)
         root.txtName.setText(fullName);
