@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="16dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reason for Leaving"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="22sp"
+            android:textColor="@color/blue"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Primary Reason:"
+            android:fontFamily="@font/poppins_semibold"/>
+
+        <RadioGroup android:id="@+id/radioMainReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Graduating"
+                android:fontFamily="@font/poppins_regular"/>
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Withdrawal"
+                android:fontFamily="@font/poppins_regular"/>
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Transfer to a New School"
+                android:fontFamily="@font/poppins_regular"/>
+            <RadioButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Leave of Absence"
+                android:fontFamily="@font/poppins_regular"/>
+        </RadioGroup>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Reason for Withdrawal/Transfer/Leave of Absence (check all that apply)"
+            android:fontFamily="@font/poppins_semibold"/>
+
+        <CheckBox
+            android:id="@+id/chkReason1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Financial Concerns"
+            android:fontFamily="@font/poppins_regular"/>
+        <CheckBox
+            android:id="@+id/chkReason2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Health condition"
+            android:fontFamily="@font/poppins_regular"/>
+        <CheckBox
+            android:id="@+id/chkReason3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Transfer of residence"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Family concerns"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="To focus on work"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dissatisfaction with program"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason7"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Personal Problem/s"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason8"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Teacher factor"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason9"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Shifting of program"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <CheckBox
+            android:id="@+id/chkReason10"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Others (pls. specify)"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/layoutedtOtherReason"
+            android:layout_marginBottom="10dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtOtherReason"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Other reason..."
+                android:fontFamily="@font/poppins_regular">
+            </com.google.android.material.textfield.TextInputEditText>
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutedtPlans"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/edtPlans"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:hint="Plans after leaving STI..."
+                android:textColor="@color/dimgray"
+                android:fontFamily="@font/poppins_regular">
+            </com.google.android.material.textfield.TextInputEditText>
+        </com.google.android.material.textfield.TextInputLayout>
+
+    </LinearLayout>
+</ScrollView>

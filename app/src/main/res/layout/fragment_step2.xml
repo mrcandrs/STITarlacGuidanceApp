@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="16dp"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Learning Experience"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="22sp"
+        android:textColor="@color/blue"/>
+
+    <!--Values-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="What were the values did you learn from STI?"
+        android:fontFamily="@font/poppins_semibold"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutedtValues"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtValues"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="4"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:textColor="@color/dimgray"
+            android:text="Share the values and principles you've gained during your time at STI..."
+            android:fontFamily="@font/poppins_regular">
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!--Skills-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="What were the skills did you learn from STI?"
+        android:fontFamily="@font/poppins_semibold"/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/layoutedtSkills"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtSkills"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minLines="4"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:textColor="@color/dimgray"
+            android:text="Describe the technical and soft skills you've developed..."
+            android:fontFamily="@font/poppins_regular">
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+</LinearLayout>

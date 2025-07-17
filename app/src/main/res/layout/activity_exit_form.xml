@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/exitFormActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Activities.ExitFormActivity">
+
+    <!--Header-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="STI Guidance and Counseling Office\nExit Interview Form"
+        android:textSize="18dp"
+        android:textColor="@color/blue"
+        android:fontFamily="@font/poppins_bold"/>
+
+    <!--Progress Bar-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtStep"
+        android:text="Step 1 of 4"
+        android:layout_marginVertical="8dp"
+        android:fontFamily="@font/poppins_semibold"
+        android:textSize="16sp"/>
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="100"/>
+
+    <!--View Pager-->
+    <androidx.viewpager2.widget.ViewPager2
+        android:id="@+id/viewPager"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnPrevious"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Previous"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:background="@drawable/button_border_2"
+            app:backgroundTint="@null"
+            android:textColor="@color/blue"/>
+
+        <Button
+            android:id="@+id/btnNext"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="Next"
+            android:layout_margin="5dp"
+            android:fontFamily="@font/poppins_semibold"
+            android:background="@drawable/button_border_3"
+            app:backgroundTint="@null"/>
+
+    </LinearLayout>
+</LinearLayout>

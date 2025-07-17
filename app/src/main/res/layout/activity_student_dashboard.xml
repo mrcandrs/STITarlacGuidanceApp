@@ -222,7 +222,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Guidance\nAppointment"
+                            android:text="Guidance\nAppointment Slip"
                             android:textAlignment="center"
                             android:fontFamily="@font/poppins_semibold"
                             android:textColor="@color/blue"
@@ -233,6 +233,7 @@
                 <!--Exit Interview-->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/cv_ExitInterview"
+                    android:clickable="true"
                     android:layout_width="170dp"
                     android:layout_height="130dp"
                     android:layout_margin="10dp"
@@ -255,7 +256,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Exit\nInterview"
+                            android:text="Exit\nInterview Form"
                             android:textAlignment="center"
                             android:fontFamily="@font/poppins_semibold"
                             android:textColor="@color/blue"

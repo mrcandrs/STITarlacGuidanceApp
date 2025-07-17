@@ -81,10 +81,17 @@ public class StudentDashboardActivity extends AppCompatActivity {
         root = ActivityStudentDashboardBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
-
         //load the student's info in profile
         loadStudentInfo();
 
+        //edit profile button
+        root.btnEdit.setOnClickListener(v -> editProfile());
+
+        //exit interview form button
+        root.cvExitInterview.setOnClickListener(v -> exitInterview());
+
+
+        //viewPager for insiprational quotes
         viewPager = findViewById(R.id.viewPager);
 
         quoteList = Arrays.asList(
@@ -94,15 +101,18 @@ public class StudentDashboardActivity extends AppCompatActivity {
                 new Quote("Wake up with determination. Go to bed with satisfaction.", "George Lorimer"),
                 new Quote("Success is not for the lazy.", "Unknown")
         );
-
         QuoteAdapter adapter = new QuoteAdapter(quoteList);
         viewPager.setAdapter(adapter);
-
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
-
-        root.btnEdit.setOnClickListener(v -> editProfile());
     }
 
+    //for exit interview form
+    private void exitInterview() {
+        startActivity(new Intent(this, ExitFormActivity.class));
+    }
+
+
+    //for edit profile
     private void editProfile() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_edit_profile,null);

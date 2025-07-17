@@ -8,4 +8,6 @@
     <color name="yellow">#F2E205</color>
     <color name="lightorange">#F2A81D</color>
     <color name="orange">#F2921D</color>
+    <color name="darkgreen">#008200</color>
+    <color name="darkred">#F54236</color>
 </resources>
