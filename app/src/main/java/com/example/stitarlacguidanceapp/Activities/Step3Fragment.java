@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,8 @@ import androidx.fragment.app.Fragment;
 
 import com.example.stitarlacguidanceapp.Models.ExitInterviewForm;
 import com.example.stitarlacguidanceapp.R;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.w3c.dom.Text;
 
@@ -178,6 +181,48 @@ public class Step3Fragment extends Fragment {
                 });
             }
         }
+
+        //Comments/Recommendations section
+        TextView commentsLabel = new TextView(getContext());
+        commentsLabel.setText("Comments / Recommendations");
+        commentsLabel.setTextSize(18);
+        commentsLabel.setTypeface(customFont);
+        commentsLabel.setPadding(0, 32, 0, 8);
+        container.addView(commentsLabel);
+
+        TextInputLayout layoutComments = new TextInputLayout(
+                getContext(), null,
+                com.google.android.material.R.style.Widget_Material3_TextInputLayout_OutlinedBox
+        );
+        layoutComments.setBoxBackgroundMode(TextInputLayout.BOX_BACKGROUND_OUTLINE);
+        layoutComments.setLayoutParams(new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        ));
+        layoutComments.setHint("Enter your comments or suggestions");
+
+        TextInputEditText edtComments = new TextInputEditText(getContext());
+        edtComments.setMinLines(3);
+        edtComments.setTypeface(poppinsRegular);
+        edtComments.setGravity(Gravity.TOP | Gravity.START);
+
+        LinearLayout.LayoutParams editTextParams = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        edtComments.setLayoutParams(editTextParams);
+
+        layoutComments.addView(edtComments);
+        container.addView(layoutComments);
+
+        edtComments.addTextChangedListener(new TextWatcher() {
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                form.comments = s.toString();
+            }
+            public void afterTextChanged(Editable s) {}
+        });
+
     }
 }
 

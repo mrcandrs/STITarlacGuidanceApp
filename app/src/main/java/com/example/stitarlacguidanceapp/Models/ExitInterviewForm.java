@@ -14,6 +14,7 @@ public class ExitInterviewForm {
     public String otherServicesDetail;
     public String otherActivitiesDetail;
 
+    public String comments;
 
     public Map<String, String> serviceResponses = new HashMap<>();
 }
