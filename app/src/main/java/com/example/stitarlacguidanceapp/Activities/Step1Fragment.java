@@ -60,7 +60,8 @@ public class Step1Fragment extends Fragment {
                 for (CheckBox c : checkBoxes) {
                     if (c.isChecked()) selected.add(c.getText().toString());
                 }
-                form.specificReasons = selected.toArray(new String[0]);
+                form.specificReasonsArray = selected.toArray(new String[0]);
+                form.specificReasons = android.text.TextUtils.join(",", form.specificReasonsArray);
 
                 // Show/hide edtOtherReason only when chkReason10 is checked
                 CheckBox others = checkBoxes[9]; // index 9 = chkReason10

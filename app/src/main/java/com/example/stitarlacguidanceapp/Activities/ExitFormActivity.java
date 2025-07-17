@@ -1,6 +1,8 @@
 package com.example.stitarlacguidanceapp.Activities;
 
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -10,9 +12,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.stitarlacguidanceapp.Adapters.ExitFormAdapter;
+import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.Models.ExitInterviewForm;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.databinding.ActivityExitFormBinding;
+import com.google.gson.Gson;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ExitFormActivity extends AppCompatActivity {
 
@@ -30,6 +38,9 @@ public class ExitFormActivity extends AppCompatActivity {
         root = ActivityExitFormBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        int studentId = getSharedPreferences("student_session", MODE_PRIVATE)
+                .getInt("studentId", 0);
+        formData.studentId = studentId;
 
         root.viewPager.setAdapter(new ExitFormAdapter(this));
         root.viewPager.setUserInputEnabled(false); //prevents swiping
@@ -76,7 +87,38 @@ public class ExitFormActivity extends AppCompatActivity {
     }
 
     private void submitForm() {
-        //TODO: Replace with Retrofit API call later
-        Toast.makeText(this, "Submitted Successfully", Toast.LENGTH_SHORT).show();
+        ExitInterviewForm form = getFormData();
+
+        // ✅ Convert specificReasonsArray to comma-separated string
+        form.specificReasons = TextUtils.join(",", form.specificReasonsArray);
+
+        // ✅ Convert serviceResponses Map to JSON
+        Gson gson = new Gson();
+        form.serviceResponsesJson = gson.toJson(form.serviceResponses);
+
+        Log.d("ExitFormPayload", gson.toJson(form));
+        // ✅ Call Retrofit
+        ApiClient.getExitInterviewApi().submitExitForm(form).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ExitFormActivity.this, "Form submitted successfully!", Toast.LENGTH_LONG).show();
+                    finish();
+                } else {
+                    try {
+                        String errorBody = response.errorBody().string();
+                        Log.e("ExitFormError", errorBody);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    Toast.makeText(ExitFormActivity.this, "Submission failed: " + response.code(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(ExitFormActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
