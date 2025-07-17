@@ -1,4 +1,4 @@
-package com.example.stitarlacguidanceapp.Activities;
+package com.example.stitarlacguidanceapp.ExitFormFragments;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.stitarlacguidanceapp.Activities.ExitFormActivity;
 import com.example.stitarlacguidanceapp.R;
 
 public class WelcomeFragment extends Fragment {

@@ -1,4 +1,4 @@
-package com.example.stitarlacguidanceapp.Activities;
+package com.example.stitarlacguidanceapp.ExitFormFragments;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -18,12 +18,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.stitarlacguidanceapp.Activities.ExitFormActivity;
 import com.example.stitarlacguidanceapp.Models.ExitInterviewForm;
 import com.example.stitarlacguidanceapp.R;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-
-import org.w3c.dom.Text;
 
 public class Step3Fragment extends Fragment {
 

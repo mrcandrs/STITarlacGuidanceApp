@@ -1,4 +1,4 @@
-package com.example.stitarlacguidanceapp.Activities;
+package com.example.stitarlacguidanceapp.ExitFormFragments;
 
 import android.os.Bundle;
 import android.text.Editable;
@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.example.stitarlacguidanceapp.Activities.ExitFormActivity;
 import com.example.stitarlacguidanceapp.Models.ExitInterviewForm;
 import com.example.stitarlacguidanceapp.R;
 import com.google.android.material.textfield.TextInputEditText;
