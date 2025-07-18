@@ -18,6 +18,11 @@ import com.example.stitarlacguidanceapp.Models.Student;
 import com.example.stitarlacguidanceapp.Models.LoginRequest;
 import com.google.gson.Gson;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
+
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding root;
@@ -58,6 +63,12 @@ public class MainActivity extends AppCompatActivity {
                     Student student = response.body();
 
                     Log.d("DEBUG_LOGIN", "Student: " + new Gson().toJson(student));
+                    TimeZone manilaTimeZone = TimeZone.getTimeZone("Asia/Manila");
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy hh:mm a", Locale.getDefault());
+                    sdf.setTimeZone(manilaTimeZone); // ✅ Force Asia/Manila
+
+                    String currentTime = sdf.format(new Date());
 
                     // Save student info using SharedPreferences
                     getSharedPreferences("student_session", MODE_PRIVATE)
@@ -67,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                             .putString("studentNumber", student.getStudentNumber())
                             .putString("program", student.getProgram())
                             .putString("yearLevel", student.getYearLevel())
+                            .putString("lastLogin", currentTime)
                             .apply();
 
                     Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();

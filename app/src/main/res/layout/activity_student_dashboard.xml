@@ -115,6 +115,15 @@
                                     android:text="Year"
                                     android:textSize="12sp"
                                     android:fontFamily="@font/poppins_regular"/>
+
+                                <TextView
+                                    android:id="@+id/txtLastLogin"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="Last Login: -"
+                                    android:textSize="12sp"
+                                    android:textColor="@color/dimgray"
+                                    android:fontFamily="@font/poppins_italic"/>
                         </LinearLayout>
 
                     </LinearLayout>

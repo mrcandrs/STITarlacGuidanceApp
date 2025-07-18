@@ -431,12 +431,14 @@ public class StudentDashboardActivity extends AppCompatActivity {
         int studentId = prefs.getInt("studentId", -1);
         String profileKey = "profileUri_" + studentId;
         String profileUriString = prefs.getString(profileKey, null);
+        String lastLogin = prefs.getString("lastLogin", "Not available");
 
         // Update your UI (example using ViewBinding or findViewById)
         root.txtName.setText(fullName);
         root.txtStudentNo.setText(studentNumber);
         root.txtCourse.setText(program);
         root.txtYear.setText(yearLevel);
+        root.txtLastLogin.setText("Last login: " + lastLogin);
 
         // ✅ Load and display profile image if saved
         if (profileUriString != null) {
