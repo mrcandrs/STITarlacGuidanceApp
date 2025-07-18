@@ -26,6 +26,7 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private static final String PREF_NAME = "CareerPlanningPrefs";
 
+    //ScrollView
     private ScrollView scrollView;
 
     @Override
