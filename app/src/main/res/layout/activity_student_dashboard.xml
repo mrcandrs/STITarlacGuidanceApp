@@ -363,9 +363,38 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
+                <!--Settings-->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/cv_Settings"
+                    android:layout_width="170dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="10dp"
+                    app:cardCornerRadius="10dp">
 
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:gravity="center">
 
+                        <ImageView
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_gravity="center"
+                            android:background="@drawable/profile_picture_background"
+                            android:src="@drawable/cogwheel"
+                            android:padding="15dp"/>
 
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Settings\n"
+                            android:textAlignment="center"
+                            android:fontFamily="@font/poppins_semibold"
+                            android:textColor="@color/blue"
+                            android:paddingTop="5dp"/>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
             </GridLayout>
         </LinearLayout>
