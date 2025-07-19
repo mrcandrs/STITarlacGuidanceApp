@@ -30,6 +30,7 @@ import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.ValidationRule;
 import com.example.stitarlacguidanceapp.databinding.ActivitySettingsBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -70,6 +71,92 @@ public class SettingsActivity extends AppCompatActivity {
 
         root.btnLogout.setOnClickListener(v -> logout());
         root.cvEditProfile.setOnClickListener(v -> editProfile());
+        root.cvChangePassword.setOnClickListener(v -> changePassword());
+    }
+
+    private void changePassword() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_change_password,null);
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
+        Button btnCancel, btnSave;
+        btnCancel = dialogView.findViewById(R.id.btnCancel);
+        btnSave = dialogView.findViewById(R.id.btnSave);
+        TextInputEditText edtStudentPassword = dialogView.findViewById(R.id.edtStudentPassword);
+        TextInputEditText edtConfirmPassword = dialogView.findViewById(R.id.edtConfirmPassword);
+        TextInputLayout layoutPassword = dialogView.findViewById(R.id.layoutStudentPassword);
+        TextInputLayout layoutConfirmPassword = dialogView.findViewById(R.id.layoutConfirmPassword);
+
+
+        //live validation for password is null, removes the setError
+        edtConfirmPassword.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String confirmPassword = s.toString().trim();
+                String newPassword = edtStudentPassword.getText().toString().trim();
+
+                if (confirmPassword.isEmpty()) {
+                    layoutConfirmPassword.setError(null); // clear error if empty
+                } else if (!confirmPassword.equals(newPassword)) {
+                    layoutConfirmPassword.setError("Passwords do not match");
+                } else {
+                    layoutConfirmPassword.setError(null); // clear error if matched
+                }
+            }
+        });
+
+        //Live validation for new password regex
+        addLiveValidation(layoutPassword, edtStudentPassword, input -> {
+            if (input == null || input.isEmpty()) {
+                return null;
+            }
+
+            String passwordPattern = "^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{6,}$";
+            return input.matches(passwordPattern)
+                    ? null
+                    : "Password must be 6+ characters, include 1 uppercase and 1 special character";
+        });
+
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        //Pre-fill with existing values if you have them
+        int studentId = prefs.getInt("studentId", -1);
+        String savedEmail = prefs.getString("email_" + studentId, "");
+        String savedUsername = prefs.getString("username_" + studentId, "");
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        btnSave.setOnClickListener(v -> {
+            String newPassword = edtStudentPassword.getText().toString().trim();
+            String confirmPassword = edtConfirmPassword.getText().toString().trim();
+
+            boolean hasError = false;
+
+            if (newPassword.isEmpty()) {
+                layoutPassword.setError("Password is required");
+                hasError = true;
+            } else {
+                layoutPassword.setError(null);
+            }
+
+            if (confirmPassword.isEmpty()) {
+                layoutConfirmPassword.setError("Please confirm your password");
+                hasError = true;
+            } else if (!confirmPassword.equals(newPassword)) {
+                layoutConfirmPassword.setError("Passwords do not match");
+                hasError = true;
+            } else {
+                layoutConfirmPassword.setError(null);
+            }
+
+            if (hasError) return;
+
+            updateStudentProfile(savedEmail, savedUsername, newPassword, dialog);
+        });
     }
 
     private void logout() {
@@ -99,12 +186,8 @@ public class SettingsActivity extends AppCompatActivity {
         btnSave = dialogView.findViewById(R.id.btnSave);
         TextInputEditText edtEmail = dialogView.findViewById(R.id.edtEmail);
         TextInputEditText edtStudentUsername = dialogView.findViewById(R.id.edtStudentUsername);
-        TextInputEditText edtStudentPassword = dialogView.findViewById(R.id.edtStudentPassword);
-        TextInputEditText edtConfirmPassword = dialogView.findViewById(R.id.edtConfirmPassword);
         TextInputLayout layoutEmail = dialogView.findViewById(R.id.layoutEmail);
         TextInputLayout layoutUsername = dialogView.findViewById(R.id.layoutStudentUsername);
-        TextInputLayout layoutPassword = dialogView.findViewById(R.id.layoutStudentPassword);
-        TextInputLayout layoutConfirmPassword = dialogView.findViewById(R.id.layoutConfirmPassword);
         imgProfile = dialogView.findViewById(R.id.imgProfile);
         Button btnChangePhoto = dialogView.findViewById(R.id.btnChangePhoto);
 
@@ -138,26 +221,6 @@ public class SettingsActivity extends AppCompatActivity {
         });
 
 
-        //live validation for password is null, removes the setError
-        edtConfirmPassword.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-                String confirmPassword = s.toString().trim();
-                String newPassword = edtStudentPassword.getText().toString().trim();
-
-                if (confirmPassword.isEmpty()) {
-                    layoutConfirmPassword.setError(null); // clear error if empty
-                } else if (!confirmPassword.equals(newPassword)) {
-                    layoutConfirmPassword.setError("Passwords do not match");
-                } else {
-                    layoutConfirmPassword.setError(null); // clear error if matched
-                }
-            }
-        });
-
         //Live validation for email address
         addLiveValidation(layoutEmail, edtEmail, input -> {
             return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()
@@ -165,31 +228,29 @@ public class SettingsActivity extends AppCompatActivity {
                     : "Invalid email address";
         });
 
-        //Live validation for new password regex
-        addLiveValidation(layoutPassword, edtStudentPassword, input -> {
-            if (input == null || input.isEmpty()) {
-                return null;
-            }
-
-            String passwordPattern = "^(?=.*[A-Z])(?=.*[^a-zA-Z0-9]).{6,}$";
-            return input.matches(passwordPattern)
-                    ? null
-                    : "Password must be 6+ characters, include 1 uppercase and 1 special character";
-        });
-
         SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
         //Pre-fill with existing values if you have them
         int studentId = prefs.getInt("studentId", -1);
         edtEmail.setText(prefs.getString("email_" + studentId, ""));
         edtStudentUsername.setText(prefs.getString("username_" + studentId, ""));
+        String savedPassword = prefs.getString("password_" + studentId, "");
+
+        String profileUriStr = prefs.getString("profileUri_" + studentId, null);
+        if (profileUriStr != null) {
+            Uri profileUri = Uri.parse(profileUriStr);
+            Glide.with(this)
+                    .load(profileUri)
+                    .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.NONE) //prevents caching on disk (profile image)
+                    .skipMemoryCache(true) //prevents caching in RAM (profile image)
+                    .circleCrop()
+                    .into(imgProfile);
+        }
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
         btnSave.setOnClickListener(v -> {
             String newEmail = edtEmail.getText().toString().trim();
             String newUsername = edtStudentUsername.getText().toString().trim();
-            String newPassword = edtStudentPassword.getText().toString().trim();
-            String confirmPassword = edtConfirmPassword.getText().toString().trim();
 
             boolean hasError = false;
 
@@ -206,24 +267,6 @@ public class SettingsActivity extends AppCompatActivity {
             } else {
                 layoutUsername.setError(null);
             }
-
-            if (newPassword.isEmpty()) {
-                layoutPassword.setError("Password is required");
-                hasError = true;
-            } else {
-                layoutPassword.setError(null);
-            }
-
-            if (confirmPassword.isEmpty()) {
-                layoutConfirmPassword.setError("Please confirm your password");
-                hasError = true;
-            } else if (!confirmPassword.equals(newPassword)) {
-                layoutConfirmPassword.setError("Passwords do not match");
-                hasError = true;
-            } else {
-                layoutConfirmPassword.setError(null);
-            }
-
             // Skip network check if local validation fails
             if (hasError) return;
 
@@ -231,7 +274,9 @@ public class SettingsActivity extends AppCompatActivity {
             checkEmailAndUsername(newEmail, newUsername, layoutEmail, layoutUsername,
                     () -> {
                         // No duplicates → proceed to update
-                        updateStudentProfile(newEmail, newUsername, newPassword, dialog);
+                        String passwordToSend = (savedPassword != null) ? savedPassword : "default123";
+                        updateStudentProfile(newEmail, newUsername, passwordToSend, dialog);
+
                     },
                     () -> {
                         // Duplicates found → prevent save
@@ -329,7 +374,14 @@ public class SettingsActivity extends AppCompatActivity {
         RequestBody studentIdBody = RequestBody.create(MediaType.parse("text/plain"), String.valueOf(studentId));
         RequestBody emailBody = RequestBody.create(MediaType.parse("text/plain"), email);
         RequestBody usernameBody = RequestBody.create(MediaType.parse("text/plain"), username);
-        RequestBody passwordBody = RequestBody.create(MediaType.parse("text/plain"), password);
+
+        RequestBody passwordBody;
+        if (password != null && !password.equals("skip")) {
+            passwordBody = RequestBody.create(MediaType.parse("text/plain"), password);
+        } else {
+            // Send placeholder or empty string so backend can skip updating password
+            passwordBody = RequestBody.create(MediaType.parse("text/plain"), "");
+        }
 
         MultipartBody.Part imagePart = null;
 
@@ -347,6 +399,13 @@ public class SettingsActivity extends AppCompatActivity {
             imagePart = MultipartBody.Part.createFormData("ProfileImage", "", RequestBody.create(null, new byte[0]));
         }
 
+        Log.d("UPDATE_DEBUG", "StudentId: " + studentId);
+        Log.d("UPDATE_DEBUG", "Email: " + email);
+        Log.d("UPDATE_DEBUG", "Username: " + username);
+        Log.d("UPDATE_DEBUG", "Password: " + password);
+        Log.d("UPDATE_DEBUG", "ImageUri: " + (selectedImageUri != null ? selectedImageUri.toString() : "null"));
+
+
         ApiClient.getClient().create(StudentApi.class)
                 .updateStudentProfileWithImage(studentIdBody, emailBody, usernameBody, passwordBody, imagePart)
                 .enqueue(new Callback<Void>() {
@@ -357,18 +416,22 @@ public class SettingsActivity extends AppCompatActivity {
                             editor.putString("email_" + studentId, email);
                             editor.putString("username_" + studentId, username);
 
-                            int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
                             if (selectedImageUri != null) {
                                 String profileKey = "profileUri_" + studentId;
                                 editor.putString(profileKey, selectedImageUri.toString()); // ✅ Save per-student
                             }
                             editor.apply();
 
-
-                            Toast.makeText(SettingsActivity.this, "Profile updated!", Toast.LENGTH_SHORT).show();
+                            Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG).show();
                             dialog.dismiss();
 
                         } else {
+                            try {
+                                String errorBody = response.errorBody().string();
+                                Log.e("UPDATE_FAIL", "Error 400: " + errorBody); // 👈 Show reason in Logcat
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                             Toast.makeText(SettingsActivity.this, "Update failed: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
@@ -405,10 +468,15 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             cursor.moveToFirst();
             int index = cursor.getColumnIndex(MediaStore.Images.Media.DATA);
+
+            if (index == -1) {
+                cursor.close();
+                return uri.getPath(); // fallback
+            }
+
             String path = cursor.getString(index);
             cursor.close();
             return path;
         }
     }
-
 }
