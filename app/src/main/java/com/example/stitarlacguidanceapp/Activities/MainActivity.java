@@ -37,7 +37,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "All forms submitted successfully!", Toast.LENGTH_LONG).show();
         }
 
-
         root.btnLogin.setOnClickListener(v -> performLogin());
         root.btnRegister.setOnClickListener(v -> {
             startActivity(new Intent(this, ClientConsentFormActivity.class));

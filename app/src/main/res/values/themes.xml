@@ -5,6 +5,11 @@
         <item name="colorPrimary">@color/blue</item>
     </style>
 
+    <style name="CircleImageView">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
     <style name="InputLabel">
         <item name="android:textSize">13sp</item>
         <item name="android:paddingBottom">5dp</item>

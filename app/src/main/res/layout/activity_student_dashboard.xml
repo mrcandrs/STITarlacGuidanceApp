@@ -54,24 +54,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
-                            <ImageView
+                            <com.google.android.material.imageview.ShapeableImageView
                                 android:id="@+id/imgProfile"
                                 android:layout_width="100dp"
                                 android:layout_height="100dp"
-                                android:scaleType="centerCrop"
+                                android:scaleType="center"
+                                android:src="@drawable/profile_picture_background"
                                 android:layout_centerInParent="true"
-                                android:background="@drawable/profile_picture_background"/>
+                                app:shapeAppearanceOverlay="@style/CircleImageView" />
 
-                            <Button
-                                android:id="@+id/btnEdit"
-                                android:layout_width="80dp"
-                                android:layout_height="40dp"
-                                android:layout_alignParentEnd="true"
-                                android:background="@drawable/button_border"
-                                app:backgroundTint="@null"
-                                android:text="Edit"
-                                android:fontFamily="@font/poppins_semibold"
-                                android:textColor="@color/blue"/>
                         </RelativeLayout>
 
                         <LinearLayout
