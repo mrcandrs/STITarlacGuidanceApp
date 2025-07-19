@@ -95,7 +95,6 @@ public class SettingsActivity extends AppCompatActivity {
         dialog.show();
 
         Button btnCancel, btnSave;
-
         btnCancel = dialogView.findViewById(R.id.btnCancel);
         btnSave = dialogView.findViewById(R.id.btnSave);
         TextInputEditText edtEmail = dialogView.findViewById(R.id.edtEmail);
@@ -178,10 +177,11 @@ public class SettingsActivity extends AppCompatActivity {
                     : "Password must be 6+ characters, include 1 uppercase and 1 special character";
         });
 
-
-
-        // Pre-fill with existing values if you have them
         SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        //Pre-fill with existing values if you have them
+        int studentId = prefs.getInt("studentId", -1);
+        edtEmail.setText(prefs.getString("email_" + studentId, ""));
+        edtStudentUsername.setText(prefs.getString("username_" + studentId, ""));
 
         btnCancel.setOnClickListener(v -> dialog.dismiss());
 
@@ -354,8 +354,8 @@ public class SettingsActivity extends AppCompatActivity {
                     public void onResponse(Call<Void> call, Response<Void> response) {
                         if (response.isSuccessful()) {
                             SharedPreferences.Editor editor = getSharedPreferences("student_session", MODE_PRIVATE).edit();
-                            editor.putString("email", email);
-                            editor.putString("username", username);
+                            editor.putString("email_" + studentId, email);
+                            editor.putString("username_" + studentId, username);
 
                             int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
                             if (selectedImageUri != null) {

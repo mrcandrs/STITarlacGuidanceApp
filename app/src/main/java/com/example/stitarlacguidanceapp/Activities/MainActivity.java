@@ -78,6 +78,10 @@ public class MainActivity extends AppCompatActivity {
                             .putString("program", student.getProgram())
                             .putString("yearLevel", student.getYearLevel())
                             .putString("lastLogin", currentTime)
+
+                            //Save email and username specifically per student
+                            .putString("email_" + student.getStudentId(), student.getEmail())
+                            .putString("username_" + student.getStudentId(), student.getUsername())
                             .apply();
 
                     Toast.makeText(MainActivity.this, "Login successful", Toast.LENGTH_SHORT).show();
