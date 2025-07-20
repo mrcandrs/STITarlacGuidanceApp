@@ -151,7 +151,6 @@
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:hint="Plans after leaving STI..."
-                android:textColor="@color/dimgray"
                 android:fontFamily="@font/poppins_regular">
             </com.google.android.material.textfield.TextInputEditText>
         </com.google.android.material.textfield.TextInputLayout>

@@ -33,8 +33,6 @@
             android:minLines="4"
             android:gravity="top"
             android:inputType="textMultiLine"
-            android:textColor="@color/dimgray"
-            android:text="Share the values and principles you've gained during your time at STI..."
             android:fontFamily="@font/poppins_regular">
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>
@@ -58,8 +56,6 @@
             android:minLines="4"
             android:gravity="top"
             android:inputType="textMultiLine"
-            android:textColor="@color/dimgray"
-            android:text="Describe the technical and soft skills you've developed..."
             android:fontFamily="@font/poppins_regular">
         </com.google.android.material.textfield.TextInputEditText>
     </com.google.android.material.textfield.TextInputLayout>

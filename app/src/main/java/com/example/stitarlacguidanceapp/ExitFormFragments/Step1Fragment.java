@@ -73,6 +73,60 @@ public class Step1Fragment extends Fragment {
         edtPlans.addTextChangedListener(new SimpleTextWatcher(s -> form.plansAfterLeaving = s));
     }
 
+    public boolean isValidStep() {
+        ExitFormActivity activity = (ExitFormActivity) getActivity();
+        ExitInterviewForm form = activity.getFormData();
+
+        View view = getView();
+        if (view == null) return false;
+
+        RadioGroup radioGroup = view.findViewById(R.id.radioMainReason);
+        CheckBox chkOthers = view.findViewById(R.id.chkReason10);
+        TextInputEditText edtOtherReason = view.findViewById(R.id.edtOtherReason);
+        TextInputEditText edtPlans = view.findViewById(R.id.edtPlans);
+
+        //Checking if a radio button is selected
+        if (radioGroup.getCheckedRadioButtonId() == -1) {
+            activity.showSnackbar("Please select a primary reason for leaving.");
+            return false;
+        }
+
+        //Checking if at least one checkbox is selected
+        boolean atLeastOneChecked = false;
+        for (int id : new int[]{
+                R.id.chkReason1, R.id.chkReason2, R.id.chkReason3, R.id.chkReason4, R.id.chkReason5,
+                R.id.chkReason6, R.id.chkReason7, R.id.chkReason8, R.id.chkReason9, R.id.chkReason10}) {
+
+            CheckBox cb = view.findViewById(id);
+            if (cb.isChecked()) {
+                atLeastOneChecked = true;
+                break;
+            }
+        }
+
+        if (!atLeastOneChecked) {
+            activity.showSnackbar("Please check at least one specific reason.");
+            return false;
+        }
+
+        //If "Others" is checked, make sure text is provided
+        if (chkOthers.isChecked() && edtOtherReason.getText().toString().trim().isEmpty()) {
+            edtOtherReason.setError("Please specify your other reason.");
+            edtOtherReason.requestFocus();
+            return false;
+        }
+
+        //Plans after leaving is required
+        if (edtPlans.getText().toString().trim().isEmpty()) {
+            edtPlans.setError("Please provide your plans after leaving STI.");
+            edtPlans.requestFocus();
+            return false;
+        }
+
+        return true;
+    }
+
+
     private static class SimpleTextWatcher implements TextWatcher {
         private final Consumer<String> onTextChanged;
         SimpleTextWatcher(Consumer<String> callback) { this.onTextChanged = callback; }

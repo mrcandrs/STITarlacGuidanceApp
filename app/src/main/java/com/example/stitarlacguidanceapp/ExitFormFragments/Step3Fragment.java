@@ -223,5 +223,44 @@ public class Step3Fragment extends Fragment {
         });
 
     }
+
+    public boolean isValidStep() {
+        ExitFormActivity activity = (ExitFormActivity) getActivity();
+        ExitInterviewForm form = activity.getFormData();
+
+        //Validate services first
+        for (String key : services) {
+            if (!form.serviceResponses.containsKey(key)) {
+                activity.showSnackbar("Please answer all service evaluations.");
+                return false;
+            }
+
+            if (key.equals("Other Services") && "Y".equals(form.serviceResponses.get(key))) {
+                if (form.otherServicesDetail == null || form.otherServicesDetail.trim().isEmpty()) {
+                    activity.showSnackbar("Please specify details for 'Other Services'.");
+                    return false;
+                }
+            }
+        }
+
+        //Validate activities next
+        for (String key : activities) {
+            if (!form.serviceResponses.containsKey(key)) {
+                activity.showSnackbar("Please answer all activity participation.");
+                return false;
+            }
+
+            if (key.equals("Other Activities") && "Y".equals(form.serviceResponses.get(key))) {
+                if (form.otherActivitiesDetail == null || form.otherActivitiesDetail.trim().isEmpty()) {
+                    activity.showSnackbar("Please specify details for 'Other Activities'.");
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+
 }
 

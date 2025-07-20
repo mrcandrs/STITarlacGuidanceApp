@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -7,15 +8,21 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
 import com.example.stitarlacguidanceapp.Adapters.ExitFormAdapter;
 import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.ExitFormFragments.Step1Fragment;
+import com.example.stitarlacguidanceapp.ExitFormFragments.Step2Fragment;
+import com.example.stitarlacguidanceapp.ExitFormFragments.Step3Fragment;
 import com.example.stitarlacguidanceapp.Models.ExitInterviewForm;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.databinding.ActivityExitFormBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import retrofit2.Call;
@@ -49,6 +56,8 @@ public class ExitFormActivity extends AppCompatActivity {
 
         //logic for previous and next buttons
         root.btnNext.setOnClickListener(v -> {
+            if (!validateCurrentStep()) return;
+
             if (currentStep < totalSteps - 1) {
                 currentStep++;
                 root.viewPager.setCurrentItem(currentStep);
@@ -82,9 +91,37 @@ public class ExitFormActivity extends AppCompatActivity {
         }
     }
 
+    //used for validating each step
+    private boolean validateCurrentStep() {
+        Fragment currentFragment = getSupportFragmentManager()
+                .findFragmentByTag("f" + root.viewPager.getCurrentItem());
+
+        if (currentFragment instanceof Step1Fragment) {
+            return ((Step1Fragment) currentFragment).isValidStep();
+        }
+        else if (currentFragment instanceof Step2Fragment) {
+            return ((Step2Fragment) currentFragment).isValidStep();
+        }
+        else if (currentFragment instanceof Step3Fragment) {
+            return ((Step3Fragment) currentFragment).isValidStep();
+        }
+
+        //default to true if no validation required
+        return true;
+    }
+
+
     public ExitInterviewForm getFormData() {
         return formData;
     }
+
+    public void showSnackbar(String message) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG)
+                .setBackgroundTint(ContextCompat.getColor(this, R.color.darkred))
+                .setTextColor(Color.WHITE)
+                .show();
+    }
+
 
     private void submitForm() {
         ExitInterviewForm form = getFormData();
