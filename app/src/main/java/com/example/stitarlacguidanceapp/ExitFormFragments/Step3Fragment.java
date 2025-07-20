@@ -260,7 +260,5 @@ public class Step3Fragment extends Fragment {
 
         return true;
     }
-
-
 }
 

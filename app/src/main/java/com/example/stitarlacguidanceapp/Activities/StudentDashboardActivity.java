@@ -88,6 +88,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //exit interview form button
         root.cvExitInterview.setOnClickListener(v -> exitInterview());
 
+        //referral form button
+        root.cvReferralForm.setOnClickListener(v -> referralForm());
+
         //setting button
         root.cvSettings.setOnClickListener(v -> settings());
 
@@ -107,11 +110,15 @@ public class StudentDashboardActivity extends AppCompatActivity {
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
     }
 
+    //for referral form
+    private void referralForm() {
+        startActivity(new Intent(this, ReferralFormActivity.class));
+    }
+
     //for exit interview form
     private void exitInterview() {
         startActivity(new Intent(this, ExitFormActivity.class));
     }
-
 
     //for settings cardview button
     private void settings() {

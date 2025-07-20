@@ -10,6 +10,10 @@
         <item name="cornerSize">50%</item>
     </style>
 
+    <style name="CustomChipTextAppearance" parent="TextAppearance.Material3.LabelLarge">
+        <item name="fontFamily">@font/poppins_medium</item>
+    </style>
+
     <style name="InputLabel">
         <item name="android:textSize">13sp</item>
         <item name="android:paddingBottom">5dp</item>

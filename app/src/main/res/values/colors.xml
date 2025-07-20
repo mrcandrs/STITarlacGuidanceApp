@@ -4,8 +4,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="blue">#0477BF</color>
     <color name="darkblue">#03738C</color>
+    <color name="lightblue">#E3F3FC</color>
     <color name="dimgray">#696969</color>
     <color name="yellow">#F2E205</color>
+    <color name="lightyellow">#FFF9C4</color>
     <color name="lightorange">#F2A81D</color>
     <color name="orange">#F2921D</color>
     <color name="darkgreen">#008200</color>

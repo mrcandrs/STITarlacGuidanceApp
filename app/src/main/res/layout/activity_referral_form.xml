@@ -1,0 +1,974 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/referralFormActivity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    tools:context=".Activities.ReferralFormActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="STI Guidance and Counseling Office\nReferral Form"
+        android:textSize="18dp"
+        android:textColor="@color/blue"
+        android:fontFamily="@font/poppins_bold"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!--Student Info Card View-->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Student Info"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="18dp"/>
+
+                    <!--For student number and age-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!--Student Number-->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layout_StudentNumber"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:textColorHint="@color/blue"
+                            android:layout_marginBottom="10dp"
+                            android:layout_margin="5dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/edtStudentNumber"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Student No."
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/blue"
+                                android:inputType="text">
+                            </com.google.android.material.textfield.TextInputEditText>
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!--Student Age-->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layout_Age"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:textColorHint="@color/blue"
+                            android:layout_marginBottom="10dp"
+                            android:layout_margin="5dp">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/edtAge"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Age"
+                                android:fontFamily="@font/poppins_regular"
+                                android:textColor="@color/blue"
+                                android:inputType="text">
+                            </com.google.android.material.textfield.TextInputEditText>
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                    <!--For full name-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_FullName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/blue"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtFullName"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Full Name"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/blue"
+                            android:inputType="text">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--For program and gender-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!--Program-->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layout_Program"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:hint="Program"
+                            android:textColorHint="@color/blue"
+                            android:layout_marginBottom="10dp"
+                            android:layout_margin="5dp"
+                            app:endIconMode="dropdown_menu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/edtProgram"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:focusable="false"
+                                android:fontFamily="@font/poppins_regular"
+                                android:inputType="none"
+                                android:padding="12dp"
+                                android:textColor="@color/blue"
+                                android:textSize="16sp"/>
+
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <!--Gender-->
+                        <com.google.android.material.textfield.TextInputLayout
+                            android:id="@+id/layout_Gender"
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:hint="Gender"
+                            android:textColorHint="@color/blue"
+                            android:layout_marginBottom="10dp"
+                            android:layout_margin="5dp"
+                            app:endIconMode="dropdown_menu">
+
+                            <AutoCompleteTextView
+                                android:id="@+id/edtGender"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:clickable="true"
+                                android:focusable="false"
+                                android:fontFamily="@font/poppins_regular"
+                                android:inputType="none"
+                                android:padding="12dp"
+                                android:textColor="@color/blue"
+                                android:textSize="16sp"/>
+
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!--Academic Level Card View-->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:layout_marginTop="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Academic Level"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="18dp"/>
+
+
+                    <!--For Tertiary-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipTertiary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Tertiary Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Tertiary"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupTertiary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip1stSem"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="1st Sem"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip2ndSem"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="2nd Sem"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipSummer1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Summer"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipTertiaryError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Tertiary Chip Group End-->
+
+                    <!--For Senior High-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipSeniorHigh"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Senior High Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Senior High"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupSeniorHigh"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip1st"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="1st"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip2nd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="2nd"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip3rd"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="3rd"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chip4th"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="4th"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipSummer2"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Summer"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipSeniorHighError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Senior High Chip Group End-->
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!--Referral Details Card View-->
+            <androidx.cardview.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="10dp"
+                android:layout_marginTop="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:orientation="vertical"
+                    android:padding="10dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Referral Details"
+                        android:fontFamily="@font/poppins_bold"
+                        android:textSize="18dp"/>
+
+
+                    <!--For Referred By-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipReferredBy"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Referred By Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Referred By"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupReferredBy"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipFaculty"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Faculty Member"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipParentGuardian"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Parent/Guardian"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipStaff"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Staff"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipStudent"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Student"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipReferredByError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Referred By Chip Group End-->
+
+                    <!--For Areas of Concern-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipAreasOfConcern"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Areas of Concern Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Areas of Concern"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupAreasOfConcern"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipPersonal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Personal"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipCareer"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Career"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipBehavioral"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Behavioral"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipAcademicPerformance"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Academic Performance"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipSocialAdjustment"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Social Adjustment"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipOthersAOC"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Others"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipAreasOfConcernError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Areas of Concern Chip Group End-->
+
+                    <!--For Action Requested-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipActionRequested"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Action Requested Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Action Requested"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupActionRequested"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipCounseling"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Counseling"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipClassroomObservation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Classroom Observation"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipGroupSession"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Group Session"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipEvaluationAssessment"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Evaluation/Assessment"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipConsultation"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Consultation"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipOthersAR"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Others"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipActionRequestedError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Action Requested Chip Group End-->
+
+                    <!--For Priority Level-->
+                    <LinearLayout
+                        android:id="@+id/layoutChipPriorityLevel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!--Priority Level Chip Group Start-->
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Priority Level"
+                            android:textSize="14sp"
+                            android:paddingTop="15dp"
+                            android:paddingBottom="5dp"
+                            android:fontFamily="@font/poppins_semibold" />
+
+                        <com.google.android.material.chip.ChipGroup
+                            android:id="@+id/chipGroupPriorityLevel"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:paddingBottom="5dp"
+                            app:singleSelection="false"
+                            app:selectionRequired="false"
+                            android:paddingTop="5dp">
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipEmergency"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Emergency"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector_emergency"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipASAP"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="ASAP"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector_asap"
+                                android:textAppearance="@style/CustomChipTextAppearance" />
+
+                            <com.google.android.material.chip.Chip
+                                android:id="@+id/chipScheduledDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                style="@style/Widget.Material3.Chip.Filter.Elevated"
+                                android:textColor="@color/chip_text_selector"
+                                android:text="Before this date"
+                                app:checkedIconTint="@color/white"
+                                app:chipBackgroundColor="@color/chip_background_selector_scheduled"
+                                android:textAppearance="@style/CustomChipTextAppearance"
+                                />
+
+                            <TextView
+                                android:id="@+id/tvChipPriorityLevelError"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@android:color/holo_red_dark"
+                                android:textSize="12sp"
+                                android:visibility="gone"
+                                />
+                        </com.google.android.material.chip.ChipGroup>
+                    </LinearLayout>
+                    <!--Priority Level Chip Group End-->
+
+                    <!--For Actions Taken Before Referral-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_ActionsTakenBefore"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/blue"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtActionsTakenBefore"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:gravity="top"
+                            android:hint="Action/s Taken Before Referral"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/blue"
+                            android:inputType="textMultiLine">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--For Reasons for Referral-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_ReferralReasons"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/blue"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtReferralReasons"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:gravity="top"
+                            android:hint="Reasons for Referral/Comments"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/blue"
+                            android:inputType="textMultiLine">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--For Counselor's Initial Action-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_CounselorInitialAction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/blue"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtCounselorInitialAction"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:minLines="3"
+                            android:gravity="top"
+                            android:hint="Counselor's Initial Action"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/blue"
+                            android:inputType="textMultiLine">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--For Feedback Date-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_FeedbackDate"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColorHint="@color/blue"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtFeedbackDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="*Feedback Date"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textColor="@color/blue"
+                            android:focusable="false"
+                            android:inputType="text">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                android:text="Prepared by:"
+                android:fontFamily="@font/poppins_semibold"/>
+
+            <EditText
+                android:id="@+id/txtPersonWhoReferred"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Name of the person who referred"
+                android:textSize="16dp"
+                android:fontFamily="@font/poppins_regular"/>
+
+            <EditText
+                android:id="@+id/txtDateReferred"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Select Date"
+                android:textSize="16dp"
+                android:focusable="false"
+                android:fontFamily="@font/poppins_regular"/>
+
+            <!-- Feedback Section -->
+            <LinearLayout
+                android:id="@+id/layoutFeedbackSection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp"
+                android:background="@color/lightyellow"
+                android:visibility="gone"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Counselor Feedback"
+                    android:textSize="18sp"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="@color/black"
+                    android:layout_marginBottom="10dp"/>
+
+                <!-- Feedback Date -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Feedback Date">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtFeedbackDate2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:focusable="false"
+                        android:inputType="text"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Counselor's Initial Action -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Counselor's Initial Action"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtInitialAction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minLines="3"
+                        android:gravity="top"
+                        android:inputType="textMultiLine"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <!-- Counselor Name -->
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Counselor Name"
+                    android:layout_marginTop="10dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/edtCounselorName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+            </LinearLayout>
+
+            <!-- Toggle Button -->
+            <Button
+                android:id="@+id/btnToggleFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:text="View Feedback"
+                android:background="@drawable/button_border_2"
+                app:backgroundTint="@color/yellow"
+                android:textColor="@color/black"
+                android:fontFamily="@font/poppins_semibold"/>
+
+            <!--Submit Button-->
+            <Button
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/button_border_2"
+                android:text="Submit Referral Form"
+                android:fontFamily="@font/poppins_semibold"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
