@@ -91,6 +91,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //referral form button
         root.cvReferralForm.setOnClickListener(v -> referralForm());
 
+        //private journal button
+        root.cvPrivateJournal.setOnClickListener(v -> privateJournal());
+
         //setting button
         root.cvSettings.setOnClickListener(v -> settings());
 
@@ -113,6 +116,11 @@ public class StudentDashboardActivity extends AppCompatActivity {
     //for referral form
     private void referralForm() {
         startActivity(new Intent(this, ReferralFormActivity.class));
+    }
+
+    //for private journal
+    private void privateJournal() {
+        startActivity(new Intent(this, JournalActivity.class));
     }
 
     //for exit interview form
