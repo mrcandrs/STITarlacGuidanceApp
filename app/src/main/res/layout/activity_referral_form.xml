@@ -13,7 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="STI Guidance and Counseling Office\nReferral Form"
-        android:textSize="18dp"
+        android:textSize="18sp"
         android:textColor="@color/blue"
         android:fontFamily="@font/poppins_bold"/>
 
@@ -42,6 +42,8 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:drawableLeft="@drawable/user"
+                        android:drawablePadding="8dp"
                         android:text="Student Info"
                         android:fontFamily="@font/poppins_bold"
                         android:textSize="18dp"/>
@@ -195,6 +197,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Academic Level"
+                        android:drawableLeft="@drawable/academic_hat"
+                        android:drawablePadding="8dp"
                         android:fontFamily="@font/poppins_bold"
                         android:textSize="18dp"/>
 
@@ -221,7 +225,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingBottom="5dp"
-                            app:singleSelection="false"
+                            app:singleSelection="true"
                             app:selectionRequired="false"
                             android:paddingTop="5dp">
 
@@ -293,7 +297,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingBottom="5dp"
-                            app:singleSelection="false"
+                            app:singleSelection="true"
                             app:selectionRequired="false"
                             android:paddingTop="5dp">
 
@@ -388,6 +392,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Referral Details"
+                        android:drawableLeft="@drawable/referral"
+                        android:drawablePadding="8dp"
                         android:fontFamily="@font/poppins_bold"
                         android:textSize="18dp"/>
 
@@ -716,7 +722,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingBottom="5dp"
-                            app:singleSelection="false"
+                            app:singleSelection="true"
                             app:selectionRequired="false"
                             android:paddingTop="5dp">
 
@@ -895,55 +901,116 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Counselor Feedback"
+                    android:drawableLeft="@drawable/feedback"
+                    android:drawablePadding="8dp"
                     android:textSize="18sp"
                     android:fontFamily="@font/poppins_bold"
                     android:textColor="@color/black"
                     android:layout_marginBottom="10dp"/>
 
-                <!-- Feedback Date -->
+                <!-- Student Name -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_StudentName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Feedback Date">
+                    android:layout_marginBottom="10dp"
+                    android:layout_margin="5dp">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edtFeedbackDate2"
+                        android:id="@+id/edtStudentName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:hint="Student Name"
+                        android:fontFamily="@font/poppins_regular"
                         android:focusable="false"
-                        android:inputType="text"/>
+                        android:inputType="text">
+                    </com.google.android.material.textfield.TextInputEditText>
                 </com.google.android.material.textfield.TextInputLayout>
 
-                <!-- Counselor's Initial Action -->
-                <com.google.android.material.textfield.TextInputLayout
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Counselor's Initial Action"
-                    android:layout_marginTop="10dp">
+                    android:orientation="horizontal">
 
-                    <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/edtInitialAction"
-                        android:layout_width="match_parent"
+                    <!--Date Referred-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_DateReferred"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="wrap_content"
-                        android:minLines="3"
-                        android:gravity="top"
-                        android:inputType="textMultiLine"/>
-                </com.google.android.material.textfield.TextInputLayout>
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtDateReferred"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Date Referred"
+                            android:fontFamily="@font/poppins_regular"
+                            android:focusable="false"
+                            android:inputType="text">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <!--Session Date-->
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/layout_SessionDate"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10dp"
+                        android:layout_margin="5dp">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/edtSessionDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Session Date"
+                            android:fontFamily="@font/poppins_regular"
+                            android:focusable="false"
+                            android:inputType="text">
+                        </com.google.android.material.textfield.TextInputEditText>
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!--Action/s Taken-->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Action/s Taken"
+                    android:textSize="14sp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="5dp"
+                    android:fontFamily="@font/poppins_semibold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="-"
+                    android:textSize="18sp"
+                    android:paddingTop="15dp"
+                    android:paddingBottom="5dp"
+                    android:textAlignment="center"
+                    android:fontFamily="@font/poppins_semibold"/>
 
                 <!-- Counselor Name -->
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/layout_CounselorName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Counselor Name"
-                    android:layout_marginTop="10dp">
+                    android:layout_marginBottom="10dp"
+                    android:layout_margin="5dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtCounselorName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPersonName"/>
+                        android:hint="Counselor Name"
+                        android:fontFamily="@font/poppins_regular"
+                        android:focusable="false"
+                        android:inputType="text">
+                    </com.google.android.material.textfield.TextInputEditText>
                 </com.google.android.material.textfield.TextInputLayout>
-
             </LinearLayout>
 
             <!-- Toggle Button -->
