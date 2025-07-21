@@ -55,6 +55,19 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="referral_form_gender_options">
+        <item>Male</item>
+        <item>Female</item>
+        <item>Other</item>
+    </string-array>
+
+    <string-array name="referral_form_program_options">
+        <item>BSIT</item>
+        <item>BSCS</item>
+        <item>BSHM</item>
+        <item>BSTM</item>
+    </string-array>
+
     <string-array name="parent_status_options">
         <item>Select status</item>
         <item>Married</item>

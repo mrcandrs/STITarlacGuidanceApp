@@ -12,14 +12,15 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="STI Guidance and Counseling Office\nReferral Form"
+        android:text="STI Guidance and Counseling Office\nReferral Form with Feedback Slip"
         android:textSize="18sp"
         android:textColor="@color/blue"
         android:fontFamily="@font/poppins_bold"/>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -267,6 +268,7 @@
                                 android:id="@+id/tvChipTertiaryError"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:text="Please select your academic level"
                                 android:textColor="@android:color/holo_red_dark"
                                 android:textSize="12sp"
                                 android:visibility="gone"
@@ -364,6 +366,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:textColor="@android:color/holo_red_dark"
+                                android:text="Please select your academic level"
                                 android:textSize="12sp"
                                 android:visibility="gone"
                                 />
@@ -578,6 +581,17 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
+                            <EditText
+                                android:id="@+id/edtOthersAOC"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Please specify"
+                                android:visibility="gone"
+                                android:layout_marginTop="5dp"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/poppins_regular"/>
+
+
                             <TextView
                                 android:id="@+id/tvChipAreasOfConcernError"
                                 android:layout_width="match_parent"
@@ -687,6 +701,17 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
+                            <EditText
+                                android:id="@+id/edtOthersAR"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="Please specify"
+                                android:visibility="gone"
+                                android:layout_marginTop="5dp"
+                                android:textSize="14sp"
+                                android:fontFamily="@font/poppins_regular"/>
+
+
                             <TextView
                                 android:id="@+id/tvChipActionRequestedError"
                                 android:layout_width="match_parent"
@@ -759,6 +784,20 @@
                                 app:chipBackgroundColor="@color/chip_background_selector_scheduled"
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
+
+                            <TextView
+                                android:id="@+id/tvBeforeDate"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Select Date"
+                                android:visibility="gone"
+                                android:textColor="@color/blue"
+                                android:fontFamily="@font/poppins_regular"
+                                android:layout_marginTop="5dp"
+                                android:padding="6dp"
+                                android:clickable="true"
+                                android:focusable="true"/>
+
 
                             <TextView
                                 android:id="@+id/tvChipPriorityLevelError"
@@ -1019,7 +1058,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:text="View Feedback Slip"
+                android:text="View Latest Feedback Slip"
                 android:background="@drawable/button_border_2"
                 app:backgroundTint="@color/yellow"
                 android:textColor="@color/black"
@@ -1027,6 +1066,7 @@
 
             <!--Submit Button-->
             <Button
+                android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
