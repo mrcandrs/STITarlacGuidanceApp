@@ -45,7 +45,7 @@
                         android:layout_height="wrap_content"
                         android:drawableLeft="@drawable/user"
                         android:drawablePadding="8dp"
-                        android:text="Student Info"
+                        android:text="Student Info (to be referred)"
                         android:fontFamily="@font/poppins_bold"
                         android:textSize="18dp"/>
 
@@ -264,16 +264,16 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <TextView
-                                android:id="@+id/tvChipTertiaryError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Please select your academic level"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
                         </com.google.android.material.chip.ChipGroup>
+                        <TextView
+                            android:id="@+id/tvChipTertiaryError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Please select your academic level"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Tertiary Chip Group End-->
 
@@ -361,17 +361,16 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <TextView
-                                android:id="@+id/tvChipSeniorHighError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:text="Please select your academic level"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
-
                         </com.google.android.material.chip.ChipGroup>
+                        <TextView
+                            android:id="@+id/tvChipSeniorHighError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:text="Please select your academic level"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Senior High Chip Group End-->
                 </LinearLayout>
@@ -423,7 +422,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:paddingBottom="5dp"
-                            app:singleSelection="false"
+                            app:singleSelection="true"
                             app:selectionRequired="false"
                             android:paddingTop="5dp">
 
@@ -473,15 +472,15 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <TextView
-                                android:id="@+id/tvChipReferredByError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
                         </com.google.android.material.chip.ChipGroup>
+                        <TextView
+                            android:id="@+id/tvChipReferredByError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Referred By Chip Group End-->
 
@@ -581,27 +580,25 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <EditText
-                                android:id="@+id/edtOthersAOC"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Please specify"
-                                android:visibility="gone"
-                                android:layout_marginTop="5dp"
-                                android:textSize="14sp"
-                                android:fontFamily="@font/poppins_regular"/>
-
-
-                            <TextView
-                                android:id="@+id/tvChipAreasOfConcernError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
-
                         </com.google.android.material.chip.ChipGroup>
+                        <EditText
+                            android:id="@+id/edtOthersAOC"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Please specify"
+                            android:visibility="gone"
+                            android:layout_marginTop="5dp"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/poppins_regular"/>
+
+                        <TextView
+                            android:id="@+id/tvChipAreasOfConcernError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Areas of Concern Chip Group End-->
 
@@ -701,27 +698,26 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <EditText
-                                android:id="@+id/edtOthersAR"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:hint="Please specify"
-                                android:visibility="gone"
-                                android:layout_marginTop="5dp"
-                                android:textSize="14sp"
-                                android:fontFamily="@font/poppins_regular"/>
-
-
-                            <TextView
-                                android:id="@+id/tvChipActionRequestedError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
-
                         </com.google.android.material.chip.ChipGroup>
+                        <EditText
+                            android:id="@+id/edtOthersAR"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Please specify"
+                            android:visibility="gone"
+                            android:layout_marginTop="5dp"
+                            android:textSize="14sp"
+                            android:fontFamily="@font/poppins_regular"/>
+
+
+                        <TextView
+                            android:id="@+id/tvChipActionRequestedError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Action Requested Chip Group End-->
 
@@ -785,29 +781,29 @@
                                 android:textAppearance="@style/CustomChipTextAppearance"
                                 />
 
-                            <TextView
-                                android:id="@+id/tvBeforeDate"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:text="Select Date"
-                                android:visibility="gone"
-                                android:textColor="@color/blue"
-                                android:fontFamily="@font/poppins_regular"
-                                android:layout_marginTop="5dp"
-                                android:padding="6dp"
-                                android:clickable="true"
-                                android:focusable="true"/>
-
-
-                            <TextView
-                                android:id="@+id/tvChipPriorityLevelError"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:textColor="@android:color/holo_red_dark"
-                                android:textSize="12sp"
-                                android:visibility="gone"
-                                />
                         </com.google.android.material.chip.ChipGroup>
+                        <TextView
+                            android:id="@+id/tvBeforeDate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Select Date"
+                            android:visibility="gone"
+                            android:textColor="@color/blue"
+                            android:fontFamily="@font/poppins_bold"
+                            android:layout_marginTop="5dp"
+                            android:padding="6dp"
+                            android:clickable="true"
+                            android:focusable="true"/>
+
+
+                        <TextView
+                            android:id="@+id/tvChipPriorityLevelError"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:textColor="@android:color/holo_red_dark"
+                            android:textSize="12sp"
+                            android:visibility="gone"
+                            />
                     </LinearLayout>
                     <!--Priority Level Chip Group End-->
 

@@ -18,9 +18,14 @@ public class ApiClient {
         return retrofit;
     }
 
-    //Exit Interview Form
+    //Exit Interview API
     public static ExitInterviewApi getExitInterviewApi() {
         return retrofit.create(ExitInterviewApi.class);
+    }
+
+    // Referral Form API ✅
+    public static ReferralApi getReferralFormApi() {
+        return getClient().create(ReferralApi.class);
     }
 
 

@@ -1,10 +1,13 @@
 package com.example.stitarlacguidanceapp.Activities;
 
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -17,12 +20,29 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.Models.ReferralForm;
 import com.example.stitarlacguidanceapp.R;
+import com.example.stitarlacguidanceapp.ReferralApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityReferralFormBinding;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class ReferralFormActivity extends AppCompatActivity {
 
@@ -96,10 +116,11 @@ public class ReferralFormActivity extends AppCompatActivity {
         //Submit button
         root.btnSubmit.setOnClickListener(v -> {
             if (validateForm()) {
-                // TODO: Proceed with submission (next step)
-                Snackbar.make(root.getRoot(), "Form Successfully Submitted.", Snackbar.LENGTH_LONG).show();
+                ReferralForm form = buildReferralForm();
+                submitReferralForm(form); //this will call Retrofit
             }
         });
+
 
         //Before Date Chip Date Picker
         root.tvBeforeDate.setOnClickListener(v -> {
@@ -108,7 +129,7 @@ public class ReferralFormActivity extends AppCompatActivity {
             DatePickerDialog dialog = new DatePickerDialog(
                     ReferralFormActivity.this,
                     (view, year, month, dayOfMonth) -> {
-                        String selectedDate = (month + 1) + "/" + dayOfMonth + "/" + year;
+                        String selectedDate = String.format("%04d-%02d-%02d", year, month + 1, dayOfMonth);
                         root.tvBeforeDate.setText(selectedDate);
                     },
                     calendar.get(Calendar.YEAR),
@@ -417,6 +438,114 @@ public class ReferralFormActivity extends AppCompatActivity {
             root.tvChipSeniorHighError.setVisibility(View.GONE);
             return true;
         }
+    }
+
+    private ReferralForm buildReferralForm() {
+        ReferralForm form = new ReferralForm();
+
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        form.setStudentId(studentId);
+
+        form.setFullName(root.edtFullName.getText().toString().trim());
+        form.setStudentNumber(root.edtStudentNumber.getText().toString().trim());
+        form.setProgram(root.edtProgram.getText().toString().trim());
+        form.setAge(Integer.parseInt(root.edtAge.getText().toString().trim()));
+        form.setGender(root.edtGender.getText().toString().trim());
+
+        form.setAcademicLevel(getSelectedAcademicLevel());
+        form.setReferredBy(getCheckedChipsAsString(root.chipGroupReferredBy));
+        form.setAreasOfConcern(getCheckedChipsAsString(root.chipGroupAreasOfConcern));
+        form.setAreasOfConcernOtherDetail(root.edtOthersAOC.getText().toString().trim());
+        form.setActionRequested(getCheckedChipsAsString(root.chipGroupActionRequested));
+        form.setActionRequestedOtherDetail(root.edtOthersAR.getText().toString().trim());
+        form.setPriorityLevel(getCheckedChipsAsString(root.chipGroupPriorityLevel));
+
+        if (root.chipScheduledDate.isChecked()) {
+            form.setPriorityDate(root.tvBeforeDate.getText().toString().trim());
+        }
+
+        form.setActionsTakenBefore(root.edtActionsTakenBefore.getText().toString().trim());
+        form.setReferralReasons(root.edtReferralReasons.getText().toString().trim());
+        form.setCounselorInitialAction(root.edtCounselorInitialAction.getText().toString().trim());
+        form.setPersonWhoReferred(root.txtPersonWhoReferred.getText().toString().trim());
+        form.setDateReferred(root.txtDateReferred.getText().toString().trim());
+
+        form.setSubmissionDate(currentDate());
+
+        form.setCounselorFeedbackStudentName(null);
+        form.setCounselorFeedbackDateReferred(null);
+        form.setCounselorSessionDate(null);
+        form.setCounselorActionsTaken(null);
+        form.setCounselorName(null);
+
+        return form;
+    }
+
+
+    //Helper method for getting chips as string
+    private String getCheckedChipsAsString(ChipGroup group) {
+        List<String> selected = new ArrayList<>();
+        for (int i = 0; i < group.getChildCount(); i++) {
+            Chip chip = (Chip) group.getChildAt(i);
+            if (chip.isChecked()) {
+                selected.add(chip.getText().toString());
+            }
+        }
+        return TextUtils.join(", ", selected);
+    }
+
+    private void submitReferralForm(ReferralForm form) {
+        Log.d("REFERRAL_SUBMIT", "Sending ReferralForm: " + new Gson().toJson(form));
+        ReferralApi apiService = ApiClient.getReferralFormApi();
+        Call<ResponseBody> call = apiService.submitReferralForm(form);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful()) {
+                    Toast.makeText(ReferralFormActivity.this, "Form submitted successfully!", Toast.LENGTH_SHORT).show();
+                    finish(); // or navigate elsewhere
+                } else {
+                    //Try to print backend error message (like "Student ID does not exist")
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("REFERRAL_SUBMIT", "Submission failed: " + response.code());
+                        Log.e("REFERRAL_SUBMIT", "Error body: " + errorBody);
+                        Toast.makeText(ReferralFormActivity.this, "Submission failed: " + errorBody, Toast.LENGTH_LONG).show();
+                    } catch (IOException e) {
+                        Log.e("REFERRAL_SUBMIT", "Error reading errorBody", e);
+                        Toast.makeText(ReferralFormActivity.this, "Submission failed, and errorBody could not be read.", Toast.LENGTH_LONG).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("REFERRAL_SUBMIT", "Network error: " + t.getMessage());
+                Toast.makeText(ReferralFormActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
+    private String currentDate() {
+        return new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+    }
+
+    private String getSelectedAcademicLevel() {
+        List<Integer> checkedSH = root.chipGroupSeniorHigh.getCheckedChipIds();
+        List<Integer> checkedTertiary = root.chipGroupTertiary.getCheckedChipIds();
+
+        if (!checkedSH.isEmpty()) {
+            Chip chip = root.chipGroupSeniorHigh.findViewById(checkedSH.get(0));
+            return chip.getText().toString();
+        } else if (!checkedTertiary.isEmpty()) {
+            Chip chip = root.chipGroupTertiary.findViewById(checkedTertiary.get(0));
+            return chip.getText().toString();
+        }
+        return "";
     }
 
 
