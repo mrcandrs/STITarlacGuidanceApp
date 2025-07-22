@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp.PrivateJournalFragments;
 
+import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -65,6 +67,25 @@ public class JournalFragment extends Fragment {
         EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
         EditText edtContent = dialogView.findViewById(R.id.edtContent);
         EditText edtMood = dialogView.findViewById(R.id.edtMood);
+        EditText edtDate = dialogView.findViewById(R.id.edtDate);
+
+        //Set default to today
+        String today = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date());
+        edtDate.setText(today);
+
+        //Show date picker on click
+        edtDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+                Calendar selected = Calendar.getInstance();
+                selected.set(year, month, dayOfMonth);
+                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
+                edtDate.setText(dateStr);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
+            datePicker.show();
+        });
 
         new AlertDialog.Builder(getContext())
                 .setTitle("New Journal Entry")
@@ -73,18 +94,17 @@ public class JournalFragment extends Fragment {
                     String title = edtTitle.getText().toString().trim();
                     String content = edtContent.getText().toString().trim();
                     String mood = edtMood.getText().toString().trim();
+                    String selectedDate = edtDate.getText().toString().trim(); // 👈 NEW
 
                     if (content.isEmpty()) {
                         Toast.makeText(getContext(), "Entry cannot be empty!", Toast.LENGTH_SHORT).show();
                         return;
                     }
 
-                    String date = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
-                            .format(new Date());
-
                     JournalEntry entry = new JournalEntry(
                             title.isEmpty() ? "Untitled Entry" : title,
-                            content, date, mood);
+                            content, selectedDate, mood
+                    );
 
                     journalEntries.add(0, entry); // Add on top
                     adapter.notifyItemInserted(0);
@@ -95,6 +115,7 @@ public class JournalFragment extends Fragment {
                 .setNegativeButton("Cancel", null)
                 .show();
     }
+
 
     private void saveToPreferences() {
         Gson gson = new Gson();

@@ -5,6 +5,15 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/edtDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Select Date"
+        android:fontFamily="@font/poppins_regular"
+        android:focusable="false"
+        android:inputType="none"/>
+
     <EditText
         android:id="@+id/edtTitle"
         android:layout_width="match_parent"
