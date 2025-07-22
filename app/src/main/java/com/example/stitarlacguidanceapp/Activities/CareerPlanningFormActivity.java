@@ -344,8 +344,6 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
         return isValid;
     }
 
-
-
     private void saveFormData() {
         SharedPreferences.Editor editor = sharedPreferences.edit();
 
