@@ -1,5 +1,7 @@
 package com.example.stitarlacguidanceapp.PrivateJournalFragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -15,13 +17,20 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 public class CalendarFragment extends Fragment {
@@ -29,7 +38,10 @@ public class CalendarFragment extends Fragment {
     private TextView txtMonthYear;
     private GridLayout gridDays;
     private Calendar calendar;
-    private Button lastSelectedButton = null;
+    private View lastSelectedButton = null;
+
+    private List<JournalEntry> journalEntries = new ArrayList<>();
+
 
     public CalendarFragment() {
         calendar = Calendar.getInstance();
@@ -66,6 +78,7 @@ public class CalendarFragment extends Fragment {
     private void updateCalendar(Typeface customFont) {
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         txtMonthYear.setText(monthFormat.format(calendar.getTime()));
+        loadJournalEntries();
         gridDays.removeAllViews();
 
         //Weekday Headers (Sun–Sat)
@@ -111,55 +124,98 @@ public class CalendarFragment extends Fragment {
 
         // Day buttons
         for (int day = 1; day <= maxDay; day++) {
-            Button dayBtn = new Button(getContext());
+            View dayView = LayoutInflater.from(getContext()).inflate(R.layout.item_calendar_day, null);
+            TextView txtDayNumber = dayView.findViewById(R.id.txtDayNumber);
+            View dotIndicator = dayView.findViewById(R.id.dotIndicator);
 
-            dayBtn.setText(String.valueOf(day));
-            dayBtn.setTypeface(customFont);
-            dayBtn.setTextColor(Color.BLACK);
+            txtDayNumber.setText(String.valueOf(day));
+            txtDayNumber.setTypeface(customFont);
+            txtDayNumber.setTextColor(Color.BLACK);
+
+            // Highlight today
             if (day == todayDay &&
                     calendar.get(Calendar.MONTH) == todayMonth &&
                     calendar.get(Calendar.YEAR) == todayYear) {
-
-                dayBtn.setBackgroundResource(R.drawable.bg_today);
-                dayBtn.setTextColor(Color.WHITE); //White text for contrast
-                dayBtn.setTypeface(null, Typeface.BOLD);
-            } else {
-                //dayBtn.setBackgroundResource(R.drawable.bg_day);
-                dayBtn.setBackgroundColor(Color.TRANSPARENT);
-                dayBtn.setTextColor(Color.BLACK);
+                dayView.setBackgroundResource(R.drawable.bg_today);
+                txtDayNumber.setTextColor(Color.WHITE);
+                txtDayNumber.setTypeface(null, Typeface.BOLD);
             }
 
+            //Check if day has journal entry
+            Calendar thisDay = (Calendar) calendar.clone();
+            thisDay.set(Calendar.DAY_OF_MONTH, day);
+            String formattedDate = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(thisDay.getTime());
+
+            boolean hasEntry = false;
+            for (JournalEntry entry : journalEntries) {
+                if (entry.getDate().equals(formattedDate)) {
+                    hasEntry = true;
+                    break;
+                }
+            }
+            dotIndicator.setVisibility(hasEntry ? View.VISIBLE : View.GONE);
+
+            //Layout params
             GridLayout.LayoutParams params = new GridLayout.LayoutParams();
             params.width = 0;
             params.height = GridLayout.LayoutParams.WRAP_CONTENT;
             params.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f);
-            dayBtn.setLayoutParams(params);
+            dayView.setLayoutParams(params);
 
-            int finalDay = day;
-
-            dayBtn.setOnClickListener(v -> {
-                // 1. Reset previous selection
+            //Click listener
+            dayView.setOnClickListener(v -> {
+                // Restore previous selection appearance
                 if (lastSelectedButton != null) {
-                    if (lastSelectedButton.getText().toString().equals(String.valueOf(todayDay)) &&
+                    TextView prevTxt = lastSelectedButton.findViewById(R.id.txtDayNumber);
+                    int prevDay = Integer.parseInt(prevTxt.getText().toString());
+
+                    if (prevDay == todayDay &&
                             calendar.get(Calendar.MONTH) == todayMonth &&
                             calendar.get(Calendar.YEAR) == todayYear) {
-
                         lastSelectedButton.setBackgroundResource(R.drawable.bg_today);
-                        lastSelectedButton.setTextColor(Color.WHITE);
+                        prevTxt.setTextColor(Color.WHITE);
                     } else {
                         lastSelectedButton.setBackgroundColor(Color.TRANSPARENT);
-                        lastSelectedButton.setTextColor(Color.BLACK);
+                        prevTxt.setTextColor(Color.BLACK);
                     }
                 }
 
-                // 2. Highlight new selection
-                dayBtn.setBackgroundResource(R.drawable.bg_selected_day);
-                dayBtn.setTextColor(Color.BLACK);
-                lastSelectedButton = dayBtn;
+                // Highlight the newly selected day
+                dayView.setBackgroundResource(R.drawable.bg_selected_day);
+                txtDayNumber.setTextColor(Color.BLACK);
+                lastSelectedButton = dayView;
+
+                // Show journal entry if available
+                for (JournalEntry entry : journalEntries) {
+                    if (entry.getDate().equals(formattedDate)) {
+                        new AlertDialog.Builder(requireContext())
+                                .setTitle(entry.getTitle())
+                                .setMessage(entry.getContent() + "\n\nMood: " + entry.getMood())
+                                .setPositiveButton("Close", null)
+                                .show();
+                        return;
+                    }
+                }
+
+                Toast.makeText(getContext(), "No journal entry for this day", Toast.LENGTH_SHORT).show();
             });
 
-            gridDays.addView(dayBtn);
+
+            gridDays.addView(dayView);
+        }
+
+    }
+
+    private void loadJournalEntries() {
+        SharedPreferences prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
+        String json = prefs.getString("entries", "");
+        if (!json.isEmpty()) {
+            Type type = new TypeToken<List<JournalEntry>>() {}.getType();
+            journalEntries = new Gson().fromJson(json, type);
+        } else {
+            journalEntries = new ArrayList<>();
         }
     }
+
 }
 
