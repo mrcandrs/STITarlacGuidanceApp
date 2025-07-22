@@ -1,14 +1,20 @@
 package com.example.stitarlacguidanceapp.PrivateJournalFragments;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -16,15 +22,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.stitarlacguidanceapp.Adapters.JournalAdapter;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class JournalFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private JournalAdapter adapter;
-    private List<JournalEntry> journalEntries;
+    private List<JournalEntry> journalEntries = new ArrayList<>();
+    private SharedPreferences prefs;
 
     public JournalFragment() {}
 
@@ -36,26 +49,67 @@ public class JournalFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_journal, container, false);
         recyclerView = view.findViewById(R.id.recyclerJournal);
 
-        // Dummy entries
-        journalEntries = new ArrayList<>();
-        journalEntries.add(new JournalEntry("Weekend Reflection",
-                "Had a wonderful time studying for my upcoming exams...",
-                "July 20, 2025", "😊 Happy • 🌟 Grateful"));
+        prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
 
-        journalEntries.add(new JournalEntry("Project Presentation",
-                "Successfully presented my research project today...",
-                "July 18, 2025", "🎉 Accomplished • 😅 Relieved"));
-
-        journalEntries.add(new JournalEntry("New Semester Goals",
-                "Setting my intentions for this semester...",
-                "July 15, 2025", "💪 Motivated • 🎯 Focused"));
-
+        loadJournalEntries(); // Load from prefs
         adapter = new JournalAdapter(journalEntries);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
         return view;
     }
+
+
+    public void showAddDialog() {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
+        EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
+        EditText edtContent = dialogView.findViewById(R.id.edtContent);
+        EditText edtMood = dialogView.findViewById(R.id.edtMood);
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("New Journal Entry")
+                .setView(dialogView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String title = edtTitle.getText().toString().trim();
+                    String content = edtContent.getText().toString().trim();
+                    String mood = edtMood.getText().toString().trim();
+
+                    if (content.isEmpty()) {
+                        Toast.makeText(getContext(), "Entry cannot be empty!", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    String date = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault())
+                            .format(new Date());
+
+                    JournalEntry entry = new JournalEntry(
+                            title.isEmpty() ? "Untitled Entry" : title,
+                            content, date, mood);
+
+                    journalEntries.add(0, entry); // Add on top
+                    adapter.notifyItemInserted(0);
+                    recyclerView.scrollToPosition(0);
+
+                    saveToPreferences(); // Save the updated list
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void saveToPreferences() {
+        Gson gson = new Gson();
+        String json = gson.toJson(journalEntries);
+        prefs.edit().putString("entries", json).apply();
+    }
+
+    private void loadJournalEntries() {
+        String json = prefs.getString("entries", "");
+        if (!json.isEmpty()) {
+            Type type = new TypeToken<List<JournalEntry>>(){}.getType();
+            journalEntries = new Gson().fromJson(json, type);
+        }
+    }
 }
+
 
 

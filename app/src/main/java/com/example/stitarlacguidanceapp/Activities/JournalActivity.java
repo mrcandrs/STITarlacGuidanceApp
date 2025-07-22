@@ -32,7 +32,12 @@ public class JournalActivity extends AppCompatActivity {
         root.btnJournalView.setOnClickListener(v -> showFragment(new JournalFragment()));
 
         root.fabAddEntry.setOnClickListener(v -> {
-            Toast.makeText(this, "Add Journal Entry tapped!", Toast.LENGTH_SHORT).show();
+            Fragment current = getSupportFragmentManager().findFragmentById(R.id.fabContainer);
+            if (current instanceof JournalFragment) {
+                ((JournalFragment) current).showAddDialog();
+            } else if (current instanceof CalendarFragment) {
+                Toast.makeText(this, "Select a date to write a journal.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
