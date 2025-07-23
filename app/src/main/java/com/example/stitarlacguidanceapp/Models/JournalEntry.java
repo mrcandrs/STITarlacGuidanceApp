@@ -13,8 +13,35 @@ public class JournalEntry {
         this.mood = mood;
     }
 
-    public String getTitle() { return title; }
-    public String getContent() { return content; }
-    public String getDate() { return date; }
-    public String getMood() { return mood; }
+    public String getTitle() {
+        return title;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getMood() {
+        return mood;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setMood(String mood) {
+        this.mood = mood;
+    }
 }

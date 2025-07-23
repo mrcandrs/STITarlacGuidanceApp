@@ -43,23 +43,45 @@ public class JournalFragment extends Fragment {
 
     public JournalFragment() {}
 
-    @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_journal, container, false);
         recyclerView = view.findViewById(R.id.recyclerJournal);
+        TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage); // 👈
 
         prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
 
-        loadJournalEntries(); // Load from prefs
-        adapter = new JournalAdapter(journalEntries);
+        loadJournalEntries();
+
+        adapter = new JournalAdapter(
+                journalEntries,
+                getContext(),
+                this::saveToPreferences,
+                () -> checkEmptyList(txtEmptyMessage), //this passes the callback
+                new JournalAdapter.OnJournalActionListener() {
+                    @Override
+                    public void onEdit(JournalEntry entry, int position) {
+                        showEditDialog(entry, position);
+                    }
+
+                    @Override
+                    public void onDelete(JournalEntry entry, int position) {
+                        // no need to delete here anymore, handled in the adapter
+                    }
+                }
+        );
+
+
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
+        checkEmptyList(txtEmptyMessage); // 👈 initial check
+
         return view;
     }
+
 
 
     public void showAddDialog() {
@@ -111,6 +133,53 @@ public class JournalFragment extends Fragment {
                     recyclerView.scrollToPosition(0);
 
                     saveToPreferences(); // Save the updated list
+
+                    //Check if we need to hide the "No entries" message
+                    checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void showEditDialog(JournalEntry entry, int position) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
+        EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
+        EditText edtContent = dialogView.findViewById(R.id.edtContent);
+        EditText edtMood = dialogView.findViewById(R.id.edtMood);
+        EditText edtDate = dialogView.findViewById(R.id.edtDate);
+
+        // Pre-fill fields
+        edtTitle.setText(entry.getTitle());
+        edtContent.setText(entry.getContent());
+        edtMood.setText(entry.getMood());
+        edtDate.setText(entry.getDate());
+
+        // Show DatePicker
+        edtDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+                Calendar selected = Calendar.getInstance();
+                selected.set(year, month, dayOfMonth);
+                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
+                edtDate.setText(dateStr);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+            datePicker.show();
+        });
+
+        new AlertDialog.Builder(getContext())
+                .setTitle("Edit Journal Entry")
+                .setView(dialogView)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    entry.setTitle(edtTitle.getText().toString().trim());
+                    entry.setContent(edtContent.getText().toString().trim());
+                    entry.setMood(edtMood.getText().toString().trim());
+                    entry.setDate(edtDate.getText().toString().trim());
+
+                    adapter.notifyItemChanged(position);
+                    saveToPreferences();
+                    Toast.makeText(getContext(), "Journal entry updated", Toast.LENGTH_SHORT).show();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -122,6 +191,17 @@ public class JournalFragment extends Fragment {
         String json = gson.toJson(journalEntries);
         prefs.edit().putString("entries", json).apply();
     }
+
+    private void checkEmptyList(TextView txtEmptyMessage) {
+        if (journalEntries.isEmpty()) {
+            txtEmptyMessage.setVisibility(View.VISIBLE);
+            recyclerView.setVisibility(View.GONE);
+        } else {
+            txtEmptyMessage.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
 
     private void loadJournalEntries() {
         String json = prefs.getString("entries", "");
