@@ -82,18 +82,19 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
                     .setTitle("Delete Entry")
                     .setMessage("Are you sure you want to delete this journal entry?")
                     .setPositiveButton("Delete", (dialog, which) -> {
-                        journalList.remove(position);
-                        notifyItemRemoved(position);
-                        saveToPreferences.run();
-
-                        if (journalList.isEmpty() && checkEmptyCallback != null) {
-                            checkEmptyCallback.run(); // This will show "No entries" if the list is now empty
+                        int adapterPosition = holder.getAdapterPosition();
+                        if (adapterPosition != RecyclerView.NO_POSITION) {
+                            journalList.remove(adapterPosition);
+                            notifyItemRemoved(adapterPosition);
+                            saveToPreferences.run(); // Save after deleting
+                            if (journalList.isEmpty() && listener != null) {
+                                listener.onDelete(null, adapterPosition); // Notify for empty state
+                            }
                         }
                     })
                     .setNegativeButton("Cancel", null)
                     .show();
         });
-
     }
 
     @Override

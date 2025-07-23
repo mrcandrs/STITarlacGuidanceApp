@@ -27,9 +27,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -68,7 +70,9 @@ public class JournalFragment extends Fragment {
 
                     @Override
                     public void onDelete(JournalEntry entry, int position) {
-                        // no need to delete here anymore, handled in the adapter
+                        if (journalEntries.isEmpty()) {
+                            txtEmptyMessage.setVisibility(View.VISIBLE);
+                        }
                     }
                 }
         );
@@ -203,11 +207,29 @@ public class JournalFragment extends Fragment {
     }
 
 
+    private void sortJournalEntriesByDateDescending() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+
+        Collections.sort(journalEntries, (entry1, entry2) -> {
+            try {
+                Date date1 = sdf.parse(entry1.getDate());
+                Date date2 = sdf.parse(entry2.getDate());
+                return date2.compareTo(date1); // DESCENDING
+            } catch (ParseException e) {
+                e.printStackTrace();
+                return 0;
+            }
+        });
+    }
+
+
+
     private void loadJournalEntries() {
         String json = prefs.getString("entries", "");
         if (!json.isEmpty()) {
             Type type = new TypeToken<List<JournalEntry>>(){}.getType();
             journalEntries = new Gson().fromJson(json, type);
+            sortJournalEntriesByDateDescending();
         }
     }
 }
