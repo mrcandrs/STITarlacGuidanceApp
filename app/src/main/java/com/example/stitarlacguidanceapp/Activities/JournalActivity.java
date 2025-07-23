@@ -45,5 +45,12 @@ public class JournalActivity extends AppCompatActivity {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.fabContainer, fragment)
                 .commit();
+
+        //Show or hide the FAB depending on the fragment type
+        if (fragment instanceof CalendarFragment) {
+            root.fabAddEntry.hide(); // hide for calendar view
+        } else if (fragment instanceof JournalFragment) {
+            root.fabAddEntry.show(); // show for journal view
+        }
     }
 }
