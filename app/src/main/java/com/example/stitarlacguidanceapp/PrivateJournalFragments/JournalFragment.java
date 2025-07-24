@@ -1,8 +1,11 @@
 package com.example.stitarlacguidanceapp.PrivateJournalFragments;
 
+import static android.app.ProgressDialog.show;
+
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -16,6 +19,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -86,8 +91,6 @@ public class JournalFragment extends Fragment {
         return view;
     }
 
-
-
     public void showAddDialog() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
         EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
@@ -113,10 +116,9 @@ public class JournalFragment extends Fragment {
             datePicker.show();
         });
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("New Journal Entry")
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
-                .setPositiveButton("Save", (dialog, which) -> {
+                .setPositiveButton("Save", (dialogInterface, which) -> {
                     String title = edtTitle.getText().toString().trim();
                     String content = edtContent.getText().toString().trim();
                     String mood = edtMood.getText().toString().trim();
@@ -142,11 +144,33 @@ public class JournalFragment extends Fragment {
                     checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
                 })
                 .setNegativeButton("Cancel", null)
-                .show();
+                .create();
+
+                dialog.setOnShowListener(d -> {
+                    Button saveBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    Button cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+                    Typeface poppins = ResourcesCompat.getFont(requireContext(), R.font.poppins_regular);
+                    if (poppins != null) {
+                        saveBtn.setTypeface(poppins);
+                        cancelBtn.setTypeface(poppins);
+                    }
+
+                    saveBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue));
+                    cancelBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+                    saveBtn.setTextSize(16);
+                    cancelBtn.setTextSize(16);
+                });
+
+                dialog.show();
     }
 
     private void showEditDialog(JournalEntry entry, int position) {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
+
+        TextView dialogTitle = dialogView.findViewById(R.id.txtDialogTitle);
+        dialogTitle.setText("Edit Journal Entry");
+
         EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
         EditText edtContent = dialogView.findViewById(R.id.edtContent);
         EditText edtMood = dialogView.findViewById(R.id.edtMood);
@@ -172,21 +196,44 @@ public class JournalFragment extends Fragment {
             datePicker.show();
         });
 
-        new AlertDialog.Builder(getContext())
-                .setTitle("Edit Journal Entry")
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
-                .setPositiveButton("Save", (dialog, which) -> {
-                    entry.setTitle(edtTitle.getText().toString().trim());
-                    entry.setContent(edtContent.getText().toString().trim());
-                    entry.setMood(edtMood.getText().toString().trim());
-                    entry.setDate(edtDate.getText().toString().trim());
+                .setCancelable(true)
+                .create();
 
-                    adapter.notifyItemChanged(position);
-                    saveToPreferences();
-                    Toast.makeText(getContext(), "Journal entry updated", Toast.LENGTH_SHORT).show();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
+        dialog.setOnShowListener(d -> {
+            Button saveBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            Typeface poppins = ResourcesCompat.getFont(requireContext(), R.font.poppins_regular);
+            if (poppins != null) {
+                saveBtn.setTypeface(poppins);
+                cancelBtn.setTypeface(poppins);
+            }
+
+            saveBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue));
+            cancelBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+            saveBtn.setTextSize(16);
+            cancelBtn.setTextSize(16);
+        });
+
+            // Now set buttons AFTER dialog creation
+            dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Save", (dialogInterface, which) -> {
+            entry.setTitle(edtTitle.getText().toString().trim());
+            entry.setContent(edtContent.getText().toString().trim());
+            entry.setMood(edtMood.getText().toString().trim());
+            entry.setDate(edtDate.getText().toString().trim());
+
+            adapter.notifyItemChanged(position);
+            saveToPreferences();
+            Toast.makeText(getContext(), "Journal entry updated", Toast.LENGTH_SHORT).show();
+            });
+
+            dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (dialogInterface, which) -> {
+            dialog.dismiss();
+            });
+
+        dialog.show();
     }
 
 

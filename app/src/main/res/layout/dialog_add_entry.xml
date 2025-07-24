@@ -2,41 +2,97 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:padding="24dp">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/edtDate"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:background="@color/blue">
+
+        <TextView
+            android:id="@+id/txtDialogTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="New Journal Entry"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            android:textSize="22dp"
+            android:textColor="@color/white"
+            android:fontFamily="@font/poppins_bold"/>
+    </LinearLayout>
+
+
+    <!--Date-->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Select Date"
-        android:fontFamily="@font/poppins_regular"
-        android:focusable="false"
-        android:inputType="none"/>
+        android:layout_marginTop="10dp">
 
-    <EditText
-        android:id="@+id/edtTitle"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Select Date"
+            android:fontFamily="@font/poppins_regular"
+            android:focusable="false"
+            android:inputType="none">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <!--Title-->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Title (optional)"
-        android:fontFamily="@font/poppins_regular"/>
+        android:layout_marginTop="10dp">
 
-    <EditText
-        android:id="@+id/edtContent"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:hint="What's on your mind?"
-        android:fontFamily="@font/poppins_regular"
-        android:gravity="top"
-        android:inputType="textMultiLine"
-        android:minLines="4"
-        android:layout_marginTop="12dp"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Title (optional)"
+            android:fontFamily="@font/poppins_regular">
 
-    <EditText
-        android:id="@+id/edtMood"
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <!--Content-->
+    <com.google.android.material.textfield.TextInputLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Mood (e.g., 😊 Happy)"
-        android:fontFamily="@font/poppins_regular"
-        android:layout_marginTop="12dp"/>
+        android:layout_marginTop="10dp">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/edtContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="What's on your mind?"
+            android:fontFamily="@font/poppins_regular"
+            android:gravity="top"
+            android:inputType="textMultiLine"
+            android:minLines="4"
+            android:layout_marginTop="12dp">
+
+        </com.google.android.material.textfield.TextInputEditText>
+    </com.google.android.material.textfield.TextInputLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp">
+
+        <EditText
+            android:id="@+id/edtMood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Mood (e.g., 😊 Happy)"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginTop="12dp"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 </LinearLayout>

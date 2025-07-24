@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_dialog"
+        android:padding="20dp">
+
+        <TextView
+            android:id="@+id/dialogTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Title"
+            android:textColor="#222"
+            android:textSize="18sp"
+            android:fontFamily="@font/poppins_bold"
+            android:layout_marginBottom="4dp" />
+
+        <TextView
+            android:id="@+id/dialogDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="July 23, 2025"
+            android:textColor="#777"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginBottom="12dp" />
+
+
+        <TextView
+            android:id="@+id/dialogContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Entry content here..."
+            android:textColor="#444"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginBottom="12dp" />
+
+        <TextView
+            android:id="@+id/dialogMood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Mood: 😊 Happy"
+            android:textColor="#555"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textStyle="italic" />
+    </LinearLayout>
+</ScrollView>

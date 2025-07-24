@@ -27,9 +27,11 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -185,21 +187,48 @@ public class CalendarFragment extends Fragment {
                 txtDayNumber.setTextColor(Color.BLACK);
                 lastSelectedButton = dayView;
 
-                // Show journal entry if available
+                //Show journal entry if available
                 for (JournalEntry entry : journalEntries) {
                     if (entry.getDate().equals(formattedDate)) {
-                        new AlertDialog.Builder(requireContext())
-                                .setTitle(entry.getTitle())
-                                .setMessage(entry.getContent() + "\n\nMood: " + entry.getMood())
+                        LayoutInflater inflater = LayoutInflater.from(getContext());
+                        View dialogView = inflater.inflate(R.layout.dialog_journal_entry, null);
+
+                        TextView dialogTitle = dialogView.findViewById(R.id.dialogTitle);
+                        TextView dialogDate = dialogView.findViewById(R.id.dialogDate);
+                        TextView dialogContent = dialogView.findViewById(R.id.dialogContent);
+                        TextView dialogMood = dialogView.findViewById(R.id.dialogMood);
+
+                        dialogTitle.setText(entry.getTitle().isEmpty() ? "(No Title)" : entry.getTitle());
+                        //Format date nicely
+                        String rawDate = entry.getDate(); // e.g., "2025-07-22"
+                        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                        SimpleDateFormat outputFormat = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+
+                        try {
+                            Date parsedDate = inputFormat.parse(rawDate);
+                            String formatDate = outputFormat.format(parsedDate); //this will now work
+                            dialogDate.setText(formatDate);
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                            dialogDate.setText(rawDate); // fallback
+                        }
+
+                        dialogContent.setText(entry.getContent());
+                        dialogMood.setText("Mood: " + entry.getMood());
+
+                        AlertDialog dialog = new AlertDialog.Builder(requireContext())
+                                .setView(dialogView)
                                 .setPositiveButton("Close", null)
-                                .show();
+                                .create();
+
+                        dialog.show();
+
                         return;
                     }
                 }
 
                 Toast.makeText(getContext(), "No journal entry for this day", Toast.LENGTH_SHORT).show();
             });
-
 
             gridDays.addView(dayView);
         }
@@ -216,6 +245,5 @@ public class CalendarFragment extends Fragment {
             journalEntries = new ArrayList<>();
         }
     }
-
 }
 
