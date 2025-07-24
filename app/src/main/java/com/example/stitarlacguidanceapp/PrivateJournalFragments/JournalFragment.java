@@ -5,6 +5,7 @@ import static android.app.ProgressDialog.show;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -28,6 +29,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.stitarlacguidanceapp.Adapters.JournalAdapter;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -118,87 +120,8 @@ public class JournalFragment extends Fragment {
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
-                .setPositiveButton("Save", (dialogInterface, which) -> {
-                    String title = edtTitle.getText().toString().trim();
-                    String content = edtContent.getText().toString().trim();
-                    String mood = edtMood.getText().toString().trim();
-                    String selectedDate = edtDate.getText().toString().trim(); // 👈 NEW
-
-                    if (content.isEmpty()) {
-                        Toast.makeText(getContext(), "Entry cannot be empty!", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    JournalEntry entry = new JournalEntry(
-                            title.isEmpty() ? "Untitled Entry" : title,
-                            content, selectedDate, mood
-                    );
-
-                    journalEntries.add(0, entry); // Add on top
-                    adapter.notifyItemInserted(0);
-                    recyclerView.scrollToPosition(0);
-
-                    saveToPreferences(); // Save the updated list
-
-                    //Check if we need to hide the "No entries" message
-                    checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
-                })
+                .setPositiveButton("Save", null) //We override this later
                 .setNegativeButton("Cancel", null)
-                .create();
-
-                dialog.setOnShowListener(d -> {
-                    Button saveBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-                    Button cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
-
-                    Typeface poppins = ResourcesCompat.getFont(requireContext(), R.font.poppins_regular);
-                    if (poppins != null) {
-                        saveBtn.setTypeface(poppins);
-                        cancelBtn.setTypeface(poppins);
-                    }
-
-                    saveBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue));
-                    cancelBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
-                    saveBtn.setTextSize(16);
-                    cancelBtn.setTextSize(16);
-                });
-
-                dialog.show();
-    }
-
-    private void showEditDialog(JournalEntry entry, int position) {
-        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
-
-        TextView dialogTitle = dialogView.findViewById(R.id.txtDialogTitle);
-        dialogTitle.setText("Edit Journal Entry");
-
-        EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
-        EditText edtContent = dialogView.findViewById(R.id.edtContent);
-        EditText edtMood = dialogView.findViewById(R.id.edtMood);
-        EditText edtDate = dialogView.findViewById(R.id.edtDate);
-
-        // Pre-fill fields
-        edtTitle.setText(entry.getTitle());
-        edtContent.setText(entry.getContent());
-        edtMood.setText(entry.getMood());
-        edtDate.setText(entry.getDate());
-
-        // Show DatePicker
-        edtDate.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-                Calendar selected = Calendar.getInstance();
-                selected.set(year, month, dayOfMonth);
-                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
-                edtDate.setText(dateStr);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
-            datePicker.show();
-        });
-
-        AlertDialog dialog = new AlertDialog.Builder(getContext())
-                .setView(dialogView)
-                .setCancelable(true)
                 .create();
 
         dialog.setOnShowListener(d -> {
@@ -215,26 +138,170 @@ public class JournalFragment extends Fragment {
             cancelBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
             saveBtn.setTextSize(16);
             cancelBtn.setTextSize(16);
+
+            saveBtn.setOnClickListener(v -> {
+                String title = edtTitle.getText().toString().trim();
+                String content = edtContent.getText().toString().trim();
+                String mood = edtMood.getText().toString().trim();
+                String selectedDate = edtDate.getText().toString().trim();
+
+                // Validate content
+                if (content.isEmpty()) {
+                    edtContent.setError("Entry cannot be empty!");
+                    return;
+                }
+
+                // Validate date
+                if (selectedDate.isEmpty()) {
+                    edtDate.setError("Date is required");
+                    return;
+                }
+
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                    Date date = sdf.parse(selectedDate);
+                    if (date.after(new Date())) {
+                        edtDate.setError("Date cannot be in the future");
+                        return;
+                    }
+                } catch (ParseException e) {
+                    edtDate.setError("Invalid date format");
+                    return;
+                }
+
+                //Save the journal entry
+                JournalEntry entry = new JournalEntry(
+                        title.isEmpty() ? "Untitled Entry" : title, content, selectedDate, mood
+                );
+
+                journalEntries.add(0, entry);
+                adapter.notifyItemInserted(0);
+                recyclerView.scrollToPosition(0);
+
+                saveToPreferences(); //Save the updated list
+                checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
+                Snackbar.make(requireView(), "Journal entry saved.", Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                        .setTextColor(Color.WHITE)
+                        .show();
+
+                dialog.dismiss(); //Close dialog manually only when valid
+            });
         });
-
-            // Now set buttons AFTER dialog creation
-            dialog.setButton(AlertDialog.BUTTON_POSITIVE, "Save", (dialogInterface, which) -> {
-            entry.setTitle(edtTitle.getText().toString().trim());
-            entry.setContent(edtContent.getText().toString().trim());
-            entry.setMood(edtMood.getText().toString().trim());
-            entry.setDate(edtDate.getText().toString().trim());
-
-            adapter.notifyItemChanged(position);
-            saveToPreferences();
-            Toast.makeText(getContext(), "Journal entry updated", Toast.LENGTH_SHORT).show();
-            });
-
-            dialog.setButton(AlertDialog.BUTTON_NEGATIVE, "Cancel", (dialogInterface, which) -> {
-            dialog.dismiss();
-            });
 
         dialog.show();
     }
+
+
+    public void showEditDialog(JournalEntry entry, int position) {
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
+
+        //Set the title to "Edit Journal Entry"
+        TextView dialogTitle = dialogView.findViewById(R.id.txtDialogTitle);
+        dialogTitle.setText("Edit Journal Entry");
+
+        EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
+        EditText edtContent = dialogView.findViewById(R.id.edtContent);
+        EditText edtMood = dialogView.findViewById(R.id.edtMood);
+        EditText edtDate = dialogView.findViewById(R.id.edtDate);
+
+        // Populate fields with existing data
+        edtTitle.setText(entry.getTitle());
+        edtContent.setText(entry.getContent());
+        edtMood.setText(entry.getMood());
+        edtDate.setText(entry.getDate());
+
+        // Date picker
+        edtDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                Date parsed = sdf.parse(entry.getDate());
+                if (parsed != null) calendar.setTime(parsed);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
+                Calendar selected = Calendar.getInstance();
+                selected.set(year, month, dayOfMonth);
+                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
+                edtDate.setText(dateStr);
+            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
+            datePicker.show();
+        });
+
+        AlertDialog dialog = new AlertDialog.Builder(getContext())
+                .setView(dialogView)
+                .setPositiveButton("Update", null) //Override later
+                .setNegativeButton("Cancel", null)
+                .create();
+
+        dialog.setOnShowListener(d -> {
+            Button updateBtn = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            Button cancelBtn = dialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+
+            Typeface poppins = ResourcesCompat.getFont(requireContext(), R.font.poppins_regular);
+            if (poppins != null) {
+                updateBtn.setTypeface(poppins);
+                cancelBtn.setTypeface(poppins);
+            }
+
+            updateBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.blue));
+            cancelBtn.setTextColor(ContextCompat.getColor(requireContext(), R.color.black));
+            updateBtn.setTextSize(16);
+            cancelBtn.setTextSize(16);
+
+            updateBtn.setOnClickListener(v -> {
+                String newTitle = edtTitle.getText().toString().trim();
+                String newContent = edtContent.getText().toString().trim();
+                String newMood = edtMood.getText().toString().trim();
+                String newDate = edtDate.getText().toString().trim();
+
+                if (newContent.isEmpty()) {
+                    edtContent.setError("Entry cannot be empty!");
+                    return;
+                }
+
+                if (newDate.isEmpty()) {
+                    edtDate.setError("Date is required");
+                    return;
+                }
+
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                    Date parsedDate = sdf.parse(newDate);
+                    if (parsedDate.after(new Date())) {
+                        edtDate.setError("Date cannot be in the future");
+                        return;
+                    }
+                } catch (ParseException e) {
+                    edtDate.setError("Invalid date format");
+                    return;
+                }
+
+                // Update the entry
+                entry.setTitle(newTitle.isEmpty() ? "Untitled Entry" : newTitle);
+                entry.setContent(newContent);
+                entry.setMood(newMood);
+                entry.setDate(newDate);
+
+                adapter.notifyItemChanged(position);
+                saveToPreferences(); //Persist updates
+                checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
+                Snackbar.make(requireView(), "Journal updated.", Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                        .setTextColor(Color.WHITE)
+                        .show();
+                dialog.dismiss();
+            });
+        });
+
+        dialog.show();
+    }
+
 
 
     private void saveToPreferences() {
