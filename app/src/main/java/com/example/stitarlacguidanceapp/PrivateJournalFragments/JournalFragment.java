@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.stitarlacguidanceapp.Adapters.JournalAdapter;
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.JournalEntryApi;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
 import com.google.android.material.snackbar.Snackbar;
@@ -169,21 +172,68 @@ public class JournalFragment extends Fragment {
                     return;
                 }
 
+                //Getting studentID
+                SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+                int studentId = sessionPrefs.getInt("studentId", -1);
+
+                if (studentId == -1) {
+                    Toast.makeText(getContext(), "Student session error. Please log in again.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if (mood.isEmpty()) {
+                    edtMood.setError("Mood is required");
+                    return;
+                }
+
                 //Save the journal entry
                 JournalEntry entry = new JournalEntry(
-                        title.isEmpty() ? "Untitled Entry" : title, content, selectedDate, mood
+                        studentId,
+                        selectedDate,
+                        title.isEmpty() ? "Untitled Entry" : title,
+                        content,
+                        mood
                 );
+
+                Log.d("JournalSubmit", "Preparing to submit journal entry:");
+                Log.d("JournalSubmit", "Student ID: " + studentId);
+                Log.d("JournalSubmit", "Date: " + selectedDate);
+                Log.d("JournalSubmit", "Title: " + title);
+                Log.d("JournalSubmit", "Content: " + content);
+                Log.d("JournalSubmit", "Mood: " + mood);
+
 
                 journalEntries.add(0, entry);
                 adapter.notifyItemInserted(0);
                 recyclerView.scrollToPosition(0);
 
                 saveToPreferences(); //Save the updated list
+
+                //Submit to server using Retrofit
+                JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+                api.submitJournalEntry(entry).enqueue(new retrofit2.Callback<Void>() {
+                    @Override
+                    public void onResponse(@NonNull retrofit2.Call<Void> call, @NonNull retrofit2.Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            Snackbar.make(requireView(), "Journal entry saved.", Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        } else {
+                            Snackbar.make(requireView(), "Error occurred.", Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.darkred))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull retrofit2.Call<Void> call, @NonNull Throwable t) {
+                        Toast.makeText(getContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
                 checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
-                Snackbar.make(requireView(), "Journal entry saved.", Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
-                        .setTextColor(Color.WHITE)
-                        .show();
 
                 dialog.dismiss(); //Close dialog manually only when valid
             });
