@@ -6,15 +6,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.JournalEntryApi;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
 
 import java.util.List;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHolder> {
 
@@ -84,12 +92,33 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
                     .setPositiveButton("Delete", (dialog, which) -> {
                         int adapterPosition = holder.getAdapterPosition();
                         if (adapterPosition != RecyclerView.NO_POSITION) {
-                            journalList.remove(adapterPosition);
-                            notifyItemRemoved(adapterPosition);
-                            saveToPreferences.run(); // Save after deleting
-                            if (journalList.isEmpty() && listener != null) {
-                                listener.onDelete(null, adapterPosition); // Notify for empty state
-                            }
+                            JournalEntry toDelete = journalList.get(adapterPosition);
+
+                            // Make API call to delete
+                            JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+                            Call<ResponseBody> call = api.deleteJournalEntry(toDelete.getJournalId());
+
+                            call.enqueue(new Callback<ResponseBody>() {
+                                @Override
+                                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                                    if (response.isSuccessful()) {
+                                        journalList.remove(adapterPosition);
+                                        notifyItemRemoved(adapterPosition);
+                                        saveToPreferences.run();
+                                        if (journalList.isEmpty() && listener != null) {
+                                            listener.onDelete(null, adapterPosition);
+                                        }
+                                        Toast.makeText(context, "Entry deleted successfully.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(context, "Failed to delete entry.", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                                    Toast.makeText(context, "Network error.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     })
                     .setNegativeButton("Cancel", null)
