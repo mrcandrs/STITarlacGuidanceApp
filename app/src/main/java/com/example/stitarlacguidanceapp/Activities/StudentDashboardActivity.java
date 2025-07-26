@@ -94,6 +94,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //private journal button
         root.cvPrivateJournal.setOnClickListener(v -> privateJournal());
 
+        //mood tracker button
+        root.cvMoodTracker.setOnClickListener(v -> moodTracker());
+
         //setting button
         root.cvSettings.setOnClickListener(v -> settings());
 
@@ -126,6 +129,11 @@ public class StudentDashboardActivity extends AppCompatActivity {
     //for exit interview form
     private void exitInterview() {
         startActivity(new Intent(this, ExitFormActivity.class));
+    }
+
+    //for mood tracker
+    private void moodTracker() {
+        startActivity(new Intent(this, MoodTrackerActivity.class));
     }
 
     //for settings cardview button
