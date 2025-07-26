@@ -1,6 +1,7 @@
 package com.example.stitarlacguidanceapp.Adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,12 +11,14 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.JournalEntryApi;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
 
@@ -25,8 +28,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHolder> {
+    private final List<JournalEntry> journalList;
 
-    private List<JournalEntry> journalList;
     private OnJournalActionListener listener;
     private Context context;
     private Runnable saveToPreferences;
@@ -34,6 +37,9 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
     //Used to notify the fragment that the list may be empty
     private Runnable checkEmptyCallback;
 
+    public JournalAdapter(List<JournalEntry> journalList) {
+        this.journalList = journalList; // This should be a reference
+    }
 
     public JournalAdapter(List<JournalEntry> journalList, Context context, Runnable saveToPreferences, Runnable checkEmptyCallback, OnJournalActionListener listener) {
         this.journalList = journalList;
@@ -108,9 +114,15 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
                                         if (journalList.isEmpty() && listener != null) {
                                             listener.onDelete(null, adapterPosition);
                                         }
-                                        Toast.makeText(context, "Entry deleted successfully.", Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(holder.itemView, "Journal entry deleted successfully.", Snackbar.LENGTH_SHORT)
+                                                .setBackgroundTint(ContextCompat.getColor(context, R.color.blue))
+                                                .setTextColor(Color.WHITE)
+                                                .show();
                                     } else {
-                                        Toast.makeText(context, "Failed to delete entry.", Toast.LENGTH_SHORT).show();
+                                        Snackbar.make(holder.itemView, "Failed to delete entry.", Snackbar.LENGTH_SHORT)
+                                                .setBackgroundTint(ContextCompat.getColor(context, R.color.darkred))
+                                                .setTextColor(Color.WHITE)
+                                                .show();
                                     }
                                 }
 
@@ -125,6 +137,13 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
                     .show();
         });
     }
+
+    public void updateEntries(List<JournalEntry> newEntries) {
+        journalList.clear(); // or whatever your adapter's list is named
+        journalList.addAll(newEntries);
+        notifyDataSetChanged();
+    }
+
 
     @Override
     public int getItemCount() {

@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -163,6 +164,16 @@ public class SettingsActivity extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setMessage("Are you sure you want to log out?")
                 .setPositiveButton("Yes", (dialog, which) -> {
+
+                    // 🔑 Clear student session (if you're using one)
+                    SharedPreferences sessionPrefs = getSharedPreferences("student_session", Context.MODE_PRIVATE);
+                    sessionPrefs.edit().clear().apply();
+
+                    // 🧹 Clear journal entries saved in SharedPreferences
+                    SharedPreferences journalPrefs = getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
+                    journalPrefs.edit().clear().apply();
+
+                    // 🚪 Go back to main login screen
                     Intent intent = new Intent(this, MainActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
@@ -172,6 +183,7 @@ public class SettingsActivity extends AppCompatActivity {
                 .setCancelable(true)
                 .show();
     }
+
 
     //for edit profile
     private void editProfile() {

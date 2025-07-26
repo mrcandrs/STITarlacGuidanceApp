@@ -55,7 +55,7 @@ public class JournalFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private JournalAdapter adapter;
-    private List<JournalEntry> journalEntries = new ArrayList<>();
+    private final List<JournalEntry> journalEntries = new ArrayList<>();
     private SharedPreferences prefs;
 
     public JournalFragment() {}
@@ -66,17 +66,15 @@ public class JournalFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_journal, container, false);
         recyclerView = view.findViewById(R.id.recyclerJournal);
-        TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage); // 👈
+        TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage);
 
         prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
-
-        loadJournalEntries();
 
         adapter = new JournalAdapter(
                 journalEntries,
                 getContext(),
                 this::saveToPreferences,
-                () -> checkEmptyList(txtEmptyMessage), //this passes the callback
+                () -> checkEmptyList(txtEmptyMessage),
                 new JournalAdapter.OnJournalActionListener() {
                     @Override
                     public void onEdit(JournalEntry entry, int position) {
@@ -92,14 +90,16 @@ public class JournalFragment extends Fragment {
                 }
         );
 
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(adapter);
 
-        checkEmptyList(txtEmptyMessage); // 👈 initial check
+        loadJournalEntries(); // now the adapter is ready
+
+        checkEmptyList(txtEmptyMessage); // initial empty check
 
         return view;
     }
+
 
     public void showAddDialog() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
@@ -411,10 +411,18 @@ public class JournalFragment extends Fragment {
 
 
     private void saveToPreferences() {
+        SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+        if (studentId == -1) return;
+
+        SharedPreferences prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
         Gson gson = new Gson();
         String json = gson.toJson(journalEntries);
-        prefs.edit().putString("entries", json).apply();
+        editor.putString("entries_student_" + studentId, json); // ✅ Per-student
+        editor.apply();
     }
+
 
     private void checkEmptyList(TextView txtEmptyMessage) {
         if (journalEntries.isEmpty()) {
@@ -443,13 +451,55 @@ public class JournalFragment extends Fragment {
     }
 
     private void loadJournalEntries() {
-        String json = prefs.getString("entries", "");
-        if (!json.isEmpty()) {
-            Type type = new TypeToken<List<JournalEntry>>(){}.getType();
-            journalEntries = new Gson().fromJson(json, type);
-            sortJournalEntriesByDateDescending();
+        SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+
+        if (studentId == -1) {
+            Toast.makeText(getContext(), "Session error. Please log in again.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+        Call<List<JournalEntry>> call = api.getJournalEntriesByStudent(studentId);
+
+        call.enqueue(new Callback<List<JournalEntry>>() {
+            @Override
+            public void onResponse(Call<List<JournalEntry>> call, Response<List<JournalEntry>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<JournalEntry> sortedList = new ArrayList<>(response.body());
+                    Collections.sort(sortedList, (e1, e2) -> e2.getDate().compareTo(e1.getDate()));
+
+                    adapter.updateEntries(sortedList); // Directly update adapter's list
+
+                    checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
+                    saveToPreferences();
+                } else {
+                    Toast.makeText(getContext(), "Failed to load journal entries.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<JournalEntry>> call, Throwable t) {
+                Toast.makeText(getContext(), "Network error loading journal entries.", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("JournalDebug", "onResume called — reloading entries");
+        loadJournalEntries(); // always refresh when this fragment is visible
+        Log.d("JournalDebug", "Adapter item count: " + adapter.getItemCount());
+        Log.d("JournalDebug", "RecyclerView visibility: " + recyclerView.getVisibility());
+        recyclerView.setAdapter(adapter); // force rebind
+        Log.d("JournalDebug", "Before notify, journalEntries size: " + journalEntries.size());
+        adapter.notifyDataSetChanged();   // refresh
+        Log.d("JournalDebug", "After notify, adapter item count: " + adapter.getItemCount());
+    }
+
+
 }
 
 

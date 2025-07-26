@@ -21,6 +21,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.JournalEntryApi;
 import com.example.stitarlacguidanceapp.Models.JournalEntry;
 import com.example.stitarlacguidanceapp.R;
 import com.google.gson.Gson;
@@ -34,6 +36,10 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class CalendarFragment extends Fragment {
 
@@ -62,7 +68,7 @@ public class CalendarFragment extends Fragment {
 
         Typeface customFont = ResourcesCompat.getFont(requireContext(), R.font.poppins_regular);
 
-        updateCalendar(customFont);
+        loadJournalEntriesFromApi(customFont);
 
         btnPrev.setOnClickListener(v -> {
             calendar.add(Calendar.MONTH, -1);
@@ -80,7 +86,7 @@ public class CalendarFragment extends Fragment {
     private void updateCalendar(Typeface customFont) {
         SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         txtMonthYear.setText(monthFormat.format(calendar.getTime()));
-        loadJournalEntries();
+        loadJournalEntriesFromApi(customFont);
         gridDays.removeAllViews();
 
         //Weekday Headers (Sun–Sat)
@@ -235,15 +241,38 @@ public class CalendarFragment extends Fragment {
 
     }
 
-    private void loadJournalEntries() {
-        SharedPreferences prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
-        String json = prefs.getString("entries", "");
-        if (!json.isEmpty()) {
-            Type type = new TypeToken<List<JournalEntry>>() {}.getType();
-            journalEntries = new Gson().fromJson(json, type);
-        } else {
-            journalEntries = new ArrayList<>();
+    private void loadJournalEntriesFromApi(Typeface customFont) {
+        SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+
+        if (studentId == -1) {
+            Toast.makeText(getContext(), "Session error. Please log in again.", Toast.LENGTH_SHORT).show();
+            return;
         }
+
+        JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+        Call<List<JournalEntry>> call = api.getJournalEntriesByStudent(studentId);
+
+        call.enqueue(new Callback<List<JournalEntry>>() {
+            @Override
+            public void onResponse(Call<List<JournalEntry>> call, Response<List<JournalEntry>> response) {
+                if (!isAdded()) return; // ✅ Prevent crash if fragment is detached
+
+                if (response.isSuccessful() && response.body() != null) {
+                    journalEntries = response.body();
+                    updateCalendar(customFont); // redraw calendar AFTER data loaded
+                } else {
+                    Toast.makeText(getContext(), "Failed to load journal entries.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<JournalEntry>> call, Throwable t) {
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), "Network error loading journal entries.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
 }
 
