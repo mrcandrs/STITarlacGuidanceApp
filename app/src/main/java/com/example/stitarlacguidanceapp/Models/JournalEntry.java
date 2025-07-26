@@ -1,6 +1,7 @@
 package com.example.stitarlacguidanceapp.Models;
 
 public class JournalEntry {
+    private int journalId;
     private int studentId;
     private String date;
     private String title;
@@ -16,6 +17,14 @@ public class JournalEntry {
         this.title = title;
         this.content = content;
         this.mood = mood;
+    }
+
+    public int getJournalId() {
+        return journalId;
+    }
+
+    public void setJournalId(int journalId) {
+        this.journalId = journalId;
     }
 
     public int getStudentId() {

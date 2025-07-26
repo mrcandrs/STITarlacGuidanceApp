@@ -46,6 +46,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class JournalFragment extends Fragment {
 
     private RecyclerView recyclerView;
@@ -203,18 +208,25 @@ public class JournalFragment extends Fragment {
                 Log.d("JournalSubmit", "Mood: " + mood);
 
 
-                journalEntries.add(0, entry);
-                adapter.notifyItemInserted(0);
                 recyclerView.scrollToPosition(0);
 
                 saveToPreferences(); //Save the updated list
 
                 //Submit to server using Retrofit
                 JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
-                api.submitJournalEntry(entry).enqueue(new retrofit2.Callback<Void>() {
+                Call<JournalEntry> call = api.submitJournalEntry(entry);
+                call.enqueue(new Callback<JournalEntry>() {
                     @Override
-                    public void onResponse(@NonNull retrofit2.Call<Void> call, @NonNull retrofit2.Response<Void> response) {
-                        if (response.isSuccessful()) {
+                    public void onResponse(Call<JournalEntry> call, Response<JournalEntry> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            JournalEntry savedEntry = response.body(); // ✅ Has correct journalId from backend
+                            //making sure the entry is the right journal ID
+                            if (savedEntry != null) {
+                                journalEntries.add(savedEntry);
+                                adapter.notifyItemInserted(journalEntries.size() - 1);
+                                saveToPreferences();
+                            }
+
                             Snackbar.make(requireView(), "Journal entry saved.", Snackbar.LENGTH_SHORT)
                                     .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
                                     .setTextColor(Color.WHITE)
@@ -228,7 +240,7 @@ public class JournalFragment extends Fragment {
                     }
 
                     @Override
-                    public void onFailure(@NonNull retrofit2.Call<Void> call, @NonNull Throwable t) {
+                    public void onFailure(Call<JournalEntry> call, Throwable t) {
                         Toast.makeText(getContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -255,7 +267,7 @@ public class JournalFragment extends Fragment {
         EditText edtMood = dialogView.findViewById(R.id.edtMood);
         EditText edtDate = dialogView.findViewById(R.id.edtDate);
 
-        // Populate fields with existing data
+        //Populate fields with existing data
         edtTitle.setText(entry.getTitle());
         edtContent.setText(entry.getContent());
         edtMood.setText(entry.getMood());
@@ -332,20 +344,64 @@ public class JournalFragment extends Fragment {
                     return;
                 }
 
-                // Update the entry
+                Log.d("JournalEditDialog", "Original Journal ID: " + entry.getJournalId());
+                SharedPreferences prefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+                int studentId = prefs.getInt("studentId", 0);
+                entry.setStudentId(studentId);
+
+                // THEN update the other fields
                 entry.setTitle(newTitle.isEmpty() ? "Untitled Entry" : newTitle);
                 entry.setContent(newContent);
                 entry.setMood(newMood);
                 entry.setDate(newDate);
 
-                adapter.notifyItemChanged(position);
-                saveToPreferences(); //Persist updates
-                checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
-                Snackbar.make(requireView(), "Journal updated.", Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
-                        .setTextColor(Color.WHITE)
-                        .show();
-                dialog.dismiss();
+
+                JournalEntryApi apiService = ApiClient.getClient().create(JournalEntryApi.class);
+
+                // ✅ PUT THE LOGS HERE
+                Log.d("JournalUpdate", "Updating Journal ID: " + entry.getJournalId());
+                Log.d("JournalUpdate", "Title: " + entry.getTitle());
+                Log.d("JournalUpdate", "Date: " + entry.getDate());
+
+                Call<ResponseBody> call = apiService.updateJournal(entry.getJournalId(), entry);
+                call.enqueue(new Callback<ResponseBody>() {
+                    @Override
+                    public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                        if (response.isSuccessful()) {
+                            adapter.notifyItemChanged(position);
+                            saveToPreferences();
+                            checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
+                            Snackbar.make(requireView(), "Journal updated.", Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "Unknown error";
+                                Log.e("JournalUpdate", "Update failed: " + response.code() + " - " + errorBody);
+                            } catch (Exception e) {
+                                Log.e("JournalUpdate", "Error reading errorBody", e);
+                            }
+
+                            Snackbar.make(requireView(), "Failed to update journal entry.", Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.darkred))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+
+                        dialog.dismiss();
+                    }
+
+                    @Override
+                    public void onFailure(Call<ResponseBody> call, Throwable t) {
+                        Log.e("JournalUpdate", "Network error: " + t.getMessage());
+                        Snackbar.make(requireView(), "Network error during update.", Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.darkred))
+                                .setTextColor(Color.WHITE)
+                                .show();
+                        dialog.dismiss();
+                    }
+                });
             });
         });
 
@@ -385,8 +441,6 @@ public class JournalFragment extends Fragment {
             }
         });
     }
-
-
 
     private void loadJournalEntries() {
         String json = prefs.getString("entries", "");
