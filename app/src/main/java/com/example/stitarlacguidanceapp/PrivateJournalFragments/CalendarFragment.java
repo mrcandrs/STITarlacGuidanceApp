@@ -256,11 +256,11 @@ public class CalendarFragment extends Fragment {
         call.enqueue(new Callback<List<JournalEntry>>() {
             @Override
             public void onResponse(Call<List<JournalEntry>> call, Response<List<JournalEntry>> response) {
-                if (!isAdded()) return; // ✅ Prevent crash if fragment is detached
+                if (!isAdded()) return; //Prevents crash if fragment is detached
 
                 if (response.isSuccessful() && response.body() != null) {
                     journalEntries = response.body();
-                    updateCalendar(customFont); // redraw calendar AFTER data loaded
+                    updateCalendar(customFont); //Redraw calendar after data loaded
                 } else {
                     Toast.makeText(getContext(), "Failed to load journal entries.", Toast.LENGTH_SHORT).show();
                 }

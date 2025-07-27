@@ -122,13 +122,13 @@ public class JournalFragment extends Fragment {
                 edtDate.setText(dateStr);
             }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
-            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis()); // Prevent future dates
+            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis()); //Prevent future dates
             datePicker.show();
         });
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
-                .setPositiveButton("Save", null) //We override this later
+                .setPositiveButton("Save", null)
                 .setNegativeButton("Cancel", null)
                 .create();
 
@@ -273,7 +273,7 @@ public class JournalFragment extends Fragment {
         edtMood.setText(entry.getMood());
         edtDate.setText(entry.getDate());
 
-        // Date picker
+        //Date picker
         edtDate.setOnClickListener(v -> {
             Calendar calendar = Calendar.getInstance();
             try {
