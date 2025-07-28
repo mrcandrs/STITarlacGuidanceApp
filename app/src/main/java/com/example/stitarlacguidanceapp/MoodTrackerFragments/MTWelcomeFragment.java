@@ -17,14 +17,17 @@ import com.example.stitarlacguidanceapp.R;
 
 public class MTWelcomeFragment extends Fragment {
 
-    public MTWelcomeFragment() {}
+    //Empty constructor
+    public MTWelcomeFragment() {
+
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_mtwelcome, container, false);
         MoodTrackerActivity activity = (MoodTrackerActivity) getActivity();
-        SharedPreferences prefs = activity.getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        SharedPreferences prefs = activity.getSharedPreferences("student_session", Context.MODE_PRIVATE); //Shared Preferences from login
 
         ((TextView)view.findViewById(R.id.txtStudentNumber)).setText(prefs.getString("studentNumber", "N/A"));
 
