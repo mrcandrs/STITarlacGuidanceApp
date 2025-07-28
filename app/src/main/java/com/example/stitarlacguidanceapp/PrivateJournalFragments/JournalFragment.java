@@ -499,7 +499,6 @@ public class JournalFragment extends Fragment {
         Log.d("JournalDebug", "After notify, adapter item count: " + adapter.getItemCount());
     }
 
-
 }
 
 

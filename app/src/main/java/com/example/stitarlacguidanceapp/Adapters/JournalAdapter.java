@@ -144,7 +144,6 @@ public class JournalAdapter extends RecyclerView.Adapter<JournalAdapter.ViewHold
         notifyDataSetChanged();
     }
 
-
     @Override
     public int getItemCount() {
         return journalList.size();
