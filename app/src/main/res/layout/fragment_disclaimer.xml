@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/gradient_bg">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center"
+        android:layout_gravity="center_vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Disclaimer"
+            android:fontFamily="@font/poppins_bold"
+            android:textSize="22sp"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:layout_marginBottom="16dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="This mood tracker is a self-assessment tool based on the Mood and Feelings Questionnaire (MFQ). It is not a clinical diagnosis.\n\nIf you are feeling distressed or overwhelmed, we encourage you to speak with a mental health professional or reach out to your campus guidance counselor."
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@android:color/white"
+            android:gravity="center"
+            android:layout_marginBottom="24dp" />
+
+        <Button
+            android:id="@+id/btnProceed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="I Understand"
+            android:fontFamily="@font/poppins_semibold"
+            android:background="@drawable/button_border_2"
+            app:backgroundTint="@color/yellow"
+            android:textColor="@color/blue" />
+    </LinearLayout>
+</ScrollView>

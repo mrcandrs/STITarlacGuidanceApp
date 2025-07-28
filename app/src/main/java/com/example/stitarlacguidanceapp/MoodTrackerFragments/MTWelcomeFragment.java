@@ -14,8 +14,11 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.stitarlacguidanceapp.Activities.MoodTrackerActivity;
 import com.example.stitarlacguidanceapp.R;
+import com.example.stitarlacguidanceapp.databinding.FragmentMtwelcomeBinding;
 
 public class MTWelcomeFragment extends Fragment {
+
+    private FragmentMtwelcomeBinding root;
 
     //Empty constructor
     public MTWelcomeFragment() {
@@ -25,20 +28,33 @@ public class MTWelcomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_mtwelcome, container, false);
+        root = FragmentMtwelcomeBinding.inflate(inflater, container, false);
+
+        //Getting student number from SharedPreferences
         MoodTrackerActivity activity = (MoodTrackerActivity) getActivity();
         SharedPreferences prefs = activity.getSharedPreferences("student_session", Context.MODE_PRIVATE); //Shared Preferences from login
 
-        ((TextView)view.findViewById(R.id.txtStudentNumber)).setText(prefs.getString("studentNumber", "N/A"));
+        String studentNumber = prefs.getString("studentNumber", "N/A");
 
-        Button btnStart = view.findViewById(R.id.btnStart);
-        btnStart.setOnClickListener(v -> {
+        //Setting the student number in the TextView
+        root.txtStudentNumber.setText(studentNumber);
+
+        root.btnStart.setOnClickListener(v -> {
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
-            //ft.replace(R.id.fragment_container, new DisclaimerFragment());
+
+            //Setting custom animations
+            ft.setCustomAnimations(
+                    R.anim.slide_in_right,  //Enter
+                    R.anim.slide_out_left,  //Exit
+                    R.anim.slide_in_left,   //PopEnter (when back)
+                    R.anim.slide_out_right  //PopExit (when back)
+            );
+
+            ft.replace(R.id.fragment_container, new DisclaimerFragment());
             ft.addToBackStack(null);
             ft.commit();
         });
 
-        return view;
+        return root.getRoot();
     }
 }
