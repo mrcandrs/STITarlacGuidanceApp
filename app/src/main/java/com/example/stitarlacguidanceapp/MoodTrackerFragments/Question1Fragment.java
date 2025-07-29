@@ -53,7 +53,7 @@ public class Question1Fragment extends Fragment {
 
             //Go to Question 2 or final result screen
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
-            //ft.replace(R.id.fragment_container, new Question2Fragment());
+            ft.replace(R.id.fragment_container, new MoodTrackerResultFragment());
             ft.addToBackStack(null);
             ft.commit();
         });
