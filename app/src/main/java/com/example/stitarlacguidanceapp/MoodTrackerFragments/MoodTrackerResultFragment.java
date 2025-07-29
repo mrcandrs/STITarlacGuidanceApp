@@ -1,5 +1,7 @@
 package com.example.stitarlacguidanceapp.MoodTrackerFragments;
 
+import static android.graphics.Color.parseColor;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -52,9 +54,24 @@ public class MoodTrackerResultFragment extends Fragment {
             moodIcon = R.drawable.highmood;
         }
 
+        //Display score
+        root.txtTotalScore.setText("Your Score: " + totalScore);
+
+        //Set mood level info
         root.txtMoodLevel.setText(moodLevel);
         root.txtMoodDescription.setText(description);
         root.imgMoodFace.setImageResource(moodIcon);
+
+        //Optionally set badge-style color for mood level
+        int color;
+        if (moodLevel.equals("MILD")) {
+            color = parseColor("#34C759");
+        } else if (moodLevel.equals("MODERATE")) {
+            color = parseColor("#009951");
+        } else {
+            color = parseColor("#1B5E20");
+        }
+        root.txtMoodLevel.setTextColor(color);
 
         //Save current time to SharedPreferences for cooldown
         SharedPreferences prefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);

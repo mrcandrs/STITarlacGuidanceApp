@@ -27,7 +27,17 @@
         android:textSize="16sp"
         android:textColor="@android:color/white"
         android:fontFamily="@font/poppins_regular"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="12dp"/>
+
+    <TextView
+        android:id="@+id/txtTotalScore"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your Score: "
+        android:textSize="16sp"
+        android:textColor="@android:color/white"
+        android:fontFamily="@font/poppins_medium"
+        android:layout_marginBottom="12dp"/>
 
     <ImageView
         android:id="@+id/imgMoodFace"

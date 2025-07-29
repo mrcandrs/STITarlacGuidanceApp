@@ -70,9 +70,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private Uri selectedImageUri;
     private ImageView imgProfile;
 
-    //private final long COOLDOWN_PERIOD = 24 * 60 * 60 * 1000; //24 hours
+    private final long COOLDOWN_PERIOD = 24 * 60 * 60 * 1000; //24 hours
+    //private final long COOLDOWN_PERIOD = 30 * 1000; //30 seconds for testing
 
-    private final long COOLDOWN_PERIOD = 30 * 1000; //30 seconds for testing
     private final Handler cooldownHandler = new Handler(Looper.getMainLooper());
     private Runnable cooldownRunnable;
 
