@@ -50,9 +50,18 @@ public class Question2Fragment extends Fragment {
             Log.d("MoodTracker", "Total score after Q2: " + viewModel.getScore());
 
 
-            //Go to Question 3 or final result screen
+            //Go to Question 3
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
-            //ft.replace(R.id.fragment_container, new Question3Fragment());
+
+            //Setting custom animations
+            ft.setCustomAnimations(
+                    R.anim.slide_in_right,  //Enter
+                    R.anim.slide_out_left,  //Exit
+                    R.anim.slide_in_left,   //PopEnter (when back)
+                    R.anim.slide_out_right  //PopExit (when back)
+            );
+
+            ft.replace(R.id.fragment_container, new Question3Fragment());
             ft.addToBackStack(null);
             ft.commit();
         });

@@ -5,8 +5,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
@@ -15,24 +13,21 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.stitarlacguidanceapp.Models.MoodViewModel;
 import com.example.stitarlacguidanceapp.R;
-import com.example.stitarlacguidanceapp.databinding.FragmentQuestion1Binding;
+import com.example.stitarlacguidanceapp.databinding.FragmentQuestion3Binding;
+import com.example.stitarlacguidanceapp.databinding.FragmentQuestion4Binding;
 
-public class Question1Fragment extends Fragment {
+public class Question4Fragment extends Fragment {
 
-    private FragmentQuestion1Binding root;
+    private FragmentQuestion4Binding root;
     private int selectedScore = -1;
 
-    public Question1Fragment() {}
+    public Question4Fragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        root = FragmentQuestion1Binding.inflate(inflater, container, false);
+        root = FragmentQuestion4Binding.inflate(inflater, container, false);
 
-        // 💥 Reset score on (re)entering Question 1
-        MoodViewModel viewModel = new ViewModelProvider(requireActivity()).get(MoodViewModel.class);
-        viewModel.resetScores(); // Clear all previously stored answers
-        Log.d("MoodTracker", "MoodViewModel reset (score cleared)");
 
         root.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
             if (checkedId == R.id.radio0) {
@@ -50,10 +45,12 @@ public class Question1Fragment extends Fragment {
                 return;
             }
 
-            viewModel.setScoreForQuestion(0, selectedScore); //Question 1 = index 0
-            Log.d("MoodTracker", "Total score after Q1: " + viewModel.getScore());
+            MoodViewModel viewModel = new ViewModelProvider(requireActivity()).get(MoodViewModel.class);
+            viewModel.setScoreForQuestion(3, selectedScore); //Question 4 = index 3
+            Log.d("MoodTracker", "Total score after Q4: " + viewModel.getScore());
 
-            //Go to Question 2
+
+            //Go to Question 5
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
 
             //Setting custom animations
@@ -64,7 +61,7 @@ public class Question1Fragment extends Fragment {
                     R.anim.slide_out_right  //PopExit (when back)
             );
 
-            ft.replace(R.id.fragment_container, new Question2Fragment());
+            ft.replace(R.id.fragment_container, new Question5Fragment());
             ft.addToBackStack(null);
             ft.commit();
         });
@@ -72,7 +69,6 @@ public class Question1Fragment extends Fragment {
         root.btnViewGuide.setOnClickListener(v -> {
             new ScoringGuideDialog().show(getParentFragmentManager(), "scoring_guide");
         });
-
 
         return root.getRoot();
     }
