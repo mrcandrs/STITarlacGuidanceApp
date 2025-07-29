@@ -327,6 +327,17 @@
                             android:fontFamily="@font/poppins_semibold"
                             android:textColor="@color/blue"
                             android:paddingTop="5dp"/>
+
+                        <TextView
+                            android:id="@+id/txtMoodTrackerCooldown"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="--:--:--"
+                            android:fontFamily="@font/poppins_regular"
+                            android:textSize="12sp"
+                            android:textColor="@color/darkred"/>
+
+
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 

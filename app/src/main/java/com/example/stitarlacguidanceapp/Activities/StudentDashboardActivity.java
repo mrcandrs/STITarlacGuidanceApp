@@ -6,12 +6,14 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -19,6 +21,7 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -39,9 +42,15 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.gson.Gson;
 
-import java.io.File;
+
 import java.util.Arrays;
 import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
+
 
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -60,6 +69,13 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private List<Quote> quoteList;
     private Uri selectedImageUri;
     private ImageView imgProfile;
+
+    //private final long COOLDOWN_PERIOD = 24 * 60 * 60 * 1000; //24 hours
+
+    private final long COOLDOWN_PERIOD = 30 * 1000; //30 seconds for testing
+    private final Handler cooldownHandler = new Handler(Looper.getMainLooper());
+    private Runnable cooldownRunnable;
+
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
@@ -84,6 +100,8 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //load the student's info in profile
         loadStudentInfo();
 
+        //Mood Tracker cooldown
+        setupMoodTrackerCooldown();
 
         //exit interview form button
         root.cvExitInterview.setOnClickListener(v -> exitInterview());
@@ -115,6 +133,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
     }
+
 
     //for referral form
     private void referralForm() {
@@ -168,6 +187,49 @@ public class StudentDashboardActivity extends AppCompatActivity {
         }
     }
 
+    private void setupMoodTrackerCooldown() {
+        TextView txtCooldown = findViewById(R.id.txtMoodTrackerCooldown);
+        CardView moodCard = findViewById(R.id.cv_MoodTracker);
+
+        SharedPreferences prefs = getSharedPreferences("MoodPrefs", MODE_PRIVATE);
+        long lastTakenMillis = prefs.getLong("lastMoodTimestamp", 0);
+        long now = System.currentTimeMillis();
+        long timeLeft = COOLDOWN_PERIOD - (now - lastTakenMillis);
+
+        if (timeLeft > 0) {
+            moodCard.setEnabled(false);
+            txtCooldown.setTextColor(getResources().getColor(R.color.darkred));
+
+            cooldownRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    long remaining = lastTakenMillis + COOLDOWN_PERIOD - System.currentTimeMillis();
+
+                    if (remaining <= 0) {
+                        txtCooldown.setText("Mood Tracker available");
+                        txtCooldown.setTextColor(getResources().getColor(R.color.darkgreen));
+                        moodCard.setEnabled(true);
+                        cooldownHandler.removeCallbacks(this);
+                    } else {
+                        int hrs = (int) (remaining / (1000 * 60 * 60));
+                        int mins = (int) ((remaining / (1000 * 60)) % 60);
+                        int secs = (int) ((remaining / 1000) % 60);
+                        txtCooldown.setText(String.format("Available in: %02d:%02d:%02d", hrs, mins, secs));
+
+                        //Schedule next update in 1 second
+                        cooldownHandler.postDelayed(this, 1000);
+                    }
+                }
+            };
+            cooldownHandler.post(cooldownRunnable);
+        } else {
+            txtCooldown.setText("Mood Tracker available");
+            txtCooldown.setTextColor(getResources().getColor(R.color.darkgreen));
+            moodCard.setEnabled(true);
+        }
+
+    }
+
 
     private final Runnable sliderRunnable = new Runnable() {
         @Override
@@ -192,6 +254,15 @@ public class StudentDashboardActivity extends AppCompatActivity {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
         loadStudentInfo();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        //Clean up the handler to avoid memory leaks
+        if (cooldownRunnable != null) {
+            cooldownHandler.removeCallbacks(cooldownRunnable);
+        }
     }
 
     private String getRealPathFromUri(Uri uri) {
