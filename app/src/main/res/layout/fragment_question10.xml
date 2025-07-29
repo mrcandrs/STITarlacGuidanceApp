@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:id="@+id/fragmentQuestion10"
+    android:padding="24dp"
+    android:gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Question 10"
+        android:fontFamily="@font/poppins_bold"
+        android:textSize="22sp"
+        android:textColor="@color/blue"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I felt lonely."
+        android:fontFamily="@font/poppins_regular"
+        android:textSize="18sp"
+        android:textColor="@color/blue"
+        android:layout_marginBottom="24dp" />
+
+    <RadioGroup
+        android:id="@+id/radioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RadioButton
+            android:id="@+id/radio0"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Not True"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/blue"/>
+        <RadioButton
+            android:id="@+id/radio1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sometimes"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/blue" />
+        <RadioButton
+            android:id="@+id/radio2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="True"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@color/blue" />
+    </RadioGroup>
+
+    <Button
+        android:id="@+id/btnViewGuide"
+        android:text="View Scoring Guide"
+        android:fontFamily="@font/poppins_semibold"
+        android:layout_marginTop="12dp"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_border_2"
+        app:backgroundTint="@null"
+        android:textColor="@color/blue"/>
+
+    <Button
+        android:id="@+id/btnNext"
+        android:text="Next"
+        android:fontFamily="@font/poppins_semibold"
+        android:layout_marginTop="24dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_border_2"
+        android:textColor="@android:color/white" />
+
+</LinearLayout>

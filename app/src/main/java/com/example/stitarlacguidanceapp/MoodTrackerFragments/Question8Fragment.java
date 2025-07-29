@@ -13,20 +13,20 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.stitarlacguidanceapp.Models.MoodViewModel;
 import com.example.stitarlacguidanceapp.R;
-import com.example.stitarlacguidanceapp.databinding.FragmentQuestion5Binding;
-import com.example.stitarlacguidanceapp.databinding.FragmentQuestion6Binding;
+import com.example.stitarlacguidanceapp.databinding.FragmentQuestion7Binding;
+import com.example.stitarlacguidanceapp.databinding.FragmentQuestion8Binding;
 
-public class Question6Fragment extends Fragment {
+public class Question8Fragment extends Fragment {
 
-    private FragmentQuestion6Binding root;
+    private FragmentQuestion8Binding root;
     private int selectedScore = -1;
 
-    public Question6Fragment() {}
+    public Question8Fragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        root = FragmentQuestion6Binding.inflate(inflater, container, false);
+        root = FragmentQuestion8Binding.inflate(inflater, container, false);
 
 
         root.radioGroup.setOnCheckedChangeListener((group, checkedId) -> {
@@ -46,11 +46,11 @@ public class Question6Fragment extends Fragment {
             }
 
             MoodViewModel viewModel = new ViewModelProvider(requireActivity()).get(MoodViewModel.class);
-            viewModel.setScoreForQuestion(5, selectedScore); //Question 6 = index 5
-            Log.d("MoodTracker", "Total score after Q6: " + viewModel.getScore());
+            viewModel.setScoreForQuestion(7, selectedScore); //Question 8 = index 7
+            Log.d("MoodTracker", "Total score after Q8: " + viewModel.getScore());
 
 
-            //Go to Question 7
+            //Go to Question 9
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
 
             //Setting custom animations
@@ -61,7 +61,7 @@ public class Question6Fragment extends Fragment {
                     R.anim.slide_out_right  //PopExit (when back)
             );
 
-            ft.replace(R.id.fragment_container, new Question7Fragment());
+            ft.replace(R.id.fragment_container, new Question9Fragment());
             ft.addToBackStack(null);
             ft.commit();
         });
