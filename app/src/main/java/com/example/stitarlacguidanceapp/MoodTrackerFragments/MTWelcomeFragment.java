@@ -16,6 +16,10 @@ import com.example.stitarlacguidanceapp.Activities.MoodTrackerActivity;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.databinding.FragmentMtwelcomeBinding;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 public class MTWelcomeFragment extends Fragment {
 
     private FragmentMtwelcomeBinding root;
@@ -32,6 +36,16 @@ public class MTWelcomeFragment extends Fragment {
 
         //Getting student number from SharedPreferences
         MoodTrackerActivity activity = (MoodTrackerActivity) getActivity();
+        SharedPreferences moodprefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);
+        long lastMillis = moodprefs.getLong("lastMoodTimestamp", 0);
+
+        if (lastMillis != 0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy hh:mm a", Locale.getDefault());
+            root.txtLastTaken.setText("Last taken: " + sdf.format(new Date(lastMillis)));
+        } else {
+            root.txtLastTaken.setText("Last taken: Not yet taken");
+        }
+
         SharedPreferences prefs = activity.getSharedPreferences("student_session", Context.MODE_PRIVATE); //Shared Preferences from login
 
         String studentNumber = prefs.getString("studentNumber", "N/A");

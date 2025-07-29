@@ -58,6 +58,17 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/txtLastTaken"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Last taken: Not yet taken"
+        android:fontFamily="@font/poppins_italic"
+        android:textSize="14sp"
+        android:textColor="@color/white"
+        android:layout_marginBottom="8dp"/>
+
+
     <Button
         android:id="@+id/btnStart"
         android:layout_width="match_parent"
