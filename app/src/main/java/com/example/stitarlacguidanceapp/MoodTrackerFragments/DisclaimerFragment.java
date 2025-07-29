@@ -27,7 +27,16 @@ public class DisclaimerFragment extends Fragment {
 
         root.btnProceed.setOnClickListener(v -> {
             FragmentTransaction ft = requireActivity().getSupportFragmentManager().beginTransaction();
-            //ft.replace(R.id.fragment_container, new Question1Fragment());
+
+            //Setting custom animations
+            ft.setCustomAnimations(
+                    R.anim.slide_in_right,  //Enter
+                    R.anim.slide_out_left,  //Exit
+                    R.anim.slide_in_left,   //PopEnter (when back)
+                    R.anim.slide_out_right  //PopExit (when back)
+            );
+
+            ft.replace(R.id.fragment_container, new Question1Fragment());
             ft.addToBackStack(null);
             ft.commit();
         });
