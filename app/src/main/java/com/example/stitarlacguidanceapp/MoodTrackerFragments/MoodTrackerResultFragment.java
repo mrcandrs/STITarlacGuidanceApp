@@ -28,9 +28,9 @@ public class MoodTrackerResultFragment extends Fragment {
         int totalScore = viewModel.getScore();
 
         String resultText;
-        if (totalScore <= 10) {
+        if (totalScore <= 5) {
             resultText = "Your result is: Mild";
-        } else if (totalScore <= 20) {
+        } else if (totalScore > 5 && totalScore < 12) {
             resultText = "Your result is: Moderate";
         } else {
             resultText = "Your result is: Severe";

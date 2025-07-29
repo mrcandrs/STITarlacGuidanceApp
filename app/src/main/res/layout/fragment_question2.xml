@@ -2,7 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:id="@+id/fragmentQuestion1"
+    android:id="@+id/fragmentQuestion2"
     android:padding="24dp"
     android:gravity="center"
     android:layout_width="match_parent"
@@ -11,7 +11,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Question 1"
+        android:text="Question 2"
         android:fontFamily="@font/poppins_bold"
         android:textSize="22sp"
         android:textColor="@color/blue"
@@ -21,7 +21,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="I felt miserable or unhappy."
+        android:text="I didn't enjoy anything at all."
         android:fontFamily="@font/poppins_regular"
         android:textSize="18sp"
         android:textColor="@color/blue"

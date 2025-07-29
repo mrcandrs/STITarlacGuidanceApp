@@ -1,22 +1,38 @@
 package com.example.stitarlacguidanceapp.Models;
 
-import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class MoodViewModel extends ViewModel {
-    private final MutableLiveData<Integer> score = new MutableLiveData<>(0);
+import java.util.ArrayList;
 
-    public void addScore(int value) {
-        Integer current = score.getValue();
-        score.setValue((current != null ? current : 0) + value);
+public class MoodViewModel extends ViewModel {
+
+    private final ArrayList<Integer> scores = new ArrayList<>();
+
+    //Add or update score for a specific question index
+    public void setScoreForQuestion(int questionIndex, int score) {
+        while (scores.size() <= questionIndex) {
+            scores.add(0); // default fill
+        }
+        scores.set(questionIndex, score);
     }
 
     public int getScore() {
-        return score.getValue() != null ? score.getValue() : 0;
+        int total = 0;
+        for (int s : scores) {
+            total += s;
+        }
+        return total;
     }
 
-    public void resetScore() {
-        score.setValue(0);
+    public int getScoreForQuestion(int questionIndex) {
+        if (questionIndex >= 0 && questionIndex < scores.size()) {
+            return scores.get(questionIndex);
+        }
+        return -1;
+    }
+
+    //Reset all scores (e.g., when restarting at Question 1)
+    public void resetScores() {
+        scores.clear(); //Remove all previous scores
     }
 }
-
