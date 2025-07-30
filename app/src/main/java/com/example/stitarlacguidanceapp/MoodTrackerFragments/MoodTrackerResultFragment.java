@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +18,21 @@ import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.stitarlacguidanceapp.Activities.StudentDashboardActivity;
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.Models.MoodTrackerModel;
 import com.example.stitarlacguidanceapp.Models.MoodViewModel;
+import com.example.stitarlacguidanceapp.MoodTrackerApi;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.databinding.FragmentMoodTrackerResultBinding;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class MoodTrackerResultFragment extends Fragment {
@@ -73,9 +86,46 @@ public class MoodTrackerResultFragment extends Fragment {
         }
         root.txtMoodLevel.setTextColor(color);
 
+        // Prepare data for API call
+        SharedPreferences sessionPrefs = requireActivity().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+
+        String entryDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).format(new Date());
+        MoodTrackerModel mood = new MoodTrackerModel(studentId, moodLevel, entryDate);
+
+        //Call API
+        MoodTrackerApi apiService = ApiClient.getClient().create(MoodTrackerApi.class);
+        Call<MoodTrackerModel> call = apiService.submitMood(mood);
+
+        call.enqueue(new Callback<MoodTrackerModel>() {
+            @Override
+            public void onResponse(Call<MoodTrackerModel> call, Response<MoodTrackerModel> response) {
+                if (response.isSuccessful()) {
+                    Log.d("MoodTracker", "Mood result saved successfully.");
+                } else {
+                    Log.e("MoodTracker", "Failed to save mood: " + response.code());
+
+                    // Try to log the full error body from server
+                    try {
+                        if (response.errorBody() != null) {
+                            String errorBody = response.errorBody().string();
+                            Log.e("MoodTracker", "Server error body: " + errorBody);
+                        }
+                    } catch (IOException e) {
+                        Log.e("MoodTracker", "Error reading errorBody: " + e.getMessage());
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoodTrackerModel> call, Throwable t) {
+                Log.e("MoodTracker", "Error: " + t.getMessage());
+            }
+        });
+
         //Save current time to SharedPreferences for cooldown
-        SharedPreferences prefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);
-        prefs.edit().putLong("lastMoodTimestamp", System.currentTimeMillis()).apply();
+        SharedPreferences moodPrefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);
+        moodPrefs.edit().putLong("lastMoodTimestamp", System.currentTimeMillis()).apply();
 
         root.btnReturnDashboard.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), StudentDashboardActivity.class));
