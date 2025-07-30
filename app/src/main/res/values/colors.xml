@@ -13,4 +13,11 @@
     <color name="orange">#F2921D</color>
     <color name="darkgreen">#008200</color>
     <color name="darkred">#F54236</color>
+    <color name="green_700">#15803D</color>
+    <color name="red_700">#B91C1C</color>
+    <color name="yellow_700">#A16207</color>
+    <color name="approved_green">#DCFCE7</color>
+    <color name="rejected_red">#FEE2E2</color>
+    <color name="pending_yellow">#FEF9C3</color>
+
 </resources>

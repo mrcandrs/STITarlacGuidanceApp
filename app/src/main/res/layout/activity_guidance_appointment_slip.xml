@@ -1,0 +1,231 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#F9FAFB"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <!--Header with Status Badge-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/journal_header_bg"
+            android:padding="16dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="STI Tarlac Guidance Office\nGuidance Appointment Slip"
+                android:fontFamily="@font/poppins_bold"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                android:gravity="center"/>
+
+            <LinearLayout
+                android:id="@+id/statusBadge"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="horizontal"
+                android:padding="8dp"
+                android:background="@drawable/status_pending_bg"
+                android:gravity="center">
+
+                <ImageView
+                    android:id="@+id/statusIcon"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_pending"/>
+
+                <TextView
+                    android:id="@+id/statusText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Status: Pending"
+                    android:textSize="14dp"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textColor="#A16207"
+                    android:layout_marginStart="8dp"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <!--Student Name-->
+        <EditText
+            android:id="@+id/etStudentName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Enter your full name"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginTop="20dp"
+            android:padding="12dp"
+            android:background="@drawable/edittext_background"
+            android:inputType="textPersonName"/>
+
+        <!--Program and Section-->
+        <EditText
+            android:id="@+id/etProgramSection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Program and Section"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginTop="12dp"
+            android:padding="12dp"
+            android:background="@drawable/edittext_background"
+            android:inputType="text"/>
+
+        <!-- Reason RadioGroup -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reason for the Appointment"
+            android:fontFamily="@font/poppins_semibold"
+            android:layout_marginTop="20dp" />
+
+        <RadioGroup
+            android:id="@+id/rgReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp">
+
+            <RadioButton
+                android:id="@+id/rbAcademics"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Academics" />
+            <RadioButton
+                android:id="@+id/rbSocial"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Social" />
+            <RadioButton
+                android:id="@+id/rbPersonal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Personal" />
+            <RadioButton
+                android:id="@+id/rbCareer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Career" />
+            <RadioButton
+                android:id="@+id/rbOthers"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/poppins_regular"
+                android:text="Others" />
+        </RadioGroup>
+
+        <!-- Optional Other Reason -->
+        <EditText
+            android:id="@+id/etOtherReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Please specify..."
+            android:fontFamily="@font/poppins_regular"
+            android:visibility="gone"
+            android:padding="10dp"
+            android:background="@drawable/edittext_background" />
+
+        <!-- Date Picker -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Date of Appointment"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"/>
+        <Button
+            android:id="@+id/btnSelectDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select available date"
+            android:fontFamily="@font/poppins_semibold"/>
+
+        <!-- Time Picker -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/poppins_semibold"
+            android:text="Time of Appointment"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"/>
+        <Button
+            android:id="@+id/btnSelectTime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select available time"
+            android:fontFamily="@font/poppins_semibold"
+            android:enabled="false" />
+
+        <!-- Submit Button -->
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Submit Appointment Request"
+            android:fontFamily="@font/poppins_semibold"
+            android:enabled="false"
+            android:backgroundTint="#2563EB"
+            android:textColor="#FFFFFF" />
+
+        <!-- Note -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:background="#FEF3C7"
+            android:padding="12dp"
+            android:text="NOTE: Please make sure to arrive on time for your scheduled appointment. You will receive a notification once your guidance counselor reviews your request."
+            android:fontFamily="@font/poppins_regular"
+            android:textSize="14sp" />
+
+        <!-- Demo Status Controls -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/btnApprove"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Approve"
+                android:textColor="#15803D"
+                android:backgroundTint="#DCFCE7" />
+
+            <Button
+                android:id="@+id/btnReject"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Reject"
+                android:textColor="#B91C1C"
+                android:backgroundTint="#FEE2E2"
+                android:layout_marginStart="8dp" />
+
+            <Button
+                android:id="@+id/btnPending"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pending"
+                android:textColor="#92400E"
+                android:backgroundTint="#FEF9C3"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

@@ -103,6 +103,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //Mood Tracker cooldown
         setupMoodTrackerCooldown();
 
+        //Guidance Appointment Slip button
+        root.cvGuidanceAppointment.setOnClickListener(v -> guidanceSlip());
+
         //exit interview form button
         root.cvExitInterview.setOnClickListener(v -> exitInterview());
 
@@ -134,6 +137,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
     }
 
+    //for guidance appointment slip
+    private void guidanceSlip() {
+        startActivity(new Intent(this, GuidanceAppointmentSlipActivity.class));
+    }
 
     //for referral form
     private void referralForm() {
