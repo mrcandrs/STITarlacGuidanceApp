@@ -36,7 +36,10 @@ public class MTWelcomeFragment extends Fragment {
 
         //Getting student number from SharedPreferences
         MoodTrackerActivity activity = (MoodTrackerActivity) getActivity();
-        SharedPreferences moodprefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);
+        SharedPreferences sessionPrefs = requireActivity().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+        SharedPreferences moodprefs = requireActivity().getSharedPreferences("MoodPrefs_" + studentId, Context.MODE_PRIVATE);
+
         long lastMillis = moodprefs.getLong("lastMoodTimestamp", 0);
 
         if (lastMillis != 0) {

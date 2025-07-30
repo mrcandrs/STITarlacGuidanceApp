@@ -124,8 +124,9 @@ public class MoodTrackerResultFragment extends Fragment {
         });
 
         //Save current time to SharedPreferences for cooldown
-        SharedPreferences moodPrefs = requireActivity().getSharedPreferences("MoodPrefs", Context.MODE_PRIVATE);
+        SharedPreferences moodPrefs = requireActivity().getSharedPreferences("MoodPrefs_" + studentId, Context.MODE_PRIVATE);
         moodPrefs.edit().putLong("lastMoodTimestamp", System.currentTimeMillis()).apply();
+
 
         root.btnReturnDashboard.setOnClickListener(v -> {
             startActivity(new Intent(requireContext(), StudentDashboardActivity.class));

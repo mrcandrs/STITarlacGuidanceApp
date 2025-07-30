@@ -191,7 +191,10 @@ public class StudentDashboardActivity extends AppCompatActivity {
         TextView txtCooldown = findViewById(R.id.txtMoodTrackerCooldown);
         CardView moodCard = findViewById(R.id.cv_MoodTracker);
 
-        SharedPreferences prefs = getSharedPreferences("MoodPrefs", MODE_PRIVATE);
+        SharedPreferences sessionPrefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+        SharedPreferences prefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
+
         long lastTakenMillis = prefs.getLong("lastMoodTimestamp", 0);
         long now = System.currentTimeMillis();
         long timeLeft = COOLDOWN_PERIOD - (now - lastTakenMillis);
