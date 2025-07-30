@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#F9FAFB"
-    android:padding="16dp">
+    android:padding="16dp"
+    tools:context=".Activities.GuidanceAppointmentSlipActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -36,7 +38,7 @@
                 android:layout_marginTop="12dp"
                 android:orientation="horizontal"
                 android:padding="8dp"
-                android:background="@drawable/status_pending_bg"
+                android:background="@color/white"
                 android:gravity="center">
 
                 <ImageView
@@ -49,10 +51,9 @@
                     android:id="@+id/statusText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Status: Pending"
+                    android:text="Status:"
                     android:textSize="14dp"
                     android:fontFamily="@font/poppins_semibold"
-                    android:textColor="#A16207"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
         </LinearLayout>
@@ -152,6 +153,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select available date"
+            android:background="@drawable/button_border_2"
+            app:backgroundTint="@null"
+            android:textColor="@color/blue"
             android:fontFamily="@font/poppins_semibold"/>
 
         <!-- Time Picker -->
@@ -160,13 +164,14 @@
             android:layout_height="wrap_content"
             android:fontFamily="@font/poppins_semibold"
             android:text="Time of Appointment"
-            android:textStyle="bold"
             android:layout_marginTop="20dp"/>
         <Button
             android:id="@+id/btnSelectTime"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select available time"
+            android:background="@drawable/button_border_2"
+            app:backgroundTint="@null"
             android:fontFamily="@font/poppins_semibold"
             android:enabled="false" />
 

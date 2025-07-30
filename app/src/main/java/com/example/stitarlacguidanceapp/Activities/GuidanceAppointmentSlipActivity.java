@@ -53,6 +53,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             if ("others".equals(selectedReason)) {
                 root.etOtherReason.setVisibility(View.VISIBLE);
             } else {
+                root.etOtherReason.setText("");
                 root.etOtherReason.setVisibility(View.GONE);
             }
             checkFormValid();
@@ -63,10 +64,30 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
         root.btnSubmit.setOnClickListener(v -> {
-            Toast.makeText(this, "Appointment request submitted successfully!", Toast.LENGTH_SHORT).show();
+            // Determine reason to submit
+            String reasonToSubmit = selectedReason.equals("others")
+                    ? root.etOtherReason.getText().toString().trim()
+                    : selectedReason;
+
+            // You can now use reasonToSubmit in your API call or saving logic
+            // Example log or placeholder
+            String studentName = root.etStudentName.getText().toString().trim();
+            String programSection = root.etProgramSection.getText().toString().trim();
+
+            // You can replace this with actual submission logic
+            Toast.makeText(this,
+                    "Submitted!\nName: " + studentName +
+                            "\nSection: " + programSection +
+                            "\nReason: " + reasonToSubmit +
+                            "\nDate: " + selectedDate +
+                            "\nTime: " + selectedTime,
+                    Toast.LENGTH_LONG).show();
+
+            // Reset status to pending
             status = "pending";
             updateStatusBadge();
         });
+
 
         root.btnApprove.setOnClickListener(v -> {
             status = "approved";
@@ -97,6 +118,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 selectedTime = "";
                 root.btnSelectTime.setText("Select available time");
                 root.btnSelectTime.setEnabled(true);
+                root.btnSelectTime.setTextColor(getResources().getColor(R.color.blue));
                 checkFormValid();
             } else {
                 Toast.makeText(this, "No available slots for this date", Toast.LENGTH_SHORT).show();
@@ -130,7 +152,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private void checkFormValid() {
         boolean isValid = !root.etStudentName.getText().toString().trim().isEmpty()
                 && !root.etProgramSection.getText().toString().trim().isEmpty()
-                && !selectedReason.isEmpty()
+                && (!selectedReason.isEmpty() && (!selectedReason.equals("others") || !root.etOtherReason.getText().toString().trim().isEmpty()))
                 && !selectedDate.isEmpty()
                 && !selectedTime.isEmpty();
 
