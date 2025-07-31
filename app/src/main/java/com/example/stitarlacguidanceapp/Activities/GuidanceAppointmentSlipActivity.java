@@ -63,16 +63,26 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         //RadioGroup listener
         root.rgReason.setOnCheckedChangeListener((group, checkedId) -> {
             RadioButton selected = findViewById(checkedId);
-            selectedReason = selected.getText().toString().toLowerCase();
 
-            if ("others".equals(selectedReason)) {
-                root.etOtherReason.setVisibility(View.VISIBLE);
+            if (selected != null) {
+                selectedReason = selected.getText().toString().toLowerCase();
+
+                if ("others".equals(selectedReason)) {
+                    root.etOtherReason.setVisibility(View.VISIBLE);
+                } else {
+                    root.etOtherReason.setText("");
+                    root.etOtherReason.setVisibility(View.GONE);
+                }
             } else {
+                // No button selected (e.g., after clearCheck())
+                selectedReason = "";
                 root.etOtherReason.setText("");
                 root.etOtherReason.setVisibility(View.GONE);
             }
+
             checkFormValid();
         });
+
 
         root.btnSelectDate.setOnClickListener(v -> openDatePicker());
 
@@ -84,8 +94,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     ? root.etOtherReason.getText().toString().trim()
                     : selectedReason;
 
-            // You can now use reasonToSubmit in your API call or saving logic
-            // Example log or placeholder
+            //You can now use reasonToSubmit in your API call or saving logic
+            //Example log or placeholder
             String studentName = root.etStudentName.getText().toString().trim();
             String programSection = root.etProgramSection.getText().toString().trim();
 
@@ -98,9 +108,15 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                             "\nTime: " + selectedTime,
                     Toast.LENGTH_LONG).show();
 
+            root.btnSubmit.setEnabled(false); // prevents double tap
+
             // Reset status to pending
             status = "pending";
             updateStatusBadge();
+
+            //Reset the form
+            resetForm();
+
         });
 
 
@@ -121,6 +137,23 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         root.etStudentName.setOnFocusChangeListener((v, hasFocus) -> checkFormValid());
         root.etProgramSection.setOnFocusChangeListener((v, hasFocus) -> checkFormValid());
+    }
+
+    //Reset Form on Successful Submit
+    private void resetForm() {
+        root.etProgramSection.setText("");
+        root.rgReason.clearCheck();
+        root.etOtherReason.setText("");
+        root.etOtherReason.setVisibility(View.GONE);
+        root.btnSelectDate.setText("Select date");
+        root.btnSelectTime.setText("Select available time");
+        root.btnSelectTime.setEnabled(false);
+
+        selectedReason = "";
+        selectedDate = "";
+        selectedTime = "";
+
+        checkFormValid();
     }
 
     private void openDatePicker() {
