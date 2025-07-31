@@ -1,6 +1,7 @@
 package com.example.stitarlacguidanceapp.Activities;
 
 import android.app.DatePickerDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.*;
@@ -31,9 +32,23 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root = ActivityGuidanceAppointmentSlipBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        String fullName = getSharedPreferences("student_session", MODE_PRIVATE)
+                .getString("fullName", null);
+
+        if (fullName != null) {
+            root.etStudentName.setText(fullName);
+            root.etStudentName.setEnabled(false);
+            root.etStudentName.setBackgroundColor(Color.parseColor("#696969"));
+            root.etStudentName.setTextColor(Color.LTGRAY);
+        }
+
         setupAvailability();
         setupListeners();
         updateStatusBadge();
+
+        root.btnApprove.setVisibility(View.GONE);
+        root.btnReject.setVisibility(View.GONE);
+        root.btnPending.setVisibility(View.GONE);
     }
 
     private void setupAvailability() {
