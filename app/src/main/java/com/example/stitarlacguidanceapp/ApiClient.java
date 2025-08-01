@@ -23,7 +23,7 @@ public class ApiClient {
         return retrofit.create(ExitInterviewApi.class);
     }
 
-    // Referral Form API
+    //Referral Form API
     public static ReferralApi getReferralFormApi() {
         return getClient().create(ReferralApi.class);
     }

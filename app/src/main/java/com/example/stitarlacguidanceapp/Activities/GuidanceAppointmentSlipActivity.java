@@ -1,6 +1,7 @@
 package com.example.stitarlacguidanceapp.Activities;
 
 import android.app.DatePickerDialog;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -9,11 +10,19 @@ import android.app.AlertDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.GuidanceAppointmentApi;
+import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.databinding.ActivityGuidanceAppointmentSlipBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+import okhttp3.ResponseBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
@@ -89,26 +98,50 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
         root.btnSubmit.setOnClickListener(v -> {
+            SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+            int studentId = prefs.getInt("studentId", -1); //default fallback
+
             // Determine reason to submit
             String reasonToSubmit = selectedReason.equals("others")
                     ? root.etOtherReason.getText().toString().trim()
                     : selectedReason;
 
-            //You can now use reasonToSubmit in your API call or saving logic
-            //Example log or placeholder
             String studentName = root.etStudentName.getText().toString().trim();
             String programSection = root.etProgramSection.getText().toString().trim();
 
-            // You can replace this with actual submission logic
-            Toast.makeText(this,
-                    "Submitted!\nName: " + studentName +
-                            "\nSection: " + programSection +
-                            "\nReason: " + reasonToSubmit +
-                            "\nDate: " + selectedDate +
-                            "\nTime: " + selectedTime,
-                    Toast.LENGTH_LONG).show();
+            //Create the appointment object
+            GuidanceAppointment appointment = new GuidanceAppointment();
+            appointment.setStudentId(studentId); // optional if used in API
+            appointment.setStudentName(studentName);
+            appointment.setProgramSection(programSection);
+            appointment.setReason(reasonToSubmit);
+            appointment.setDate(selectedDate);
+            appointment.setTime(selectedTime);
+            appointment.setStatus("pending");
 
-            root.btnSubmit.setEnabled(false); // prevents double tap
+            //Submit to API
+            GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
+            Call<ResponseBody> call = apiService.submitAppointment(appointment);
+
+            call.enqueue(new Callback<ResponseBody>() {
+                @Override
+                public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                    if (response.isSuccessful()) {
+                        Toast.makeText(GuidanceAppointmentSlipActivity.this, "Appointment sent successfully", Toast.LENGTH_LONG).show();
+                        //Safe to reset
+                        resetForm();
+                    } else {
+                        Toast.makeText(GuidanceAppointmentSlipActivity.this, "Server Error: " + response.code(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<ResponseBody> call, Throwable t) {
+                    Toast.makeText(GuidanceAppointmentSlipActivity.this, "Network Error: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            });
+
+            root.btnSubmit.setEnabled(false); //prevents double tap
 
             // Reset status to pending
             status = "pending";
