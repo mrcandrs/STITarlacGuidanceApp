@@ -9,12 +9,15 @@ import android.widget.*;
 import android.app.AlertDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.GuidanceAppointmentApi;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 import com.example.stitarlacguidanceapp.R;
+import com.example.stitarlacguidanceapp.SimpleTextWatcher;
 import com.example.stitarlacguidanceapp.databinding.ActivityGuidanceAppointmentSlipBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -32,6 +35,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private String selectedDate = "";
     private String selectedTime = "";
     private String status = "pending";
+    private boolean skipValidation = false;
 
     private final Map<String, List<String>> availableSlots = new HashMap<>();
 
@@ -92,12 +96,48 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             checkFormValid();
         });
 
+        root.etProgramSection.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkFormValid();
+            }
+        });
+
+        root.etOtherReason.addTextChangedListener(new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                checkFormValid();
+            }
+        });
+
+
 
         root.btnSelectDate.setOnClickListener(v -> openDatePicker());
-
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
         root.btnSubmit.setOnClickListener(v -> {
+            //Force re-check before submission
+            checkFormValid();
+
+            // If not valid, show specific toasts and cancel submission
+            if (!root.btnSubmit.isEnabled()) {
+                if (selectedReason.isEmpty()) {
+                    Toast.makeText(this, "Please select a reason for the appointment", Toast.LENGTH_SHORT).show();
+                } else if (selectedReason.equals("others") && root.etOtherReason.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(this, "Please specify your reason", Toast.LENGTH_SHORT).show();
+                } else if (selectedDate.isEmpty()) {
+                    Toast.makeText(this, "Please select a date", Toast.LENGTH_SHORT).show();
+                } else if (selectedTime.isEmpty()) {
+                    Toast.makeText(this, "Please select a time", Toast.LENGTH_SHORT).show();
+                } else if (root.etProgramSection.getText().toString().trim().isEmpty()) {
+                    Toast.makeText(this, "Program and Section is required", Toast.LENGTH_SHORT).show();
+                } else if (!root.etProgramSection.getText().toString().trim().matches("^[A-Za-z]{2,5}\\s\\d{1,2}[A-Za-z]?$")) {
+                    Toast.makeText(this, "Format should be like BSIT 2A", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+
             SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
             int studentId = prefs.getInt("studentId", -1); //default fallback
 
@@ -127,7 +167,10 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(GuidanceAppointmentSlipActivity.this, "Appointment sent successfully", Toast.LENGTH_LONG).show();
+                        Snackbar.make(root.getRoot(), "Appointment set successfully.", Snackbar.LENGTH_SHORT)
+                                .setBackgroundTint(ContextCompat.getColor(GuidanceAppointmentSlipActivity.this, R.color.blue))
+                                .setTextColor(Color.WHITE)
+                                .show();
                         //Safe to reset
                         resetForm();
                     } else {
@@ -174,6 +217,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     //Reset Form on Successful Submit
     private void resetForm() {
+        skipValidation = true; // 👈 prevent validation during reset
+
         root.etProgramSection.setText("");
         root.rgReason.clearCheck();
         root.etOtherReason.setText("");
@@ -186,7 +231,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         selectedDate = "";
         selectedTime = "";
 
-        checkFormValid();
+        //Delay turning validation back on, so listeners won't trigger immediately
+        root.etProgramSection.postDelayed(() -> skipValidation = false, 200);
     }
 
     private void openDatePicker() {
@@ -231,14 +277,46 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void checkFormValid() {
-        boolean isValid = !root.etStudentName.getText().toString().trim().isEmpty()
-                && !root.etProgramSection.getText().toString().trim().isEmpty()
-                && (!selectedReason.isEmpty() && (!selectedReason.equals("others") || !root.etOtherReason.getText().toString().trim().isEmpty()))
-                && !selectedDate.isEmpty()
-                && !selectedTime.isEmpty();
+        if (skipValidation) return;
+
+        boolean isValid = true;
+
+        String programSection = root.etProgramSection.getText().toString().trim();
+        if (programSection.isEmpty()) {
+            root.etProgramSection.setError("Program and Section is required");
+            isValid = false;
+        } else if (!programSection.matches("^[A-Za-z]{2,5}-\\d{1,2}[A-Za-z]?$")) {
+            root.etProgramSection.setError("Format should be like BSIT-4B");
+            isValid = false;
+        } else {
+            root.etProgramSection.setError(null);
+        }
+
+        if (selectedReason.isEmpty()) {
+            isValid = false;
+        } else if (selectedReason.equals("others")) {
+            String otherReason = root.etOtherReason.getText().toString().trim();
+            if (otherReason.isEmpty()) {
+                root.etOtherReason.setError("Please specify your reason");
+                isValid = false;
+            } else {
+                root.etOtherReason.setError(null);
+            }
+        }
+
+        if (selectedDate.isEmpty()) {
+            isValid = false;
+        }
+
+        if (selectedTime.isEmpty()) {
+            isValid = false;
+        }
 
         root.btnSubmit.setEnabled(isValid);
     }
+
+
+
 
     private void updateStatusBadge() {
         switch (status) {
