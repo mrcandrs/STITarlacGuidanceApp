@@ -575,6 +575,49 @@ public class InventoryFormActivity extends AppCompatActivity {
             return false;
         }
 
+        // Parent/Guardian Info
+        if (safeText(root.edtMotherName).isEmpty()) {
+            root.edtMotherName.setError("Mother's name is required");
+            root.edtMotherName.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtMotherOccupation).isEmpty()) {
+            root.edtMotherOccupation.setError("Mother's occupation is required");
+            root.edtMotherOccupation.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtFatherName).isEmpty()) {
+            root.edtFatherName.setError("Father's name is required");
+            root.edtFatherName.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtFatherOccupation).isEmpty()) {
+            root.edtFatherOccupation.setError("Father's occupation is required");
+            root.edtFatherOccupation.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtGuardianName).isEmpty()) {
+            root.edtGuardianName.setError("Guardian's name is required");
+            root.edtGuardianName.requestFocus();
+            return false;
+        }
+
+        guardianContact = safeText(root.edtGuardianContact);
+        if (guardianContact.isEmpty()) {
+            root.edtGuardianContact.setError("Guardian's contact is required");
+            root.edtGuardianContact.requestFocus();
+            return false;
+        }
+        if (!guardianContact.matches("^(09)\\d{9}$")) {
+            root.edtGuardianContact.setError("Invalid contact number");
+            root.edtGuardianContact.requestFocus();
+            return false;
+        }
+
         // Conditional checks based on checkboxes and reasons
         if (root.checkboxHospitalized.isChecked() && isEmpty(root.edtHospitalizedReason.getText().toString())) {
             root.edtHospitalizedReason.setError("Please specify hospitalization reason");
