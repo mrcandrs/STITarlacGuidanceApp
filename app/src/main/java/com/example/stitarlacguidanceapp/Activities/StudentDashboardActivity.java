@@ -103,6 +103,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //Mood Tracker cooldown
         setupMoodTrackerCooldown();
 
+        //Edit Inventory Form button
+        root.btnEditInventoryForm.setOnClickListener(v -> editInventoryForm());
+
         //Guidance Appointment Slip button
         root.cvGuidanceAppointment.setOnClickListener(v -> guidanceSlip());
 
@@ -135,6 +138,13 @@ public class StudentDashboardActivity extends AppCompatActivity {
         QuoteAdapter adapter = new QuoteAdapter(quoteList);
         viewPager.setAdapter(adapter);
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+    }
+
+    //for edit inventory form
+    private void editInventoryForm() {
+        Intent intent = new Intent(StudentDashboardActivity.this, InventoryFormActivity.class);
+        intent.putExtra("mode", "edit"); // 👈 tell the activity it's for editing
+        startActivity(intent);
     }
 
     //for guidance appointment slip
