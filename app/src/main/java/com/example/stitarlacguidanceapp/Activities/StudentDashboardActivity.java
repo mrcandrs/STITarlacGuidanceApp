@@ -142,8 +142,14 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     //for edit inventory form
     private void editInventoryForm() {
-        Intent intent = new Intent(StudentDashboardActivity.this, InventoryFormActivity.class);
-        intent.putExtra("mode", "edit"); // 👈 tell the activity it's for editing
+        Intent intent = new Intent(this, InventoryFormActivity.class);
+        intent.putExtra("EDIT_MODE", true); // Flag to indicate this is edit mode
+
+        // Get current logged-in student info (you'll need to adapt this based on your session management)
+        SharedPreferences userSession = getSharedPreferences("UserSession", MODE_PRIVATE);
+        String currentStudentNumber = userSession.getString("StudentNumber", "");
+        intent.putExtra("CURRENT_STUDENT_NUMBER", currentStudentNumber);
+
         startActivity(intent);
     }
 
