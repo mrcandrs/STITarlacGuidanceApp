@@ -1,0 +1,679 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/careerPlanningScrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    tools:context=".Activities.CareerPlanningFormActivity">
+
+    <LinearLayout
+        android:id="@+id/formContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!--Header-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="STI Guidance and Counseling Office\nCareer Planning Form"
+            android:textSize="18dp"
+            android:textColor="@color/blue"
+            android:fontFamily="@font/poppins_bold"
+            android:textAlignment="center"/>
+
+        <!--Personal Information Section-->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Personal Information"
+            android:fontFamily="@font/poppins_semibold"
+            android:textSize="16dp"
+            android:paddingTop="10dp"/>
+
+
+        <EditText
+            android:id="@+id/studentNoInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Student No."
+            android:inputType="text"
+            android:background="@drawable/edittext_background"
+            android:padding="12dp"
+            android:fontFamily="@font/poppins_regular" />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/layoutCourse"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Program/Course"
+            android:layout_marginTop="12dp"
+            app:boxStrokeColor="@color/blue"
+            app:endIconMode="dropdown_menu">
+
+            <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                android:id="@+id/courseInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:textColor="@color/black"
+                android:textSize="18sp"/>
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <!-- Full Name -->
+        <EditText
+            android:id="@+id/fullNameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Full Name"
+            android:inputType="text"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/edittext_background"
+            android:padding="12dp"
+            android:fontFamily="@font/poppins_regular"/>
+
+        <!--Grade/Year, Section, Gender-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="3"
+            android:layout_marginTop="12dp">
+
+            <Spinner
+                android:id="@+id/gradeYearSpinner"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:theme="@style/InputLabel"
+                android:layout_marginEnd="8dp"/>
+
+            <EditText
+                android:id="@+id/sectionInput"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Section"
+                android:inputType="text"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginEnd="8dp"/>
+
+            <Spinner
+                android:id="@+id/genderSpinner"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:theme="@style/InputLabel"/>
+        </LinearLayout>
+
+        <!--Contact Number & Birthday-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginTop="12dp">
+
+            <EditText
+                android:id="@+id/contactNumberInput"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Contact Number"
+                android:inputType="phone"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp" />
+
+            <EditText
+                android:id="@+id/birthdayInput"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:hint="Birthday"
+                android:inputType="date"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"/>
+        </LinearLayout>
+
+        <!--Self Assessment Section-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Self Assessment"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="16dp"
+                android:paddingTop="10dp"/>
+
+            <!--Top Values-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Topmost Values"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <!--Repeated 3 times-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:fontFamily="@font/poppins_regular"
+                android:text="A value is something that you both cherish and act upon. Write down values that you consider most important to you now."
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/topValue1"
+                android:hint="1."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topValue2"
+                android:hint="2."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topValue3"
+                android:hint="3."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!--Top Strengths-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Topmost Strengths"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="After examining your past accomplishments and experiences, give adjectives that would best describe your strengths. (e.g. hardworking, diligent, etc.)"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="12dp"/>
+
+            <!--Repeated 3 times-->
+            <EditText
+                android:id="@+id/topStrength1"
+                android:hint="1."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topStrength2"
+                android:hint="2."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topStrength3"
+                android:hint="3."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!--Top Skills-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Topmost Skills"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="A skill is a product of knowledge and practice. Identify the skills you have learned that you can transfer from one context to another. (e.g. organizing skills, writing skills, communication skills, etc.)"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="12dp"/>
+
+            <!--Repeated 3 times-->
+            <EditText
+                android:id="@+id/topSkill1"
+                android:hint="1."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topSkill2"
+                android:hint="2."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topSkill3"
+                android:hint="3."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"/>
+
+            <!--Top Interests-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="My Top Interests"
+                android:fontFamily="@font/poppins_bold"
+                android:textSize="16sp"
+                android:layout_marginTop="8dp"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Examine the interests or recreational pursuits you have held over the years to pinpoint core themes you can incorporate into your work life."
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="12dp"/>
+
+            <!--Repeated 3 times-->
+            <EditText
+                android:id="@+id/topInterest1"
+                android:hint="1."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topInterest2"
+                android:hint="2."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"/>
+
+            <EditText
+                android:id="@+id/topInterest3"
+                android:hint="3."
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="16dp"/>
+        </LinearLayout>
+
+        <!--Career Choices Section-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Career Choices"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="16dp"
+                android:paddingTop="10dp"/>
+
+            <!--Program Choice-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="What made you choose this program/course?"
+                android:fontFamily="@font/poppins_regular"
+                android:textSize="14sp"
+                android:layout_marginBottom="6dp"/>
+
+            <EditText
+                android:id="@+id/programChoiceInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Your answer"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!--First Choice (Radio Group)-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Did you choose this program/course as your first choice?"
+                android:textSize="14sp"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="6dp" />
+
+            <RadioGroup
+                android:id="@+id/firstChoiceGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="12dp">
+
+                <RadioButton
+                    android:id="@+id/firstChoiceYes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Yes"
+                    android:fontFamily="@font/poppins_regular"/>
+
+                <RadioButton
+                    android:id="@+id/firstChoiceNo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="No"
+                    android:layout_marginStart="24dp"
+                    android:fontFamily="@font/poppins_regular"/>
+            </RadioGroup>
+
+            <!--Original Choice (Shown if No)-->
+            <EditText
+                android:id="@+id/originalChoiceInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="What was your original choice?"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"
+                android:visibility="gone"/>
+
+            <!--Program Expectations-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="What do you expect from this program?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="6dp"/>
+            <EditText
+                android:id="@+id/programExpectationInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!--STI Enrollment Reason-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="What made you decide to enroll at STI?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="6dp"/>
+            <EditText
+                android:id="@+id/enrollmentReasonInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"
+                android:layout_marginBottom="12dp"/>
+
+            <!--Future Vision-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="How do you see yourself 5 years from now?"
+                android:fontFamily="@font/poppins_regular"
+                android:layout_marginBottom="6dp"/>
+            <EditText
+                android:id="@+id/futureVisionInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minLines="3"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:background="@drawable/edittext_background"
+                android:fontFamily="@font/poppins_regular"
+                android:padding="12dp"/>
+        </LinearLayout>
+
+        <!--Plans After Graduation Section-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Plans After Graduation"
+                android:fontFamily="@font/poppins_semibold"
+                android:textSize="16dp"
+                android:paddingTop="10dp"/>
+
+            <RadioGroup
+                android:id="@+id/mainPlanRadioGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioButton
+                    android:id="@+id/radio_continue_schooling"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Continue Schooling"
+                    android:fontFamily="@font/poppins_semibold"/>
+
+                <!--Shown only if "Continue Schooling" is selected-->
+                <LinearLayout
+                    android:id="@+id/schoolingOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="24dp"
+                    android:visibility="gone">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_another_course"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Another College Course"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <CheckBox
+                        android:id="@+id/checkbox_masters_program"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Master’s Program"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <EditText
+                        android:id="@+id/edit_course_field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Course/Field"
+                        android:padding="12dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:background="@drawable/edittext_background"/>
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radio_get_employed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Get Employed"
+                    android:fontFamily="@font/poppins_semibold"/>
+
+                <!--Shown only if "Get Employed" is selected-->
+                <LinearLayout
+                    android:id="@+id/employedOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="24dp"
+                    android:visibility="gone">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_local_employment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Local Employment"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <CheckBox
+                        android:id="@+id/checkbox_work_abroad"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Work abroad"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <EditText
+                        android:id="@+id/edit_nature_of_job_1"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nature of job:"
+                        android:padding="12dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:background="@drawable/edittext_background"/>
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radio_continue_work"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Continue Current Work"
+                    android:fontFamily="@font/poppins_semibold"/>
+
+                <!--Shown only if "Continue with current work" is selected-->
+                <LinearLayout
+                    android:id="@+id/currentWorkOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="24dp"
+                    android:visibility="gone">
+
+                    <CheckBox
+                        android:id="@+id/checkbox_aim_promotion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Aim for promotion"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <CheckBox
+                        android:id="@+id/checkbox_current_work_abroad_"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Work abroad"
+                        android:fontFamily="@font/poppins_regular"/>
+
+                    <EditText
+                        android:id="@+id/edit_nature_of_job_2"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nature of job:"
+                        android:padding="12dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:background="@drawable/edittext_background"/>
+                </LinearLayout>
+
+                <RadioButton
+                    android:id="@+id/radio_go_business"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Go Into Business"
+                    android:fontFamily="@font/poppins_semibold"/>
+
+                <!--Shown only if "Go into business" is selected-->
+                <LinearLayout
+                    android:id="@+id/businessOptions"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="24dp"
+                    android:visibility="gone">
+
+                    <EditText
+                        android:id="@+id/edit_nature_of_business"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Nature of business"
+                        android:padding="12dp"
+                        android:fontFamily="@font/poppins_regular"
+                        android:background="@drawable/edittext_background"/>
+                </LinearLayout>
+            </RadioGroup>
+
+        </LinearLayout>
+
+        <!-- Submit Button -->
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Submit"
+            android:backgroundTint="#0477BF"
+            android:textColor="@android:color/white"
+            android:fontFamily="@font/poppins_regular"
+            android:layout_marginTop="24dp"
+            android:padding="14dp"
+            android:textStyle="bold"/>
+    </LinearLayout>
+</ScrollView>

@@ -117,9 +117,6 @@ public class CareerPlanningFormActivity extends AppCompatActivity {
             }
         });
 
-
-
-
     }
 
     private void setupListeners() {

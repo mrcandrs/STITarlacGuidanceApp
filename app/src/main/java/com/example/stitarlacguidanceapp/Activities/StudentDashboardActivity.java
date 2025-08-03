@@ -65,6 +65,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private ViewPager2 viewPager;
     private Handler sliderHandler = new Handler();
     private int currentPage = 0;
+    private int studentId;
     private final long SLIDE_DELAY = 4000; // 4 seconds
     private List<Quote> quoteList;
     private Uri selectedImageUri;
@@ -106,6 +107,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         //Edit Inventory Form button
         root.btnEditInventoryForm.setOnClickListener(v -> editInventoryForm());
 
+        //Career Planning Form button
+        root.btnEditCareerPlanningForm.setOnClickListener(v -> editCareerPlanningForm());
+
         //Guidance Appointment Slip button
         root.cvGuidanceAppointment.setOnClickListener(v -> guidanceSlip());
 
@@ -142,6 +146,16 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     //for edit inventory form
     private void editInventoryForm() {
+    }
+
+    //for career planning form
+    private void editCareerPlanningForm() {
+        Intent intent = new Intent(StudentDashboardActivity.this, EditCareerPlanningActivity.class);
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1); // <- fetch studentId here
+        intent.putExtra("studentId", studentId);
+        startActivity(intent);
+
     }
 
     //for guidance appointment slip
@@ -182,7 +196,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         String studentNumber = prefs.getString("studentNumber", "");
         String program = prefs.getString("program", "");
         String yearLevel = prefs.getString("yearLevel", "");
-        int studentId = prefs.getInt("studentId", -1);
+        studentId = prefs.getInt("studentId", -1);
         String profileKey = "profileUri_" + studentId;
         String profileUriString = prefs.getString(profileKey, null);
         String lastLogin = prefs.getString("lastLogin", "Not available");
