@@ -1,11 +1,13 @@
 package com.example.stitarlacguidanceapp.Activities;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -25,6 +28,7 @@ import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityEditCareerPlanningBinding;
 import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBinding;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
 import java.io.IOException;
@@ -180,8 +184,22 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<Void> call, Response<Void> response) {
                     if (response.isSuccessful()) {
-                        Toast.makeText(EditCareerPlanningActivity.this, "Updated successfully", Toast.LENGTH_SHORT).show();
-                        finish();
+                        //Hide keyboard
+                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                        View view = getCurrentFocus();
+                        if (imm != null && view != null) {
+                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        }
+
+                        Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG)
+                                .setBackgroundTint(ContextCompat.getColor(EditCareerPlanningActivity.this, R.color.blue))
+                                .setTextColor(Color.WHITE)
+                                .show();
+
+                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                            finish();
+                        }, 2000);
+
                     } else {
                         try {
                             String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
