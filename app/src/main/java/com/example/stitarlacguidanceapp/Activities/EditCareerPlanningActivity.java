@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -27,6 +28,9 @@ import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBind
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -106,8 +110,44 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
             }
         });
 
+        root.birthdayInput.setFocusable(false); // Prevent manual keyboard input
+        root.birthdayInput.setOnClickListener(v -> showDatePicker());
+
         setupListeners();
     }
+
+    private void showDatePicker() {
+        final Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR);
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, selectedYear, selectedMonth, selectedDay) -> {
+            Calendar selectedDate = Calendar.getInstance();
+            selectedDate.set(selectedYear, selectedMonth, selectedDay);
+
+            Calendar today = Calendar.getInstance();
+            int age = today.get(Calendar.YEAR) - selectedYear;
+            if (today.get(Calendar.DAY_OF_YEAR) < selectedDate.get(Calendar.DAY_OF_YEAR)) {
+                age--;
+            }
+
+            if (age >= 17) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                root.birthdayInput.setText(sdf.format(selectedDate.getTime()));
+            } else {
+                Toast.makeText(this, "Student must be at least 17 years old.", Toast.LENGTH_SHORT).show();
+            }
+        }, year, month, day);
+
+        //Limit max date to today - 17 years
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -17);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+
+        datePickerDialog.show();
+    }
+
 
     private void setupListeners() {
         root.mainPlanRadioGroup.setOnCheckedChangeListener((group, checkedId) -> {
