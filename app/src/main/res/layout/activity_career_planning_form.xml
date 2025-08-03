@@ -43,8 +43,7 @@
                 android:inputType="text"
                 android:background="@drawable/edittext_background"
                 android:padding="12dp"
-                android:fontFamily="@font/poppins_regular"
-/>
+                android:fontFamily="@font/poppins_regular" />
 
 
             <com.google.android.material.textfield.TextInputLayout
