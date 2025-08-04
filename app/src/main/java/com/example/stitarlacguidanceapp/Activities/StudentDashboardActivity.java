@@ -146,6 +146,11 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     //for edit inventory form
     private void editInventoryForm() {
+        Intent intent = new Intent(StudentDashboardActivity.this, EditIndividualInventory.class);
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1); // <- fetch studentId here
+        intent.putExtra("studentId", studentId);
+        startActivity(intent);
     }
 
     //for career planning form
@@ -155,7 +160,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         int studentId = prefs.getInt("studentId", -1); // <- fetch studentId here
         intent.putExtra("studentId", studentId);
         startActivity(intent);
-
     }
 
     //for guidance appointment slip
