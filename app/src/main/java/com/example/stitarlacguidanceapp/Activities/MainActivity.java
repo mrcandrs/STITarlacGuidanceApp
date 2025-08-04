@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Student> call, Throwable t) {
                 Log.e("LOGIN", "Error: " + t.getMessage());
-                Toast.makeText(MainActivity.this, "Login failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Unable to connect to the server. Please check your internet connection or try again later.", Toast.LENGTH_SHORT).show();
             }
         });
     }
