@@ -21,10 +21,12 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.CareerPlanningApi;
+import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.InventoryFormApi;
 import com.example.stitarlacguidanceapp.Models.CareerPlanningForm;
 import com.example.stitarlacguidanceapp.Models.InventoryForm;
 import com.example.stitarlacguidanceapp.R;
+import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityEditIndividualInventoryBinding;
 import com.example.stitarlacguidanceapp.databinding.SiblingRowBinding;
 import com.example.stitarlacguidanceapp.databinding.WorkRowBinding;
@@ -44,6 +46,7 @@ import retrofit2.Response;
 public class EditIndividualInventory extends AppCompatActivity {
 
     private ActivityEditIndividualInventoryBinding root;
+    private int studentId;
     private List<InventoryForm.Sibling> siblingList = new ArrayList<>();
     private List<InventoryForm.WorkExperience> workExperienceList = new ArrayList<>();
 
@@ -53,9 +56,36 @@ public class EditIndividualInventory extends AppCompatActivity {
         root = ActivityEditIndividualInventoryBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
-        int studentId = getIntent().getIntExtra("studentId", -1);
+        studentId = getIntent().getIntExtra("studentId", -1);
         Log.d("IndividualInventoryForm", "studentId from Intent: " + studentId);
         loadIndividualInventoryForm(studentId);
+
+        //Initializations
+        if (root.edtFullName != null) {
+            root.edtFullName.setEnabled(false);
+            root.edtFullName.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtFullName.setTextColor(Color.LTGRAY);
+        }
+        if (root.edtStudentNumber != null) {
+            root.edtStudentNumber.setEnabled(false);
+            root.edtStudentNumber.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtStudentNumber.setTextColor(Color.LTGRAY);
+        }
+
+        //Live validation for email 1
+        addLiveValidation(root.edtEmail1, input -> {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+        });
+
+        //Live validation for email 2
+        addLiveValidation(root.edtEmail2, input -> {
+            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+        });
+
+        //Live validation for phone number
+        addLiveValidation(root.edtPhone, input -> {
+            return input.matches("\\d{11}") ? null : "Phone must be 11 digits";
+        });
 
         //Gender spinner populate
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
@@ -101,49 +131,7 @@ public class EditIndividualInventory extends AppCompatActivity {
         root.btnAddWork.setOnClickListener(v -> addWorkView());
         root.btnAddSibling.setOnClickListener(v -> addSiblingView());
 
-
-        root.btnSubmit.setOnClickListener(v -> {
-            InventoryForm form = buildUpdatedFormFromInputs();
-            InventoryFormApi api = ApiClient.getClient().create(InventoryFormApi.class);
-            api.updateInventory(form.studentId, form).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        //Hide keyboard
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        View view = getCurrentFocus();
-                        if (imm != null && view != null) {
-                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        }
-                        Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG)
-                                .setBackgroundTint(ContextCompat.getColor(EditIndividualInventory.this, R.color.blue))
-                                .setTextColor(Color.WHITE)
-                                .show();
-
-                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                            finish();
-                            }, 2000);
-
-                        } else {
-                            try {
-                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                                Log.e("InventoryForm", "Update failed: Code=" + response.code()
-                                        + ", Message=" + response.message()
-                                        + ", ErrorBody=" + errorBody);
-
-                                Toast.makeText(EditIndividualInventory.this, "Update failed: " + response.message(), Toast.LENGTH_SHORT).show();
-                            } catch (IOException e) {
-                                Log.e("InventoryForm", "Error reading error body", e);
-                                Toast.makeText(EditIndividualInventory.this, "Update failed (IO error)", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-                    }
-                    @Override
-                    public void onFailure(Call<Void> call, Throwable t) {
-                        Toast.makeText(EditIndividualInventory.this, "Error updating", Toast.LENGTH_SHORT).show();
-                    }
-                });
-        });
+        root.btnSubmit.setOnClickListener(v -> checkDuplicateThenSave());
 
         root.edtBirthday.setOnClickListener(v -> showBirthdayDatePicker());
         root.edtLastDoctorVisit.setOnClickListener(v -> showLastDoctorVisitDatePicker());
@@ -188,6 +176,105 @@ public class EditIndividualInventory extends AppCompatActivity {
             }
         });
     }
+
+    private void saveForm() {
+        if (!validateForm())
+            return;
+
+        InventoryForm form = buildUpdatedFormFromInputs();
+        InventoryFormApi api = ApiClient.getClient().create(InventoryFormApi.class);
+        api.updateInventory(form.studentId, form).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    //Hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    View view = getCurrentFocus();
+                    if (imm != null && view != null) {
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG)
+                            .setBackgroundTint(ContextCompat.getColor(EditIndividualInventory.this, R.color.blue))
+                            .setTextColor(Color.WHITE)
+                            .show();
+
+                    new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                        finish();
+                    }, 2000);
+
+                } else {
+                    try {
+                        String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                        Log.e("InventoryForm", "Update failed: Code=" + response.code()
+                                + ", Message=" + response.message()
+                                + ", ErrorBody=" + errorBody);
+
+                        Toast.makeText(EditIndividualInventory.this, "Update failed: " + response.message(), Toast.LENGTH_SHORT).show();
+                    } catch (IOException e) {
+                        Log.e("InventoryForm", "Error reading error body", e);
+                        Toast.makeText(EditIndividualInventory.this, "Update failed (IO error)", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(EditIndividualInventory.this, "Error updating", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void checkDuplicateThenSave() {
+        String email1 = root.edtEmail1.getText().toString().trim();
+        String email2 = root.edtEmail2.getText().toString().trim();
+
+        if (!validateForm())
+            return;
+
+        root.btnSubmit.setEnabled(false);
+
+        StudentApi api = ApiClient.getClient().create(StudentApi.class);
+        Call<DuplicateCheckResponse> call = api.checkDuplicateEmail(email1, email2, studentId);
+
+        call.enqueue(new Callback<DuplicateCheckResponse>() {
+            @Override
+            public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
+                root.btnSubmit.setEnabled(true);
+
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean email1Exists = response.body().isEmail1Exists();
+                    boolean email2Exists = response.body().isEmail2Exists();
+
+                    boolean hasError = false;
+
+                    if (email1Exists) {
+                        root.edtEmail1.setError("Email already exists");
+                        root.edtEmail1.requestFocus();
+                        hasError = true;
+                    }
+
+                    if (email2Exists) {
+                        root.edtEmail2.setError("Email already exists");
+                        if (!email1Exists) root.edtEmail2.requestFocus();
+                        hasError = true;
+                    }
+
+                    if (!hasError) {
+                        saveForm();
+                    }
+
+                } else {
+                    Toast.makeText(EditIndividualInventory.this, "Server error. Try again later.", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
+                root.btnSubmit.setEnabled(true);
+                Toast.makeText(EditIndividualInventory.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
 
     private void showLastDoctorVisitDatePicker() {
         final Calendar calendar = Calendar.getInstance();
@@ -514,7 +601,7 @@ public class EditIndividualInventory extends AppCompatActivity {
         }
     }
 
-    // Add these methods to create views with pre-populated data:
+    //Add these methods to create views with pre-populated data:
     private void addSiblingViewWithData(InventoryForm.Sibling sibling) {
         SiblingRowBinding siblingBinding = SiblingRowBinding.inflate(getLayoutInflater(), root.siblingContainer, false);
         View siblingView = siblingBinding.getRoot();
@@ -545,7 +632,7 @@ public class EditIndividualInventory extends AppCompatActivity {
         root.workContainer.addView(workView);
     }
 
-    // Helper function for spinner
+    //Helper function for spinner
     private int getSpinnerIndex(Spinner spinner, String value) {
         for (int i = 0; i < spinner.getCount(); i++) {
             if (spinner.getItemAtPosition(i).toString().equalsIgnoreCase(value)) {
@@ -553,6 +640,283 @@ public class EditIndividualInventory extends AppCompatActivity {
             }
         }
         return 0;
+    }
+
+    private boolean isEmpty(String s) {
+        return s == null || s.trim().isEmpty();
+    }
+
+    private boolean isValidEmail(String email) {
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
+    }
+
+    private boolean isValidPhoneNumber(String phone) {
+        return phone.matches("\\d{11}");
+    }
+
+    private boolean isValidAge(String age) {
+        try {
+            int a = Integer.parseInt(age);
+            return a > 0 && a < 120;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private boolean isValidDate(String date) {
+        //For simplicity, just check non-empty or add real date parsing if needed
+        return !isEmpty(date);
+    }
+
+    private String safeText(android.widget.EditText editText) {
+        return editText != null && editText.getText() != null ? editText.getText().toString() : "";
+    }
+
+    private boolean validateForm() {
+        //Validate Full Name
+        if (isEmpty(root.edtFullName.getText().toString())) {
+            root.edtFullName.setError("Full Name is required");
+            root.edtFullName.requestFocus();
+            return false;
+        }
+
+        //Validate student number
+        String studentNumber = root.edtStudentNumber.getText().toString().trim();
+
+        if (studentNumber.isEmpty()) {
+            root.edtStudentNumber.setError("Student Number is required");
+            root.edtStudentNumber.requestFocus();
+            return false;
+        }
+
+        if (!studentNumber.matches("\\d{11}")) {
+            root.edtStudentNumber.setError("Student Number must be exactly 11 digits");
+            root.edtStudentNumber.requestFocus();
+            return false;
+        }
+
+
+        //Validate Program
+        if (isEmpty(root.edtProgram.getText().toString())) {
+            root.edtProgram.setError("Program is required");
+            root.edtProgram.requestFocus();
+            return false;
+        }
+
+        // Validate Birthday
+        String birthday = root.edtBirthday.getText().toString();
+        if (!isValidDate(birthday)) {
+            root.edtBirthday.setError("Valid Birthday is required");
+            root.edtBirthday.requestFocus();
+            return false;
+        }
+
+        // Validate Phone Number
+        String phone = root.edtPhone.getText().toString();
+        if (!isValidPhoneNumber(phone)) {
+            root.edtPhone.setError("Valid Phone Number is required (digits only)");
+            root.edtPhone.requestFocus();
+            return false;
+        }
+
+        // Validate Email 1
+        String email1 = root.edtEmail1.getText().toString();
+        if (!isValidEmail(email1)) {
+            root.edtEmail1.setError("Valid Email is required");
+            root.edtEmail1.requestFocus();
+            return false;
+        }
+
+        // Validate Gender Spinner (assuming first is "Select Gender")
+        if (root.spinnerGender.getSelectedItemPosition() == 0) {
+            Toast.makeText(this, "Please select a Gender", Toast.LENGTH_SHORT).show();
+            root.spinnerGender.requestFocus();
+            return false;
+        }
+
+        // Validate Civil Status Spinner (assuming first is "Select Civil Status")
+        if (root.spinnerStatus.getSelectedItemPosition() == 0) {
+            Toast.makeText(this, "Please select Civil Status", Toast.LENGTH_SHORT).show();
+            root.spinnerStatus.requestFocus();
+            return false;
+        }
+
+        // If Married, validate spouse info (at least name and contact)
+        if (root.layoutSpouse.getVisibility() == View.VISIBLE) {
+            if (isEmpty(root.edtSpouseName.getText().toString())) {
+                root.edtSpouseName.setError("Spouse Name is required");
+                root.edtSpouseName.requestFocus();
+                return false;
+            }
+            // Validate spouse age if entered
+            String spouseAge = root.edtSpouseAge.getText().toString();
+            if (!isEmpty(spouseAge) && !isValidAge(spouseAge)) {
+                root.edtSpouseAge.setError("Enter valid Spouse Age");
+                root.edtSpouseAge.requestFocus();
+                return false;
+            }
+            // Validate spouse contact if entered
+            String spouseContact = root.edtSpouseContact.getText().toString();
+            if (!isEmpty(spouseContact) && !isValidPhoneNumber(spouseContact)) {
+                root.edtSpouseContact.setError("Enter valid Spouse Contact Number");
+                root.edtSpouseContact.requestFocus();
+                return false;
+            }
+        }
+
+        // Validate parent phone numbers if entered
+        String fatherContact = root.edtFatherContactNo.getText().toString();
+        if (!isEmpty(fatherContact) && !isValidPhoneNumber(fatherContact)) {
+            root.edtFatherContactNo.setError("Enter valid Father's Contact Number");
+            root.edtFatherContactNo.requestFocus();
+            return false;
+        }
+
+        String motherContact = root.edtMotherContactNo.getText().toString();
+        if (!isEmpty(motherContact) && !isValidPhoneNumber(motherContact)) {
+            root.edtMotherContactNo.setError("Enter valid Mother's Contact Number");
+            root.edtMotherContactNo.requestFocus();
+            return false;
+        }
+
+        String guardianContact = root.edtGuardianContact.getText().toString();
+        if (!isEmpty(guardianContact) && !isValidPhoneNumber(guardianContact)) {
+            root.edtGuardianContact.setError("Enter valid Guardian Contact Number");
+            root.edtGuardianContact.requestFocus();
+            return false;
+        }
+
+        // Parent/Guardian Info
+        if (safeText(root.edtMotherName).isEmpty()) {
+            root.edtMotherName.setError("Mother's name is required");
+            root.edtMotherName.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtMotherOccupation).isEmpty()) {
+            root.edtMotherOccupation.setError("Mother's occupation is required");
+            root.edtMotherOccupation.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtFatherName).isEmpty()) {
+            root.edtFatherName.setError("Father's name is required");
+            root.edtFatherName.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtFatherOccupation).isEmpty()) {
+            root.edtFatherOccupation.setError("Father's occupation is required");
+            root.edtFatherOccupation.requestFocus();
+            return false;
+        }
+
+        if (safeText(root.edtGuardianName).isEmpty()) {
+            root.edtGuardianName.setError("Guardian's name is required");
+            root.edtGuardianName.requestFocus();
+            return false;
+        }
+
+        guardianContact = safeText(root.edtGuardianContact);
+        if (guardianContact.isEmpty()) {
+            root.edtGuardianContact.setError("Guardian's contact is required");
+            root.edtGuardianContact.requestFocus();
+            return false;
+        }
+        if (!guardianContact.matches("^(09)\\d{9}$")) {
+            root.edtGuardianContact.setError("Invalid contact number");
+            root.edtGuardianContact.requestFocus();
+            return false;
+        }
+
+        // Conditional checks based on checkboxes and reasons
+        if (root.checkboxHospitalized.isChecked() && isEmpty(root.edtHospitalizedReason.getText().toString())) {
+            root.edtHospitalizedReason.setError("Please specify hospitalization reason");
+            root.edtHospitalizedReason.requestFocus();
+            return false;
+        }
+        if (root.checkboxOperation.isChecked() && isEmpty(root.edtOperationReason.getText().toString())) {
+            root.edtOperationReason.setError("Please specify operation reason");
+            root.edtOperationReason.requestFocus();
+            return false;
+        }
+        if (root.checkboxCurrentIllness.isChecked() && isEmpty(root.edtCurrentIllness.getText().toString())) {
+            root.edtCurrentIllness.setError("Please specify illness details");
+            root.edtCurrentIllness.requestFocus();
+            return false;
+        }
+        if (root.checkboxPrescriptionDrugs.isChecked() && isEmpty(root.edtPrescriptionDrugs.getText().toString())) {
+            root.edtPrescriptionDrugs.setError("Please specify medication details");
+            root.edtPrescriptionDrugs.requestFocus();
+            return false;
+        }
+
+        // Validate siblings data if any - example check for name and age numeric
+        for (int i = 0; i < root.siblingContainer.getChildCount(); i++) {
+            View view = root.siblingContainer.getChildAt(i);
+            SiblingRowBinding binding = SiblingRowBinding.bind(view);
+            String sibName = safeText(binding.edtSiblingName);
+            String sibAge = safeText(binding.edtSiblingAge);
+            if (!isEmpty(sibName) && !isEmpty(sibAge)) {
+                if (!isValidAge(sibAge)) {
+                    binding.edtSiblingAge.setError("Enter valid age");
+                    binding.edtSiblingAge.requestFocus();
+                    return false;
+                }
+            } else if (!isEmpty(sibName) || !isEmpty(sibAge)) {
+                // partial entry invalid
+                Toast.makeText(this, "Please complete sibling information or leave all fields empty.", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        }
+
+        // Validate Work Experience entries
+        for (int i = 0; i < root.workContainer.getChildCount(); i++) {
+            View view = root.workContainer.getChildAt(i);
+            WorkRowBinding binding = WorkRowBinding.bind(view);
+
+            String position = safeText(binding.edtWorkTitle);
+            String company = safeText(binding.edtWorkCompany);
+            String duration = safeText(binding.edtWorkDuration);
+
+            boolean anyFilled = !isEmpty(position) || !isEmpty(company) || !isEmpty(duration);
+            boolean allFilled = !isEmpty(position) && !isEmpty(company) && !isEmpty(duration);
+
+            if (anyFilled && !allFilled) {
+                Toast.makeText(this, "Please complete all fields in each Work Experience entry or leave all blank.", Toast.LENGTH_SHORT).show();
+                if (isEmpty(position)) {
+                    binding.edtWorkTitle.setError("Required");
+                    binding.edtWorkTitle.requestFocus();
+                } else if (isEmpty(company)) {
+                    binding.edtWorkCompany.setError("Required");
+                    binding.edtWorkCompany.requestFocus();
+                } else if (isEmpty(duration)) {
+                    binding.edtWorkDuration.setError("Required");
+                    binding.edtWorkDuration.requestFocus();
+                }
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void addLiveValidation(android.widget.EditText editText, ValidationRule rule) {
+        editText.addTextChangedListener(new android.text.TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                String input = s.toString().trim();
+                String error = rule.validate(input);
+                editText.setError(error); // This will show or clear the error
+            }
+        });
+    }
+
+
+    interface ValidationRule {
+        String validate(String input); //Return null if valid, or error message if invalid
     }
 
 }

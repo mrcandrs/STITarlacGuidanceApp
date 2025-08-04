@@ -29,6 +29,14 @@ public interface StudentApi {
             @Query("email") String email
     );
 
+    @GET("api/student/check-duplicate-email")
+    Call<DuplicateCheckResponse> checkDuplicateEmail(
+            @Query("email1") String email1,
+            @Query("email2") String email2,
+            @Query("studentId") int studentId
+    );
+
+
     @GET("api/student/check-email-username")
     Call<DuplicateCheckResponse> checkEmailOrUsername(
             @Query("email") String email,
