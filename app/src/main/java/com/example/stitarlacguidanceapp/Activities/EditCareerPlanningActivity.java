@@ -9,7 +9,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.Toast;
@@ -44,6 +46,8 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
 
     private ActivityEditCareerPlanningBinding root;
 
+    private ScrollView scrollView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,6 +57,8 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
         int studentId = getIntent().getIntExtra("studentId", -1);
         Log.d("CareerPlanningForm", "studentId from Intent: " + studentId);
         loadCareerPlanningForm(studentId);
+
+        scrollView = root.editCareerPlanningScrollView;
 
         if (root.fullNameInput != null) {
             root.fullNameInput.setEnabled(false);
@@ -178,50 +184,236 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
         });
 
         root.btnSubmit.setOnClickListener(v -> {
-            CareerPlanningForm form = buildUpdatedFormFromInputs();
-            CareerPlanningApi api = ApiClient.getClient().create(CareerPlanningApi.class);
-            api.updateCareerPlanningForm(form.studentId, form).enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (response.isSuccessful()) {
-                        //Hide keyboard
-                        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                        View view = getCurrentFocus();
-                        if (imm != null && view != null) {
-                            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (validateForm()) {
+                CareerPlanningForm form = buildUpdatedFormFromInputs();
+                CareerPlanningApi api = ApiClient.getClient().create(CareerPlanningApi.class);
+                api.updateCareerPlanningForm(form.studentId, form).enqueue(new Callback<Void>() {
+                    @Override
+                    public void onResponse(Call<Void> call, Response<Void> response) {
+                        if (response.isSuccessful()) {
+                            //Hide keyboard
+                            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                            View view = getCurrentFocus();
+                            if (imm != null && view != null) {
+                                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                            }
+
+                            Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(ContextCompat.getColor(EditCareerPlanningActivity.this, R.color.blue))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+
+                            new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+                                finish();
+                            }, 2000);
+
+                        } else {
+                            try {
+                                String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
+                                Log.e("CareerPlanningForm", "Update failed: Code=" + response.code()
+                                        + ", Message=" + response.message()
+                                        + ", ErrorBody=" + errorBody);
+
+                                Toast.makeText(EditCareerPlanningActivity.this, "Update failed: " + response.message(), Toast.LENGTH_SHORT).show();
+                            } catch (IOException e) {
+                                Log.e("CareerPlanningForm", "Error reading error body", e);
+                                Toast.makeText(EditCareerPlanningActivity.this, "Update failed (IO error)", Toast.LENGTH_SHORT).show();
+                            }
+
                         }
-
-                        Snackbar.make(root.getRoot(), "Successfully updated.", Snackbar.LENGTH_LONG)
-                                .setBackgroundTint(ContextCompat.getColor(EditCareerPlanningActivity.this, R.color.blue))
-                                .setTextColor(Color.WHITE)
-                                .show();
-
-                        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
-                            finish();
-                        }, 2000);
-
-                    } else {
-                        try {
-                            String errorBody = response.errorBody() != null ? response.errorBody().string() : "No error body";
-                            Log.e("CareerPlanningForm", "Update failed: Code=" + response.code()
-                                    + ", Message=" + response.message()
-                                    + ", ErrorBody=" + errorBody);
-
-                            Toast.makeText(EditCareerPlanningActivity.this, "Update failed: " + response.message(), Toast.LENGTH_SHORT).show();
-                        } catch (IOException e) {
-                            Log.e("CareerPlanningForm", "Error reading error body", e);
-                            Toast.makeText(EditCareerPlanningActivity.this, "Update failed (IO error)", Toast.LENGTH_SHORT).show();
-                        }
-
                     }
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Toast.makeText(EditCareerPlanningActivity.this, "Error updating", Toast.LENGTH_SHORT).show();
-                }
-            });
+                    @Override
+                    public void onFailure(Call<Void> call, Throwable t) {
+                        Toast.makeText(EditCareerPlanningActivity.this, "Error updating", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
         });
+    }
+
+    private boolean validateForm() {
+        boolean isValid = true;
+        View firstInvalidField = null;
+
+        String studentNo = root.studentNoInput.getText().toString().trim();
+        String program = root.courseInput.getText().toString().trim();
+        String fullName = root.fullNameInput.getText().toString().trim();
+        String section = root.sectionInput.getText().toString().trim();
+        String contact = root.contactNumberInput.getText().toString().trim();
+        String birthday = root.birthdayInput.getText().toString().trim();
+
+        if (studentNo.isEmpty()) {
+            root.studentNoInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.studentNoInput;
+            isValid = false;
+        }
+
+        if (program.isEmpty()) {
+            root.courseInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.courseInput;
+            isValid = false;
+        }
+
+        if (fullName.isEmpty()) {
+            root.fullNameInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.fullNameInput;
+            isValid = false;
+        }
+
+        if (section.isEmpty()) {
+            root.sectionInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.sectionInput;
+            isValid = false;
+        }
+
+        if (contact.isEmpty()) {
+            root.contactNumberInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.contactNumberInput;
+            isValid = false;
+        } else if (contact.length() < 10) {
+            root.contactNumberInput.setError("Invalid contact number");
+            if (firstInvalidField == null) firstInvalidField = root.contactNumberInput;
+            isValid = false;
+        }
+
+        if (birthday.isEmpty()) {
+            root.birthdayInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.birthdayInput;
+            isValid = false;
+        }
+
+        if (root.gradeYearSpinner.getSelectedItem().toString().equals("Grade/Year")) {
+            Toast.makeText(this, "Please select a valid Grade/Year", Toast.LENGTH_SHORT).show();
+            if (firstInvalidField == null) firstInvalidField = root.gradeYearSpinner;
+            isValid = false;
+        }
+
+        if (root.genderSpinner.getSelectedItem().toString().equals("Gender")) {
+            Toast.makeText(this, "Please select a valid Gender", Toast.LENGTH_SHORT).show();
+            if (firstInvalidField == null) firstInvalidField = root.genderSpinner;
+            isValid = false;
+        }
+
+        if (root.topValue1.getText().toString().trim().isEmpty()) {
+            root.topValue1.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.topValue1;
+            isValid = false;
+        }
+
+        if (root.topStrength1.getText().toString().trim().isEmpty()) {
+            root.topStrength1.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.topStrength1;
+            isValid = false;
+        }
+
+        if (root.topSkill1.getText().toString().trim().isEmpty()) {
+            root.topSkill1.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.topSkill1;
+            isValid = false;
+        }
+
+        if (root.topInterest1.getText().toString().trim().isEmpty()) {
+            root.topInterest1.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.topInterest1;
+            isValid = false;
+        }
+
+        if (root.programChoiceInput.getText().toString().trim().isEmpty()) {
+            root.programChoiceInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.programChoiceInput;
+            isValid = false;
+        }
+
+        int firstChoiceId = root.firstChoiceGroup.getCheckedRadioButtonId();
+        if (firstChoiceId == -1) {
+            Toast.makeText(this, "Please select whether this was your first choice", Toast.LENGTH_SHORT).show();
+            if (firstInvalidField == null) firstInvalidField = root.firstChoiceGroup;
+            isValid = false;
+        } else if (firstChoiceId == root.firstChoiceNo.getId()) {
+            if (root.originalChoiceInput.getText().toString().trim().isEmpty()) {
+                root.originalChoiceInput.setError("Please enter your original choice");
+                if (firstInvalidField == null) firstInvalidField = root.originalChoiceInput;
+                isValid = false;
+            }
+        }
+
+        if (root.programExpectationInput.getText().toString().trim().isEmpty()) {
+            root.programExpectationInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.programExpectationInput;
+            isValid = false;
+        }
+
+        if (root.enrollmentReasonInput.getText().toString().trim().isEmpty()) {
+            root.enrollmentReasonInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.enrollmentReasonInput;
+            isValid = false;
+        }
+
+        if (root.futureVisionInput.getText().toString().trim().isEmpty()) {
+            root.futureVisionInput.setError("Required");
+            if (firstInvalidField == null) firstInvalidField = root.futureVisionInput;
+            isValid = false;
+        }
+
+        int mainPlanId = root.mainPlanRadioGroup.getCheckedRadioButtonId();
+        if (mainPlanId == -1) {
+            Toast.makeText(this, "Please select a plan after graduation", Toast.LENGTH_SHORT).show();
+            if (firstInvalidField == null) firstInvalidField = root.mainPlanRadioGroup;
+            isValid = false;
+        } else {
+            if (mainPlanId == root.radioContinueSchooling.getId()) {
+                if (!root.checkboxAnotherCourse.isChecked() && !root.checkboxMastersProgram.isChecked()) {
+                    Toast.makeText(this, "Please select at least one schooling option", Toast.LENGTH_SHORT).show();
+                    if (firstInvalidField == null) firstInvalidField = root.checkboxAnotherCourse;
+                    isValid = false;
+                }
+                if (root.editCourseField.getText().toString().trim().isEmpty()) {
+                    root.editCourseField.setError("Please specify course/field");
+                    if (firstInvalidField == null) firstInvalidField = root.editCourseField;
+                    isValid = false;
+                }
+            } else if (mainPlanId == root.radioGetEmployed.getId()) {
+                if (!root.checkboxLocalEmployment.isChecked() && !root.checkboxWorkAbroad.isChecked()) {
+                    Toast.makeText(this, "Please select at least one employment option", Toast.LENGTH_SHORT).show();
+                    if (firstInvalidField == null) firstInvalidField = root.checkboxLocalEmployment;
+                    isValid = false;
+                }
+                if (root.editNatureOfJob1.getText().toString().trim().isEmpty()) {
+                    root.editNatureOfJob1.setError("Please describe the nature of job");
+                    if (firstInvalidField == null) firstInvalidField = root.editNatureOfJob1;
+                    isValid = false;
+                }
+            } else if (mainPlanId == root.radioContinueWork.getId()) {
+                if (!root.checkboxAimPromotion.isChecked() && !root.checkboxCurrentWorkAbroad.isChecked()) {
+                    Toast.makeText(this, "Please select at least one current work option", Toast.LENGTH_SHORT).show();
+                    if (firstInvalidField == null) firstInvalidField = root.checkboxAimPromotion;
+                    isValid = false;
+                }
+                if (root.editNatureOfJob2.getText().toString().trim().isEmpty()) {
+                    root.editNatureOfJob2.setError("Please describe the nature of job");
+                    if (firstInvalidField == null) firstInvalidField = root.editNatureOfJob2;
+                    isValid = false;
+                }
+            } else if (mainPlanId == root.radioGoBusiness.getId()) {
+                if (root.editNatureOfBusiness.getText().toString().trim().isEmpty()) {
+                    root.editNatureOfBusiness.setError("Please describe nature of business");
+                    if (firstInvalidField == null) firstInvalidField = root.editNatureOfBusiness;
+                    isValid = false;
+                }
+            }
+        }
+
+        // Scroll to the first invalid field
+        if (!isValid && firstInvalidField != null && scrollView != null) {
+            final View targetView = firstInvalidField; // make effectively final
+            scrollView.post(() -> {
+                int offset = targetView.getTop() - 60;
+                scrollView.smoothScrollTo(0, Math.max(offset, 0));
+                targetView.requestFocus();
+            });
+        }
+
+        return isValid;
     }
 
     private void loadCareerPlanningForm(int studentId) {
