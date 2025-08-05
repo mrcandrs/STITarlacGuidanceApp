@@ -3,6 +3,9 @@
     <style name="Base.Theme.STITarlacGuidanceApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <item name="colorPrimary">@color/blue</item>
+
+        <!-- 👇 Add this line to disable dark mode -->
+        <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
 
     <style name="CircleImageView">
