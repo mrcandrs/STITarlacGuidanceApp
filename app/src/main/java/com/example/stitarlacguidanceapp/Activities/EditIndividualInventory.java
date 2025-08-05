@@ -87,6 +87,11 @@ public class EditIndividualInventory extends AppCompatActivity {
             return input.matches("\\d{11}") ? null : "Phone must be 11 digits";
         });
 
+        //Live validation for guardian number
+        addLiveValidation(root.edtGuardianContact, input -> {
+            return input.matches("\\d{11}") ? null : "Guardian Contact must be 11 digits";
+        });
+
         //Gender spinner populate
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
                 this, R.array.inventory_form_gender_options, android.R.layout.simple_spinner_item);
@@ -811,23 +816,6 @@ public class EditIndividualInventory extends AppCompatActivity {
             return false;
         }
 
-        if (safeText(root.edtGuardianName).isEmpty()) {
-            root.edtGuardianName.setError("Guardian's name is required");
-            root.edtGuardianName.requestFocus();
-            return false;
-        }
-
-        guardianContact = safeText(root.edtGuardianContact);
-        if (guardianContact.isEmpty()) {
-            root.edtGuardianContact.setError("Guardian's contact is required");
-            root.edtGuardianContact.requestFocus();
-            return false;
-        }
-        if (!guardianContact.matches("^(09)\\d{9}$")) {
-            root.edtGuardianContact.setError("Invalid contact number");
-            root.edtGuardianContact.requestFocus();
-            return false;
-        }
 
         // Conditional checks based on checkboxes and reasons
         if (root.checkboxHospitalized.isChecked() && isEmpty(root.edtHospitalizedReason.getText().toString())) {
