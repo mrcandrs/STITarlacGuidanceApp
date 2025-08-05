@@ -116,12 +116,15 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
         root.btnSubmit.setOnClickListener(v -> {
-            checkFormValid();
+            checkFormValid(); // ✅ Re-validate
 
             if (!root.btnSubmit.isEnabled()) {
-
+                // ✅ Force visible errors for each field
                 if (selectedReason.isEmpty()) {
-                    Snackbar.make(root.getRoot(), "Please select a reason", Snackbar.LENGTH_SHORT).show();
+                    Snackbar.make(root.getRoot(), "Please select a reason.", Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(ContextCompat.getColor(this, R.color.darkred))
+                            .setTextColor(Color.WHITE)
+                            .show();
                 } else if (selectedReason.equals("others") && root.etOtherReason.getText().toString().trim().isEmpty()) {
                     root.etOtherReason.setError("Please specify your reason");
                     root.etOtherReason.requestFocus();
@@ -204,6 +207,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         });
 
+
         /*root.btnApprove.setOnClickListener(v -> {
             status = "approved";
             updateStatusBadge();
@@ -259,7 +263,10 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 selectedDate = "";
                 root.btnSelectDate.setText("Select date");
                 root.btnSelectDate.setError("No available slots for this date");
-                Toast.makeText(this, "No available slots for this date", Toast.LENGTH_SHORT).show();
+                Snackbar.make(root.getRoot(), "No available slots for this date.", Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.darkred))
+                        .setTextColor(Color.WHITE)
+                        .show();
             }
 
             checkFormValid(); // ✅ call validation
