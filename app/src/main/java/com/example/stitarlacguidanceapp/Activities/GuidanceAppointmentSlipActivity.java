@@ -65,9 +65,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void setupAvailability() {
-        availableSlots.put("2025-08-01", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
-        availableSlots.put("2025-08-02", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
-        availableSlots.put("2025-08-05", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
+        availableSlots.put("2025-08-10", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-08-12", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
+        availableSlots.put("2025-08-11", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
         availableSlots.put("2025-08-06", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
         availableSlots.put("2025-08-07", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
     }
@@ -116,27 +116,38 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
         root.btnSubmit.setOnClickListener(v -> {
-            //Force re-check before submission
             checkFormValid();
 
-            // If not valid, show specific toasts and cancel submission
             if (!root.btnSubmit.isEnabled()) {
+
                 if (selectedReason.isEmpty()) {
-                    Toast.makeText(this, "Please select a reason for the appointment", Toast.LENGTH_SHORT).show();
+                    Snackbar.make(root.getRoot(), "Please select a reason", Snackbar.LENGTH_SHORT).show();
                 } else if (selectedReason.equals("others") && root.etOtherReason.getText().toString().trim().isEmpty()) {
-                    Toast.makeText(this, "Please specify your reason", Toast.LENGTH_SHORT).show();
-                } else if (selectedDate.isEmpty()) {
-                    Toast.makeText(this, "Please select a date", Toast.LENGTH_SHORT).show();
-                } else if (selectedTime.isEmpty()) {
-                    Toast.makeText(this, "Please select a time", Toast.LENGTH_SHORT).show();
-                } else if (root.etProgramSection.getText().toString().trim().isEmpty()) {
-                    Toast.makeText(this, "Program and Section is required", Toast.LENGTH_SHORT).show();
-                } else if (!root.etProgramSection.getText().toString().trim().matches("^[A-Za-z]{2,5}\\s\\d{1,2}[A-Za-z]?$")) {
-                    Toast.makeText(this, "Format should be like BSIT 2A", Toast.LENGTH_SHORT).show();
+                    root.etOtherReason.setError("Please specify your reason");
+                    root.etOtherReason.requestFocus();
                 }
-                return;
+
+                String programSection = root.etProgramSection.getText().toString().trim();
+                if (programSection.isEmpty()) {
+                    root.etProgramSection.setError("Program and Section is required");
+                    root.etProgramSection.requestFocus();
+                } else if (!programSection.matches("^[A-Za-z]{2,5}-\\d{1,2}[A-Za-z]?$")) {
+                    root.etProgramSection.setError("Format should be like BSIT-2A");
+                    root.etProgramSection.requestFocus();
+                }
+
+                if (selectedDate.isEmpty()) {
+                    root.btnSelectDate.setError("Please select a date");
+                }
+
+                if (selectedTime.isEmpty()) {
+                    root.btnSelectTime.setError("Please select a time");
+                }
+
+                return; //Don't continue if invalid
             }
 
+            // Everything is valid – continue submission
 
             SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
             int studentId = prefs.getInt("studentId", -1); //default fallback
@@ -184,8 +195,6 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 }
             });
 
-            root.btnSubmit.setEnabled(false); //prevents double tap
-
             // Reset status to pending
             status = "pending";
             updateStatusBadge();
@@ -195,21 +204,20 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         });
 
-
-        root.btnApprove.setOnClickListener(v -> {
+        /*root.btnApprove.setOnClickListener(v -> {
             status = "approved";
             updateStatusBadge();
-        });
+        });*/
 
-        root.btnReject.setOnClickListener(v -> {
+        /*root.btnReject.setOnClickListener(v -> {
             status = "rejected";
             updateStatusBadge();
-        });
+        });*/
 
-        root.btnPending.setOnClickListener(v -> {
+        /*root.btnPending.setOnClickListener(v -> {
             status = "pending";
             updateStatusBadge();
-        });
+        });*/
 
         root.etStudentName.setOnFocusChangeListener((v, hasFocus) -> checkFormValid());
         root.etProgramSection.setOnFocusChangeListener((v, hasFocus) -> checkFormValid());
@@ -242,17 +250,25 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             if (availableSlots.containsKey(date)) {
                 selectedDate = date;
                 root.btnSelectDate.setText(formatDate(date));
+                root.btnSelectDate.setError(null); // ✅ clear error
                 selectedTime = "";
                 root.btnSelectTime.setText("Select available time");
                 root.btnSelectTime.setEnabled(true);
                 root.btnSelectTime.setTextColor(getResources().getColor(R.color.blue));
-                checkFormValid();
             } else {
+                selectedDate = "";
+                root.btnSelectDate.setText("Select date");
+                root.btnSelectDate.setError("No available slots for this date");
                 Toast.makeText(this, "No available slots for this date", Toast.LENGTH_SHORT).show();
             }
+
+            checkFormValid(); // ✅ call validation
         }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+
+        dialog.getDatePicker().setMinDate(cal.getTimeInMillis());
         dialog.show();
     }
+
 
     private void openTimePicker() {
         if (selectedDate.isEmpty()) {
@@ -272,6 +288,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 .setItems(times, (dialog, which) -> {
                     selectedTime = times[which];
                     root.btnSelectTime.setText(selectedTime);
+                    root.btnSelectTime.setError(null); // ✅ clear error
                     checkFormValid();
                 }).show();
     }
@@ -281,6 +298,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         boolean isValid = true;
 
+        //Program Section Validation
         String programSection = root.etProgramSection.getText().toString().trim();
         if (programSection.isEmpty()) {
             root.etProgramSection.setError("Program and Section is required");
@@ -292,6 +310,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             root.etProgramSection.setError(null);
         }
 
+        //Reason Validation
         if (selectedReason.isEmpty()) {
             isValid = false;
         } else if (selectedReason.equals("others")) {
@@ -304,19 +323,23 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
         }
 
+        // Date and Time Validation
         if (selectedDate.isEmpty()) {
+            root.btnSelectDate.setError("Please select a date");
             isValid = false;
+        } else {
+            root.btnSelectDate.setError(null);
         }
 
         if (selectedTime.isEmpty()) {
+            root.btnSelectTime.setError("Please select a time");
             isValid = false;
+        } else {
+            root.btnSelectTime.setError(null);
         }
 
         root.btnSubmit.setEnabled(isValid);
     }
-
-
-
 
     private void updateStatusBadge() {
         switch (status) {

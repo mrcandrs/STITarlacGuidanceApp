@@ -175,18 +175,6 @@
             android:fontFamily="@font/poppins_semibold"
             android:enabled="false" />
 
-        <!-- Submit Button -->
-        <Button
-            android:id="@+id/btnSubmit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Submit Appointment Request"
-            android:fontFamily="@font/poppins_semibold"
-            android:enabled="false"
-            android:backgroundTint="#2563EB"
-            android:textColor="#FFFFFF" />
-
         <!-- Note -->
         <TextView
             android:layout_width="match_parent"
@@ -197,6 +185,18 @@
             android:text="NOTE: Please make sure to arrive on time for your scheduled appointment. You will receive a notification once your guidance counselor reviews your request."
             android:fontFamily="@font/poppins_regular"
             android:textSize="14sp" />
+
+        <!-- Submit Button -->
+        <Button
+            android:id="@+id/btnSubmit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Submit Appointment Request"
+            android:fontFamily="@font/poppins_semibold"
+            android:enabled="false"
+            android:backgroundTint="#2563EB"
+            android:textColor="#FFFFFF" />
 
         <!-- Demo Status Controls -->
         <LinearLayout
