@@ -4,7 +4,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-    private static final String BASE_URL = "http://10.0.2.2:5281/"; // Emulator access to localhost
+    private static final String BASE_URL = "https://guidanceofficeapi-production.up.railway.app/";
     private static Retrofit retrofit = null;
 
     //Student

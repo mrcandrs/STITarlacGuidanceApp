@@ -356,7 +356,7 @@ public class InventoryFormActivity extends AppCompatActivity {
         intent.putExtra("Birthday", safeText(root.edtBirthday));
         intent.putExtra("ContactNumber", safeText(root.edtPhone));
 
-        Toast.makeText(this, "Form saved locally", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Individual Inventory Form saved!", Toast.LENGTH_SHORT).show();
         startActivity(intent);
     }
 
