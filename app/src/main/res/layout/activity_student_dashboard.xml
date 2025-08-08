@@ -324,7 +324,7 @@
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Mood\nTracker"
+                            android:text="Mood Tracker"
                             android:textAlignment="center"
                             android:fontFamily="@font/poppins_semibold"
                             android:textColor="@color/blue"
