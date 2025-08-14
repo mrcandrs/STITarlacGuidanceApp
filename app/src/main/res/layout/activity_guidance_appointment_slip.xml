@@ -197,40 +197,5 @@
             android:enabled="false"
             android:backgroundTint="#2563EB"
             android:textColor="#FFFFFF" />
-
-        <!-- Demo Status Controls -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="16dp"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/btnApprove"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Approve"
-                android:textColor="#15803D"
-                android:backgroundTint="#DCFCE7" />
-
-            <Button
-                android:id="@+id/btnReject"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Reject"
-                android:textColor="#B91C1C"
-                android:backgroundTint="#FEE2E2"
-                android:layout_marginStart="8dp" />
-
-            <Button
-                android:id="@+id/btnPending"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pending"
-                android:textColor="#92400E"
-                android:backgroundTint="#FEF9C3"
-                android:layout_marginStart="8dp" />
-        </LinearLayout>
     </LinearLayout>
 </ScrollView>
