@@ -58,10 +58,6 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         setupAvailability();
         setupListeners();
         updateStatusBadge();
-
-        root.btnApprove.setVisibility(View.GONE);
-        root.btnReject.setVisibility(View.GONE);
-        root.btnPending.setVisibility(View.GONE);
     }
 
     private void setupAvailability() {
