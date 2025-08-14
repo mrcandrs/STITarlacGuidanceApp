@@ -61,11 +61,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void setupAvailability() {
-        availableSlots.put("2025-08-10", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
-        availableSlots.put("2025-08-12", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
-        availableSlots.put("2025-08-11", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
-        availableSlots.put("2025-08-06", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
-        availableSlots.put("2025-08-07", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-08-16", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-08-17", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
+        availableSlots.put("2025-08-18", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
+        availableSlots.put("2025-08-19", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
+        availableSlots.put("2025-08-20", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
     }
 
     private void setupListeners() {
