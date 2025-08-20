@@ -1,13 +1,16 @@
 package com.example.stitarlacguidanceapp.Models;
 
 public class GuidanceAppointment {
-    private int studentId;  // <-- Add this
+    private int appointmentId;
+    private int studentId;
     private String studentName;
     private String programSection;
     private String reason;
-    private String date;
-    private String time;
+    private String date;        // Scheduled appointment date
+    private String time;        // Scheduled appointment time
     private String status;
+    private String createdAt;   // When appointment was submitted (from server)
+    private String updatedAt;   // When status was last updated (from server)
 
     public GuidanceAppointment() {
     }
@@ -20,6 +23,15 @@ public class GuidanceAppointment {
         this.date = date;
         this.time = time;
         this.status = status;
+    }
+
+    // Getters and Setters
+    public int getAppointmentId() {
+        return appointmentId;
+    }
+
+    public void setAppointmentId(int appointmentId) {
+        this.appointmentId = appointmentId;
     }
 
     public int getStudentId() {
@@ -78,5 +90,19 @@ public class GuidanceAppointment {
         this.status = status;
     }
 
-}
+    public String getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
+    }
+}
