@@ -106,8 +106,6 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
         });
 
-
-
         root.btnSelectDate.setOnClickListener(v -> openDatePicker());
         root.btnSelectTime.setOnClickListener(v -> openTimePicker());
 
