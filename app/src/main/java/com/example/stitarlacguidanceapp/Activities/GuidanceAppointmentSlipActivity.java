@@ -4,6 +4,8 @@ import android.app.DatePickerDialog;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.*;
 import android.app.AlertDialog;
@@ -58,14 +60,20 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         setupAvailability();
         setupListeners();
         updateStatusBadge();
+
+        // ✅ ADD THIS: Check appointment status when activity loads
+        checkAppointmentStatus();
+
+        // ✅ ADD THIS: Start periodic status checking (optional)
+        // startStatusPolling();
     }
 
     private void setupAvailability() {
-        availableSlots.put("2025-08-22", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
-        availableSlots.put("2025-08-23", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
-        availableSlots.put("2025-08-24", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
-        availableSlots.put("2025-08-25", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
-        availableSlots.put("2025-08-26", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-09-09", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-09-10", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
+        availableSlots.put("2025-09-11", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
+        availableSlots.put("2025-09-12", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
+        availableSlots.put("2025-09-13", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
     }
 
     private void setupListeners() {
@@ -292,6 +300,69 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     root.btnSelectTime.setError(null); // ✅ clear error
                     checkFormValid();
                 }).show();
+    }
+
+    // Add this method to check appointment status
+    private void checkAppointmentStatus() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+
+        if (studentId == -1) {
+            Toast.makeText(this, "Student ID not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
+        Call<List<GuidanceAppointment>> call = apiService.getStudentAppointments(studentId);
+
+        call.enqueue(new Callback<List<GuidanceAppointment>>() {
+            @Override
+            public void onResponse(Call<List<GuidanceAppointment>> call, Response<List<GuidanceAppointment>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    // Get the most recent appointment
+                    GuidanceAppointment latestAppointment = response.body().get(0);
+                    String currentStatus = latestAppointment.getStatus();
+
+                    // Update the status if it has changed
+                    if (!currentStatus.equals(status)) {
+                        status = currentStatus;
+                        updateStatusBadge();
+
+                        // Show notification based on status
+                        if ("approved".equals(status)) {
+                            Snackbar.make(root.getRoot(), "Your appointment has been approved!", Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(ContextCompat.getColor(GuidanceAppointmentSlipActivity.this, R.color.green_700))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        } else if ("rejected".equals(status)) {
+                            Snackbar.make(root.getRoot(), "Your appointment has been rejected.", Snackbar.LENGTH_LONG)
+                                    .setBackgroundTint(ContextCompat.getColor(GuidanceAppointmentSlipActivity.this, R.color.red_700))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<GuidanceAppointment>> call, Throwable t) {
+                // Handle error silently for background checks
+                Log.e("AppointmentStatus", "Failed to check status: " + t.getMessage());
+            }
+        });
+    }
+
+    // Add this method to periodically check status
+    private void startStatusPolling() {
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                checkAppointmentStatus();
+                handler.postDelayed(this, 30000); // Check every 30 seconds
+            }
+        };
+        handler.post(runnable);
     }
 
     private void checkFormValid() {

@@ -2,12 +2,64 @@ package com.example.stitarlacguidanceapp;
 
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 
+import java.util.List;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
+import retrofit2.http.Path;
 
 public interface GuidanceAppointmentApi {
+
+    // Submit a new appointment
     @POST("api/GuidanceAppointment")
     Call<ResponseBody> submitAppointment(@Body GuidanceAppointment appointment);
+
+    // Get all appointments for a specific student
+    @GET("api/GuidanceAppointment/student/{studentId}")
+    Call<List<GuidanceAppointment>> getStudentAppointments(@Path("studentId") int studentId);
+
+    // Get a specific appointment by ID
+    @GET("api/GuidanceAppointment/{id}")
+    Call<GuidanceAppointment> getAppointmentById(@Path("id") int id);
+
+    // Get all pending appointments (for counselor)
+    @GET("api/GuidanceAppointment/pending-appointments")
+    Call<List<GuidanceAppointment>> getPendingAppointments();
+
+    // Get all appointments (for counselor)
+    @GET("api/GuidanceAppointment/all-appointments")
+    Call<List<GuidanceAppointment>> getAllAppointments();
+
+    // Approve an appointment
+    @PUT("api/GuidanceAppointment/{id}/approve")
+    Call<ResponseBody> approveAppointment(@Path("id") int id);
+
+    // Reject an appointment
+    @PUT("api/GuidanceAppointment/{id}/reject")
+    Call<ResponseBody> rejectAppointment(@Path("id") int id);
+
+    // Update appointment status (generic)
+    @PUT("api/GuidanceAppointment/{id}/status")
+    Call<ResponseBody> updateAppointmentStatus(@Path("id") int id, @Body StatusUpdateRequest request);
+
+    // Helper class for status updates
+    class StatusUpdateRequest {
+        private String status;
+
+        public StatusUpdateRequest(String status) {
+            this.status = status;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+    }
 }
