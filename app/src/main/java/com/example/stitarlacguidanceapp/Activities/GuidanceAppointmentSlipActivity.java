@@ -60,6 +60,23 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root = ActivityGuidanceAppointmentSlipBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        // Defensive reset and session gate (ADD THIS HERE)
+        status = "pending";
+        lastKnownStatus = "";
+        hasPendingAppointment = false;
+        pendingAppointment = null;
+        updateStatusBadge();
+        enableFormForNewAppointment();
+
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        if (studentId == -1) {
+            Toast.makeText(this, "Please log in again.", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+            return;
+        }
+
         // Initialize notification helper
         notificationHelper = new NotificationHelper(this);
 
@@ -465,6 +482,12 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
         };
         handler.post(runnable);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkAppointmentStatus();
     }
 
     private void checkFormValid() {
