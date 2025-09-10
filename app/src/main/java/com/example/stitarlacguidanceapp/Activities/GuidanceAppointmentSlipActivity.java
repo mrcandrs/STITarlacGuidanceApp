@@ -39,6 +39,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private String status = "pending";
     private boolean skipValidation = false;
 
+    private boolean hasPendingAppointment = false;
+    private GuidanceAppointment pendingAppointment = null;
+
     private final Map<String, List<String>> availableSlots = new HashMap<>();
 
     @Override
@@ -114,10 +117,28 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
         });
 
-        root.btnSelectDate.setOnClickListener(v -> openDatePicker());
-        root.btnSelectTime.setOnClickListener(v -> openTimePicker());
+        root.btnSelectDate.setOnClickListener(v -> {
+            if (hasPendingAppointment) {
+                showAppointmentDetailsDialog();
+                return;
+            }
+            openDatePicker();
+        });
+
+        root.btnSelectTime.setOnClickListener(v -> {
+            if (hasPendingAppointment) {
+                showAppointmentDetailsDialog();
+                return;
+            }
+            openTimePicker();
+        });
 
         root.btnSubmit.setOnClickListener(v -> {
+            // Check if student has pending appointment
+            if (hasPendingAppointment) {
+                showAppointmentDetailsDialog();
+                return;
+            }
             checkFormValid(); // ✅ Re-validate
 
             if (!root.btnSubmit.isEnabled()) {
@@ -189,6 +210,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                                 .show();
                         //Safe to reset
                         resetForm();
+                        // Check appointment status again to update UI
+                        checkAppointmentStatus();
                     } else {
                         Toast.makeText(GuidanceAppointmentSlipActivity.this, "Server Error: " + response.code(), Toast.LENGTH_LONG).show();
                     }
@@ -323,6 +346,16 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     GuidanceAppointment latestAppointment = response.body().get(0);
                     String currentStatus = latestAppointment.getStatus();
 
+                    // Check if there's a pending appointment
+                    hasPendingAppointment = "pending".equals(currentStatus);
+                    if (hasPendingAppointment) {
+                        pendingAppointment = latestAppointment;
+                        disableFormForPendingAppointment();
+                    } else {
+                        pendingAppointment = null;
+                        enableFormForNewAppointment();
+                    }
+
                     // Update the status if it has changed
                     if (!currentStatus.equals(status)) {
                         status = currentStatus;
@@ -341,6 +374,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                                     .show();
                         }
                     }
+                } else {
+                    // No appointments found, enable form
+                    hasPendingAppointment = false;
+                    pendingAppointment = null;
+                    enableFormForNewAppointment();
                 }
             }
 
@@ -366,7 +404,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void checkFormValid() {
-        if (skipValidation) return;
+        if (skipValidation || hasPendingAppointment) return;
 
         boolean isValid = true;
 
@@ -433,6 +471,162 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 root.statusBadge.setBackgroundColor(getResources().getColor(R.color.pending_yellow));
                 root.statusIcon.setImageResource(R.drawable.ic_pending);
                 break;
+        }
+    }
+
+    // Method to disable form when there's a pending appointment
+    private void disableFormForPendingAppointment() {
+        root.etProgramSection.setEnabled(false);
+        root.etProgramSection.setBackgroundColor(Color.parseColor("#f5f5f5"));
+        root.etProgramSection.setTextColor(Color.parseColor("#999999"));
+
+        root.rgReason.setEnabled(false);
+        for (int i = 0; i < root.rgReason.getChildCount(); i++) {
+            View child = root.rgReason.getChildAt(i);
+            if (child instanceof RadioButton) {
+                child.setEnabled(false);
+                child.setAlpha(0.5f);
+            }
+        }
+
+        root.etOtherReason.setEnabled(false);
+        root.etOtherReason.setBackgroundColor(Color.parseColor("#f5f5f5"));
+        root.etOtherReason.setTextColor(Color.parseColor("#999999"));
+
+        root.btnSelectDate.setEnabled(false);
+        root.btnSelectDate.setAlpha(0.5f);
+        root.btnSelectTime.setEnabled(false);
+        root.btnSelectTime.setAlpha(0.5f);
+
+        root.btnSubmit.setEnabled(false);
+        root.btnSubmit.setAlpha(0.5f);
+        root.btnSubmit.setText("You have a pending appointment");
+
+        // Show a message about pending appointment
+        Snackbar.make(root.getRoot(), "You already have a pending appointment. Please wait for approval.", Snackbar.LENGTH_LONG)
+                .setBackgroundTint(ContextCompat.getColor(this, R.color.yellow_700))
+                .setTextColor(Color.WHITE)
+                .show();
+
+        // Show detailed dialog instead of simple message
+        showAppointmentDetailsDialog();
+    }
+
+    // Method to enable form for new appointment
+    private void enableFormForNewAppointment() {
+        root.etProgramSection.setEnabled(true);
+        root.etProgramSection.setBackgroundColor(Color.WHITE);
+        root.etProgramSection.setTextColor(Color.BLACK);
+
+        root.rgReason.setEnabled(true);
+        for (int i = 0; i < root.rgReason.getChildCount(); i++) {
+            View child = root.rgReason.getChildAt(i);
+            if (child instanceof RadioButton) {
+                child.setEnabled(true);
+                child.setAlpha(1.0f);
+            }
+        }
+
+        root.etOtherReason.setEnabled(true);
+        root.etOtherReason.setBackgroundColor(Color.WHITE);
+        root.etOtherReason.setTextColor(Color.BLACK);
+
+        root.btnSelectDate.setEnabled(true);
+        root.btnSelectDate.setAlpha(1.0f);
+        root.btnSelectTime.setEnabled(false); // Will be enabled when date is selected
+        root.btnSelectTime.setAlpha(1.0f);
+
+        root.btnSubmit.setEnabled(false); // Will be enabled when form is valid
+        root.btnSubmit.setAlpha(1.0f);
+        root.btnSubmit.setText("Submit Appointment Request");
+    }
+
+    // Enhanced method to show detailed appointment information dialog
+    private void showAppointmentDetailsDialog() {
+        if (pendingAppointment == null) return;
+
+        // Create a custom layout for the dialog
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_appointment_details, null);
+
+        // Find views in the custom layout
+        TextView tvStudentName = dialogView.findViewById(R.id.tv_student_name);
+        TextView tvProgramSection = dialogView.findViewById(R.id.tv_program_section);
+        TextView tvReason = dialogView.findViewById(R.id.tv_reason);
+        TextView tvDate = dialogView.findViewById(R.id.tv_date);
+        TextView tvTime = dialogView.findViewById(R.id.tv_time);
+        TextView tvStatus = dialogView.findViewById(R.id.tv_status);
+        TextView tvSubmittedDate = dialogView.findViewById(R.id.tv_submitted_date);
+        TextView tvUpdatedDate = dialogView.findViewById(R.id.tv_updated_date);
+        ImageView ivStatusIcon = dialogView.findViewById(R.id.iv_status_icon);
+        LinearLayout llStatusContainer = dialogView.findViewById(R.id.ll_status_container);
+
+        // Populate the dialog with appointment data
+        tvStudentName.setText(pendingAppointment.getStudentName());
+        tvProgramSection.setText(pendingAppointment.getProgramSection());
+        tvReason.setText(pendingAppointment.getReason());
+        tvDate.setText(formatDate(pendingAppointment.getDate()));
+        tvTime.setText(pendingAppointment.getTime());
+
+        // Format and display status
+        String statusText = pendingAppointment.getStatus().toUpperCase();
+        tvStatus.setText(statusText);
+
+        // Set status-specific styling
+        switch (pendingAppointment.getStatus().toLowerCase()) {
+            case "approved":
+                tvStatus.setTextColor(getResources().getColor(R.color.green_700));
+                ivStatusIcon.setImageResource(R.drawable.ic_approved);
+                llStatusContainer.setBackgroundColor(getResources().getColor(R.color.approved_green_light));
+                break;
+            case "rejected":
+                tvStatus.setTextColor(getResources().getColor(R.color.red_700));
+                ivStatusIcon.setImageResource(R.drawable.ic_rejected);
+                llStatusContainer.setBackgroundColor(getResources().getColor(R.color.rejected_red_light));
+                break;
+            default: // pending
+                tvStatus.setTextColor(getResources().getColor(R.color.yellow_700));
+                ivStatusIcon.setImageResource(R.drawable.ic_pending);
+                llStatusContainer.setBackgroundColor(getResources().getColor(R.color.pending_yellow_light));
+                break;
+        }
+
+        // Format submission date
+        if (pendingAppointment.getCreatedAt() != null) {
+            tvSubmittedDate.setText(formatDateTime(pendingAppointment.getCreatedAt()));
+        } else {
+            tvSubmittedDate.setText("Not available");
+        }
+
+        // Format last updated date
+        if (pendingAppointment.getUpdatedAt() != null) {
+            tvUpdatedDate.setText(formatDateTime(pendingAppointment.getUpdatedAt()));
+        } else {
+            tvUpdatedDate.setText("Not updated");
+        }
+
+        // Create and show the dialog
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setView(dialogView)
+                .setTitle("Appointment Details")
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .setNeutralButton("Refresh Status", (dialog, which) -> {
+                    checkAppointmentStatus();
+                    dialog.dismiss();
+                });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    // Helper method to format date and time
+    private String formatDateTime(String dateTimeString) {
+        try {
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+            SimpleDateFormat outputFormat = new SimpleDateFormat("MMM dd, yyyy 'at' hh:mm a", Locale.US);
+            Date date = inputFormat.parse(dateTimeString);
+            return outputFormat.format(date);
+        } catch (Exception e) {
+            return dateTimeString; // Return original string if parsing fails
         }
     }
 
