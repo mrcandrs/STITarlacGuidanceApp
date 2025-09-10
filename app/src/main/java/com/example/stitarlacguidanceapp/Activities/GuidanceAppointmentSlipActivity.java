@@ -49,6 +49,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private boolean hasPendingAppointment = false;
     private GuidanceAppointment pendingAppointment = null;
 
+    private GuidanceAppointment latestAppointment = null;
+
     private NotificationHelper notificationHelper;
     private String lastKnownStatus = "";
 
@@ -105,11 +107,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void setupAvailability() {
-        availableSlots.put("2025-09-09", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
-        availableSlots.put("2025-09-10", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
-        availableSlots.put("2025-09-11", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
-        availableSlots.put("2025-09-12", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
-        availableSlots.put("2025-09-13", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-09-11", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-09-12", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
+        availableSlots.put("2025-09-13", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
+        availableSlots.put("2025-09-14", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
+        availableSlots.put("2025-09-15", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
     }
 
     private void setupListeners() {
@@ -152,7 +154,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         root.btnSelectDate.setOnClickListener(v -> {
             if (hasPendingAppointment) {
-                showAppointmentDetailsDialog();
+                showAppointmentDetailsDialog(latestAppointment);
                 return;
             }
             openDatePicker();
@@ -160,16 +162,24 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         root.btnSelectTime.setOnClickListener(v -> {
             if (hasPendingAppointment) {
-                showAppointmentDetailsDialog();
+                showAppointmentDetailsDialog(latestAppointment);
                 return;
             }
             openTimePicker();
         });
 
         root.btnSubmit.setOnClickListener(v -> {
-            // Check if student has pending appointment
+        // Block submit only if current appointment is pending
             if (hasPendingAppointment) {
-                showAppointmentDetailsDialog();
+                if (latestAppointment != null) {
+                    showAppointmentDetailsDialog(latestAppointment);
+                } else {
+                    Snackbar.make(root.getRoot(), "Loading appointment details...", Snackbar.LENGTH_SHORT)
+                            .setBackgroundTint(ContextCompat.getColor(this, R.color.blue))
+                            .setTextColor(Color.WHITE)
+                            .show();
+                    checkAppointmentStatus();
+                }
                 return;
             }
             checkFormValid(); // ✅ Re-validate
@@ -377,6 +387,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     GuidanceAppointment latestAppointment = response.body().get(0);
                     String currentStatus = latestAppointment.getStatus();
+
+                    // Track for dialog use across all statuses
+                    GuidanceAppointmentSlipActivity.this.latestAppointment = latestAppointment;
 
                     // Only check for status changes if we have a previous status to compare
                     if (!lastKnownStatus.isEmpty() && !lastKnownStatus.equals(currentStatus)) {
@@ -627,13 +640,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     // Add this method to your GuidanceAppointmentSlipActivity class
     private void setupStatusClickListener() {
-        // Make the status badge clickable
         root.statusBadge.setClickable(true);
         root.statusBadge.setOnClickListener(v -> {
-            if (pendingAppointment != null) {
-                showAppointmentDetailsDialog();
+            if (latestAppointment != null) {
+                showAppointmentDetailsDialog(latestAppointment);
             } else {
-                // If no pending appointment, show a message
                 Snackbar.make(root.getRoot(), "No appointment details available", Snackbar.LENGTH_SHORT)
                         .setBackgroundTint(ContextCompat.getColor(this, R.color.blue))
                         .setTextColor(Color.WHITE)
@@ -641,18 +652,15 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
         });
 
-        // Add visual feedback for clickable status
         root.statusBadge.setBackground(getResources().getDrawable(R.drawable.status_badge_clickable));
     }
 
     // Enhanced method to show detailed appointment information dialog
-    private void showAppointmentDetailsDialog() {
-        if (pendingAppointment == null) return;
+    private void showAppointmentDetailsDialog(GuidanceAppointment appointment) {
+        if (appointment == null) return;
 
-        // Create a custom layout for the dialog
         View dialogView = getLayoutInflater().inflate(R.layout.dialog_appointment_details, null);
 
-        // Find views in the custom layout
         TextView tvStudentName = dialogView.findViewById(R.id.tv_student_name);
         TextView tvProgramSection = dialogView.findViewById(R.id.tv_program_section);
         TextView tvReason = dialogView.findViewById(R.id.tv_reason);
@@ -664,19 +672,16 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         ImageView ivStatusIcon = dialogView.findViewById(R.id.iv_status_icon);
         LinearLayout llStatusContainer = dialogView.findViewById(R.id.ll_status_container);
 
-        // Populate the dialog with appointment data
-        tvStudentName.setText(pendingAppointment.getStudentName());
-        tvProgramSection.setText(pendingAppointment.getProgramSection());
-        tvReason.setText(pendingAppointment.getReason());
-        tvDate.setText(formatDate(pendingAppointment.getDate()));
-        tvTime.setText(pendingAppointment.getTime());
+        tvStudentName.setText(appointment.getStudentName());
+        tvProgramSection.setText(appointment.getProgramSection());
+        tvReason.setText(appointment.getReason());
+        tvDate.setText(formatDate(appointment.getDate()));
+        tvTime.setText(appointment.getTime());
 
-        // Format and display status
-        String statusText = pendingAppointment.getStatus().toUpperCase();
+        String statusText = appointment.getStatus().toUpperCase();
         tvStatus.setText(statusText);
 
-        // Set status-specific styling
-        switch (pendingAppointment.getStatus().toLowerCase()) {
+        switch (appointment.getStatus().toLowerCase()) {
             case "approved":
                 tvStatus.setTextColor(getResources().getColor(R.color.green_700));
                 ivStatusIcon.setImageResource(R.drawable.ic_approved);
@@ -687,28 +692,25 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 ivStatusIcon.setImageResource(R.drawable.ic_rejected);
                 llStatusContainer.setBackgroundColor(getResources().getColor(R.color.rejected_red_light));
                 break;
-            default: // pending
+            default:
                 tvStatus.setTextColor(getResources().getColor(R.color.yellow_700));
                 ivStatusIcon.setImageResource(R.drawable.ic_pending);
                 llStatusContainer.setBackgroundColor(getResources().getColor(R.color.pending_yellow_light));
                 break;
         }
 
-        //Format submission date
-        if (pendingAppointment.getCreatedAt() != null) {
-            tvSubmittedDate.setText(formatDateTime(pendingAppointment.getCreatedAt()));
+        if (appointment.getCreatedAt() != null) {
+            tvSubmittedDate.setText(formatDateTime(appointment.getCreatedAt()));
         } else {
             tvSubmittedDate.setText("Not available");
         }
 
-        //Format last updated date
-        if (pendingAppointment.getUpdatedAt() != null) {
-            tvUpdatedDate.setText(formatDateTime(pendingAppointment.getUpdatedAt()));
+        if (appointment.getUpdatedAt() != null) {
+            tvUpdatedDate.setText(formatDateTime(appointment.getUpdatedAt()));
         } else {
             tvUpdatedDate.setText("Not updated");
         }
 
-        //Create and show the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
                 .setTitle("Appointment Details")
