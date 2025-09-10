@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.GuidanceAppointmentApi;
+import com.example.stitarlacguidanceapp.Models.AvailableTimeSlot;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.SimpleTextWatcher;
@@ -107,11 +108,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     private void setupAvailability() {
-        availableSlots.put("2025-09-11", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
-        availableSlots.put("2025-09-12", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
-        availableSlots.put("2025-09-13", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
-        availableSlots.put("2025-09-14", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
-        availableSlots.put("2025-09-15", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
+        fetchAvailableTimeSlots();
     }
 
     private void setupListeners() {
@@ -315,14 +312,21 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.etProgramSection.postDelayed(() -> skipValidation = false, 200);
     }
 
+    // Update the openDatePicker method to refresh slots when date changes
     private void openDatePicker() {
         final Calendar cal = Calendar.getInstance();
         DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
             String date = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+
+            // Check if we have slots for this date, if not, fetch them
+            if (!availableSlots.containsKey(date)) {
+                fetchAvailableSlotsForDate(date);
+            }
+
             if (availableSlots.containsKey(date)) {
                 selectedDate = date;
                 root.btnSelectDate.setText(formatDate(date));
-                root.btnSelectDate.setError(null); // ✅ clear error
+                root.btnSelectDate.setError(null);
                 selectedTime = "";
                 root.btnSelectTime.setText("Select available time");
                 root.btnSelectTime.setEnabled(true);
@@ -337,7 +341,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                         .show();
             }
 
-            checkFormValid(); // ✅ call validation
+            checkFormValid();
         }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
 
         dialog.getDatePicker().setMinDate(cal.getTimeInMillis());
@@ -366,6 +370,34 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     root.btnSelectTime.setError(null); // ✅ clear error
                     checkFormValid();
                 }).show();
+    }
+
+    // Add method to fetch slots for a specific date
+    private void fetchAvailableSlotsForDate(String date) {
+        GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
+        Call<List<AvailableTimeSlot>> call = apiService.getAvailableTimeSlotsByDate(date);
+
+        call.enqueue(new Callback<List<AvailableTimeSlot>>() {
+            @Override
+            public void onResponse(Call<List<AvailableTimeSlot>> call, Response<List<AvailableTimeSlot>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<String> times = new ArrayList<>();
+                    for (AvailableTimeSlot slot : response.body()) {
+                        if (slot.isActive()) {
+                            times.add(slot.getTime());
+                        }
+                    }
+                    if (!times.isEmpty()) {
+                        availableSlots.put(date, times);
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AvailableTimeSlot>> call, Throwable t) {
+                Log.e("AvailableSlots", "Error fetching slots for date: " + t.getMessage());
+            }
+        });
     }
 
     // Add this method to check appointment status
@@ -501,7 +533,61 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         checkAppointmentStatus();
+        fetchAvailableTimeSlots(); // Refresh available slots
     }
+
+    // Add this method to fetch available time slots
+    // Update the fetchAvailableTimeSlots method in GuidanceAppointmentSlipActivity
+    private void fetchAvailableTimeSlots() {
+        GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
+        // Use the new endpoint that includes real-time counts
+        Call<List<AvailableTimeSlot>> call = apiService.getAvailableTimeSlotsWithCounts();
+
+        call.enqueue(new Callback<List<AvailableTimeSlot>>() {
+            @Override
+            public void onResponse(Call<List<AvailableTimeSlot>> call, Response<List<AvailableTimeSlot>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    updateAvailableSlots(response.body());
+                } else {
+                    Log.e("AvailableSlots", "Failed to fetch available slots: " + response.code());
+                    setupFallbackAvailability();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AvailableTimeSlot>> call, Throwable t) {
+                Log.e("AvailableSlots", "Error fetching available slots: " + t.getMessage());
+                setupFallbackAvailability();
+            }
+        });
+    }
+
+    // Add this method to update available slots from API
+    private void updateAvailableSlots(List<AvailableTimeSlot> slots) {
+        availableSlots.clear();
+
+        for (AvailableTimeSlot slot : slots) {
+            if (slot.isActive()) {
+                String date = slot.getDate();
+                if (!availableSlots.containsKey(date)) {
+                    availableSlots.put(date, new ArrayList<>());
+                }
+                availableSlots.get(date).add(slot.getTime());
+            }
+        }
+
+        Log.d("AvailableSlots", "Updated available slots: " + availableSlots.toString());
+    }
+
+    // Add fallback method for when API fails
+    private void setupFallbackAvailability() {
+        availableSlots.put("2025-09-11", Arrays.asList("9:00 AM", "10:00 AM", "2:00 PM", "3:00 PM"));
+        availableSlots.put("2025-09-12", Arrays.asList("9:00 AM", "11:00 AM", "1:00 PM"));
+        availableSlots.put("2025-09-13", Arrays.asList("10:00 AM", "2:00 PM", "3:00 PM", "4:00 PM"));
+        availableSlots.put("2025-09-14", Arrays.asList("9:00 AM", "10:00 AM", "11:00 AM"));
+        availableSlots.put("2025-09-15", Arrays.asList("1:00 PM", "2:00 PM", "3:00 PM"));
+    }
+
 
     private void checkFormValid() {
         if (skipValidation || hasPendingAppointment) return;
