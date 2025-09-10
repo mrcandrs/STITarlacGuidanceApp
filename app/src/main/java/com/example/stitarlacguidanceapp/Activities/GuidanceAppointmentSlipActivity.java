@@ -361,8 +361,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     GuidanceAppointment latestAppointment = response.body().get(0);
                     String currentStatus = latestAppointment.getStatus();
 
-                    // Check for status changes and show notifications
+                    // Only check for status changes if we have a previous status to compare
                     if (!lastKnownStatus.isEmpty() && !lastKnownStatus.equals(currentStatus)) {
+                        Log.d("StatusChange", "Status changed from " + lastKnownStatus + " to " + currentStatus);
                         showStatusChangeNotification(latestAppointment, lastKnownStatus, currentStatus);
                     }
 
@@ -431,6 +432,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     // Add this method to handle status change notifications
     private void showStatusChangeNotification(GuidanceAppointment appointment, String oldStatus, String newStatus) {
+        Log.d("Notification", "Showing status change notification: " + oldStatus + " -> " + newStatus);
+
         String studentName = appointment.getStudentName();
         String appointmentDate = formatDate(appointment.getDate());
         String appointmentTime = appointment.getTime();
@@ -442,6 +445,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             case "rejected":
                 notificationHelper.showAppointmentRejectedNotification(studentName, appointmentDate, appointmentTime);
                 break;
+            default:
+                Log.d("Notification", "No notification for status: " + newStatus);
+                break;
         }
     }
 
@@ -451,8 +457,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                checkAppointmentStatus();
-                handler.postDelayed(this, 60000); // Check every minute
+                // Only check if we have a pending appointment
+                if (hasPendingAppointment) {
+                    checkAppointmentStatus();
+                }
+                handler.postDelayed(this, 15000); // Check every 15 seconds instead of 2 minutes
             }
         };
         handler.post(runnable);

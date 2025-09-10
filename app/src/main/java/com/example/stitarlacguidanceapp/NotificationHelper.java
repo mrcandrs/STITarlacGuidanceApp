@@ -25,10 +25,16 @@ public class NotificationHelper {
     private Context context;
     private NotificationManagerCompat notificationManager;
 
+    // Track notifications by type, not by status
+    private String lastNotificationType = "";
+    private long lastNotificationTime = 0;
+    private static final long NOTIFICATION_COOLDOWN = 10000; // Reduced to 10 seconds
+
     public NotificationHelper(Context context) {
         this.context = context;
         this.notificationManager = NotificationManagerCompat.from(context);
         createNotificationChannel();
+        Log.d(TAG, "NotificationHelper initialized");
     }
 
     private void createNotificationChannel() {
@@ -45,39 +51,76 @@ public class NotificationHelper {
             NotificationManager manager = context.getSystemService(NotificationManager.class);
             if (manager != null) {
                 manager.createNotificationChannel(channel);
+                Log.d(TAG, "Notification channel created");
             }
         }
     }
 
     // Helper method to check if notifications are permitted
     private boolean areNotificationsEnabled() {
+        boolean enabled;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            return ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+            enabled = ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
                     == PackageManager.PERMISSION_GRANTED;
         } else {
-            return NotificationManagerCompat.from(context).areNotificationsEnabled();
+            enabled = NotificationManagerCompat.from(context).areNotificationsEnabled();
         }
+        Log.d(TAG, "Notifications enabled: " + enabled);
+        return enabled;
     }
 
-    // Helper method to safely show notification
-    private void showNotificationSafely(int notificationId, NotificationCompat.Builder builder) {
+    // Helper method to check if we should show notification
+    private boolean shouldShowNotification(String notificationType) {
+        long currentTime = System.currentTimeMillis();
+        long timeSinceLastNotification = currentTime - lastNotificationTime;
+
+        Log.d(TAG, "Checking if should show notification for type: " + notificationType);
+        Log.d(TAG, "Last notification type: " + lastNotificationType);
+        Log.d(TAG, "Time since last notification: " + timeSinceLastNotification + "ms");
+        Log.d(TAG, "Cooldown period: " + NOTIFICATION_COOLDOWN + "ms");
+
+        // Don't show if same notification type was shown recently
+        if (lastNotificationType.equals(notificationType) && timeSinceLastNotification < NOTIFICATION_COOLDOWN) {
+            Log.d(TAG, "Skipping duplicate notification for type: " + notificationType);
+            return false;
+        }
+
+        Log.d(TAG, "Notification should be shown");
+        return true;
+    }
+
+    // Helper method to safely show notification with deduplication
+    private void showNotificationSafely(int notificationId, NotificationCompat.Builder builder, String notificationType) {
+        Log.d(TAG, "Attempting to show notification with ID: " + notificationId + " for type: " + notificationType);
+
         if (!areNotificationsEnabled()) {
             Log.w(TAG, "Notifications are not enabled or permission denied");
+            return;
+        }
+
+        if (!shouldShowNotification(notificationType)) {
+            Log.d(TAG, "Notification blocked by deduplication logic");
             return;
         }
 
         try {
             notificationManager.notify(notificationId, builder.build());
             Log.d(TAG, "Notification shown successfully with ID: " + notificationId);
+
+            // Update tracking
+            lastNotificationType = notificationType;
+            lastNotificationTime = System.currentTimeMillis();
+            Log.d(TAG, "Updated tracking - Type: " + notificationType + ", Time: " + lastNotificationTime);
         } catch (SecurityException e) {
             Log.e(TAG, "SecurityException when showing notification: " + e.getMessage());
-            // Handle the case where permission was revoked at runtime
         } catch (Exception e) {
             Log.e(TAG, "Error showing notification: " + e.getMessage());
         }
     }
 
     public void showAppointmentApprovedNotification(String studentName, String appointmentDate, String appointmentTime) {
+        Log.d(TAG, "showAppointmentApprovedNotification called for: " + studentName);
+
         Intent intent = new Intent(context, GuidanceAppointmentSlipActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -97,10 +140,12 @@ public class NotificationHelper {
                 .setVibrate(new long[]{0, 300, 200, 300})
                 .setLights(0xFF4CAF50, 1000, 1000);
 
-        showNotificationSafely(1, builder);
+        showNotificationSafely(1, builder, "approved");
     }
 
     public void showAppointmentRejectedNotification(String studentName, String appointmentDate, String appointmentTime) {
+        Log.d(TAG, "showAppointmentRejectedNotification called for: " + studentName);
+
         Intent intent = new Intent(context, GuidanceAppointmentSlipActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -120,10 +165,12 @@ public class NotificationHelper {
                 .setVibrate(new long[]{0, 300, 200, 300})
                 .setLights(0xFFF44336, 1000, 1000);
 
-        showNotificationSafely(2, builder);
+        showNotificationSafely(2, builder, "rejected");
     }
 
     public void showAppointmentReminderNotification(String studentName, String appointmentDate, String appointmentTime) {
+        Log.d(TAG, "showAppointmentReminderNotification called for: " + studentName);
+
         Intent intent = new Intent(context, GuidanceAppointmentSlipActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(
@@ -141,7 +188,7 @@ public class NotificationHelper {
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
 
-        showNotificationSafely(3, builder);
+        showNotificationSafely(3, builder, "reminder");
     }
 
     // Method to check if notifications are available
@@ -164,5 +211,12 @@ public class NotificationHelper {
         } else {
             return NotificationManagerCompat.from(context).areNotificationsEnabled() ? "Enabled" : "Disabled";
         }
+    }
+
+    // Add this method to reset the deduplication tracking (useful for testing)
+    public void resetNotificationTracking() {
+        lastNotificationType = "";
+        lastNotificationTime = 0;
+        Log.d(TAG, "Notification tracking reset");
     }
 }
