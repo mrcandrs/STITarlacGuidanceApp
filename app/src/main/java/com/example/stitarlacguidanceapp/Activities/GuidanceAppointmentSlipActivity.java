@@ -1,8 +1,12 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -11,6 +15,7 @@ import android.widget.*;
 import android.app.AlertDialog;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
@@ -29,6 +34,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import com.example.stitarlacguidanceapp.NotificationHelper;
+
 public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     private ActivityGuidanceAppointmentSlipBinding root;
@@ -42,6 +49,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private boolean hasPendingAppointment = false;
     private GuidanceAppointment pendingAppointment = null;
 
+    private NotificationHelper notificationHelper;
+    private String lastKnownStatus = "";
+
     private final Map<String, List<String>> availableSlots = new HashMap<>();
 
     @Override
@@ -49,6 +59,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         root = ActivityGuidanceAppointmentSlipBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
+
+        // Initialize notification helper
+        notificationHelper = new NotificationHelper(this);
 
         String fullName = getSharedPreferences("student_session", MODE_PRIVATE)
                 .getString("fullName", null);
@@ -65,11 +78,13 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         setupStatusClickListener();
         updateStatusBadge();
 
+        requestNotificationPermission();
+
         //Check appointment status when activity loads
         checkAppointmentStatus();
 
         //Start periodic status checking (optional)
-        // startStatusPolling();
+        startStatusPolling();
     }
 
     private void setupAvailability() {
@@ -343,9 +358,16 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<GuidanceAppointment>> call, Response<List<GuidanceAppointment>> response) {
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    // Get the most recent appointment
                     GuidanceAppointment latestAppointment = response.body().get(0);
                     String currentStatus = latestAppointment.getStatus();
+
+                    // Check for status changes and show notifications
+                    if (!lastKnownStatus.isEmpty() && !lastKnownStatus.equals(currentStatus)) {
+                        showStatusChangeNotification(latestAppointment, lastKnownStatus, currentStatus);
+                    }
+
+                    // Update last known status
+                    lastKnownStatus = currentStatus;
 
                     // Check if there's a pending appointment
                     hasPendingAppointment = "pending".equals(currentStatus);
@@ -361,34 +383,66 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     if (!currentStatus.equals(status)) {
                         status = currentStatus;
                         updateStatusBadge();
-
-                        // Show notification based on status
-                        if ("approved".equals(status)) {
-                            Snackbar.make(root.getRoot(), "Your appointment has been approved!", Snackbar.LENGTH_LONG)
-                                    .setBackgroundTint(ContextCompat.getColor(GuidanceAppointmentSlipActivity.this, R.color.green_700))
-                                    .setTextColor(Color.WHITE)
-                                    .show();
-                        } else if ("rejected".equals(status)) {
-                            Snackbar.make(root.getRoot(), "Your appointment has been rejected.", Snackbar.LENGTH_LONG)
-                                    .setBackgroundTint(ContextCompat.getColor(GuidanceAppointmentSlipActivity.this, R.color.red_700))
-                                    .setTextColor(Color.WHITE)
-                                    .show();
-                        }
                     }
                 } else {
                     // No appointments found, enable form
                     hasPendingAppointment = false;
                     pendingAppointment = null;
                     enableFormForNewAppointment();
+                    lastKnownStatus = "";
                 }
             }
 
             @Override
             public void onFailure(Call<List<GuidanceAppointment>> call, Throwable t) {
-                // Handle error silently for background checks
                 Log.e("AppointmentStatus", "Failed to check status: " + t.getMessage());
             }
         });
+    }
+
+    private void requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                // Show rationale if needed
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+                    showNotificationPermissionRationale();
+                } else {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                }
+            }
+        }
+    }
+
+    // Add this method to show rationale for notification permission
+    private void showNotificationPermissionRationale() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification Permission Needed")
+                .setMessage("This app needs notification permission to inform you when your appointment status changes. " +
+                        "This helps you stay updated about your guidance appointments.")
+                .setPositiveButton("Allow", (dialog, which) -> {
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.POST_NOTIFICATIONS}, 1);
+                })
+                .setNegativeButton("Not Now", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    // Add this method to handle status change notifications
+    private void showStatusChangeNotification(GuidanceAppointment appointment, String oldStatus, String newStatus) {
+        String studentName = appointment.getStudentName();
+        String appointmentDate = formatDate(appointment.getDate());
+        String appointmentTime = appointment.getTime();
+
+        switch (newStatus.toLowerCase()) {
+            case "approved":
+                notificationHelper.showAppointmentApprovedNotification(studentName, appointmentDate, appointmentTime);
+                break;
+            case "rejected":
+                notificationHelper.showAppointmentRejectedNotification(studentName, appointmentDate, appointmentTime);
+                break;
+        }
     }
 
     // Add this method to periodically check status
@@ -398,7 +452,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             @Override
             public void run() {
                 checkAppointmentStatus();
-                handler.postDelayed(this, 30000); // Check every 30 seconds
+                handler.postDelayed(this, 60000); // Check every minute
             }
         };
         handler.post(runnable);
@@ -508,9 +562,6 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 .setBackgroundTint(ContextCompat.getColor(this, R.color.yellow_700))
                 .setTextColor(Color.WHITE)
                 .show();
-
-        // Show detailed dialog instead of simple message
-        showAppointmentDetailsDialog();
     }
 
     // Method to enable form for new appointment
@@ -637,6 +688,44 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         AlertDialog dialog = builder.create();
         dialog.show();
+    }
+
+    // Add this method to handle permission request results
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1) { // Notification permission request
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted
+                Log.d("Permission", "Notification permission granted");
+                if (notificationHelper != null) {
+                    Log.d("NotificationHelper", "Can show notifications: " + notificationHelper.canShowNotifications());
+                }
+            } else {
+                // Permission denied
+                Log.d("Permission", "Notification permission denied");
+                // You can show a dialog explaining why notifications are useful
+                showNotificationPermissionDeniedDialog();
+            }
+        }
+    }
+
+    // Add this method to show a dialog when permission is denied
+    private void showNotificationPermissionDeniedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Notification Permission")
+                .setMessage("Notification permission is required to receive updates about your appointment status. " +
+                        "You can enable it later in Settings > Apps > STI Tarlac Guidance App > Notifications.")
+                .setPositiveButton("OK", (dialog, which) -> dialog.dismiss())
+                .setNeutralButton("Settings", (dialog, which) -> {
+                    // Open app settings
+                    Intent intent = new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    startActivity(intent);
+                    dialog.dismiss();
+                })
+                .show();
     }
 
     // Helper method to format date and time
