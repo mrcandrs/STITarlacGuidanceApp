@@ -1,5 +1,6 @@
 package com.example.stitarlacguidanceapp;
 
+import com.example.stitarlacguidanceapp.Models.AvailableSlotForStudent;
 import com.example.stitarlacguidanceapp.Models.AvailableTimeSlot;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 
@@ -44,6 +45,13 @@ public interface GuidanceAppointmentApi {
 
     @GET("api/availabletimeslot/date/{date}")
     Call<List<AvailableTimeSlot>> getAvailableTimeSlotsByDate(@Path("date") String date);
+
+    // Add these methods to GuidanceAppointmentApi.java
+    @GET("api/availabletimeslot/available-for-students")
+    Call<List<AvailableSlotForStudent>> getAvailableSlotsForStudents();
+
+    @GET("api/availabletimeslot/available-for-students/date/{date}")
+    Call<List<AvailableSlotForStudent>> getAvailableSlotsForStudentsByDate(@Path("date") String date);
 
     // Approve an appointment
     @PUT("api/GuidanceAppointment/{id}/approve")

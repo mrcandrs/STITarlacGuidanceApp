@@ -20,6 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.GuidanceAppointmentApi;
+import com.example.stitarlacguidanceapp.Models.AvailableSlotForStudent;
 import com.example.stitarlacguidanceapp.Models.AvailableTimeSlot;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 import com.example.stitarlacguidanceapp.R;
@@ -375,17 +376,15 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     // Add method to fetch slots for a specific date
     private void fetchAvailableSlotsForDate(String date) {
         GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
-        Call<List<AvailableTimeSlot>> call = apiService.getAvailableTimeSlotsByDate(date);
+        Call<List<AvailableSlotForStudent>> call = apiService.getAvailableSlotsForStudentsByDate(date);
 
-        call.enqueue(new Callback<List<AvailableTimeSlot>>() {
+        call.enqueue(new Callback<List<AvailableSlotForStudent>>() {
             @Override
-            public void onResponse(Call<List<AvailableTimeSlot>> call, Response<List<AvailableTimeSlot>> response) {
+            public void onResponse(Call<List<AvailableSlotForStudent>> call, Response<List<AvailableSlotForStudent>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<String> times = new ArrayList<>();
-                    for (AvailableTimeSlot slot : response.body()) {
-                        if (slot.isActive()) {
-                            times.add(slot.getTime());
-                        }
+                    for (AvailableSlotForStudent slot : response.body()) {
+                        times.add(slot.getTime());
                     }
                     if (!times.isEmpty()) {
                         availableSlots.put(date, times);
@@ -394,7 +393,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<AvailableTimeSlot>> call, Throwable t) {
+            public void onFailure(Call<List<AvailableSlotForStudent>> call, Throwable t) {
                 Log.e("AvailableSlots", "Error fetching slots for date: " + t.getMessage());
             }
         });
@@ -540,14 +539,13 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     // Update the fetchAvailableTimeSlots method in GuidanceAppointmentSlipActivity
     private void fetchAvailableTimeSlots() {
         GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
-        // Use the new endpoint that includes real-time counts
-        Call<List<AvailableTimeSlot>> call = apiService.getAvailableTimeSlotsWithCounts();
+        Call<List<AvailableSlotForStudent>> call = apiService.getAvailableSlotsForStudents();
 
-        call.enqueue(new Callback<List<AvailableTimeSlot>>() {
+        call.enqueue(new Callback<List<AvailableSlotForStudent>>() {
             @Override
-            public void onResponse(Call<List<AvailableTimeSlot>> call, Response<List<AvailableTimeSlot>> response) {
+            public void onResponse(Call<List<AvailableSlotForStudent>> call, Response<List<AvailableSlotForStudent>> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    updateAvailableSlots(response.body());
+                    updateAvailableSlotsFromStudentAPI(response.body());
                 } else {
                     Log.e("AvailableSlots", "Failed to fetch available slots: " + response.code());
                     setupFallbackAvailability();
@@ -555,11 +553,26 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<List<AvailableTimeSlot>> call, Throwable t) {
+            public void onFailure(Call<List<AvailableSlotForStudent>> call, Throwable t) {
                 Log.e("AvailableSlots", "Error fetching available slots: " + t.getMessage());
                 setupFallbackAvailability();
             }
         });
+    }
+
+    // Add this new method to update slots from the student API
+    private void updateAvailableSlotsFromStudentAPI(List<AvailableSlotForStudent> slots) {
+        availableSlots.clear();
+
+        for (AvailableSlotForStudent slot : slots) {
+            String date = slot.getDate();
+            if (!availableSlots.containsKey(date)) {
+                availableSlots.put(date, new ArrayList<>());
+            }
+            availableSlots.get(date).add(slot.getTime());
+        }
+
+        Log.d("AvailableSlots", "Updated available slots from student API: " + availableSlots.toString());
     }
 
     // Add this method to update available slots from API
