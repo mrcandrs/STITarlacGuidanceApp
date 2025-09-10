@@ -62,12 +62,13 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         setupAvailability();
         setupListeners();
+        setupStatusClickListener();
         updateStatusBadge();
 
-        // ✅ ADD THIS: Check appointment status when activity loads
+        //Check appointment status when activity loads
         checkAppointmentStatus();
 
-        // ✅ ADD THIS: Start periodic status checking (optional)
+        //Start periodic status checking (optional)
         // startStatusPolling();
     }
 
@@ -541,6 +542,26 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.btnSubmit.setText("Submit Appointment Request");
     }
 
+    // Add this method to your GuidanceAppointmentSlipActivity class
+    private void setupStatusClickListener() {
+        // Make the status badge clickable
+        root.statusBadge.setClickable(true);
+        root.statusBadge.setOnClickListener(v -> {
+            if (pendingAppointment != null) {
+                showAppointmentDetailsDialog();
+            } else {
+                // If no pending appointment, show a message
+                Snackbar.make(root.getRoot(), "No appointment details available", Snackbar.LENGTH_SHORT)
+                        .setBackgroundTint(ContextCompat.getColor(this, R.color.blue))
+                        .setTextColor(Color.WHITE)
+                        .show();
+            }
+        });
+
+        // Add visual feedback for clickable status
+        root.statusBadge.setBackground(getResources().getDrawable(R.drawable.status_badge_clickable));
+    }
+
     // Enhanced method to show detailed appointment information dialog
     private void showAppointmentDetailsDialog() {
         if (pendingAppointment == null) return;
@@ -590,21 +611,21 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 break;
         }
 
-        // Format submission date
+        //Format submission date
         if (pendingAppointment.getCreatedAt() != null) {
             tvSubmittedDate.setText(formatDateTime(pendingAppointment.getCreatedAt()));
         } else {
             tvSubmittedDate.setText("Not available");
         }
 
-        // Format last updated date
+        //Format last updated date
         if (pendingAppointment.getUpdatedAt() != null) {
             tvUpdatedDate.setText(formatDateTime(pendingAppointment.getUpdatedAt()));
         } else {
             tvUpdatedDate.setText("Not updated");
         }
 
-        // Create and show the dialog
+        //Create and show the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setView(dialogView)
                 .setTitle("Appointment Details")
