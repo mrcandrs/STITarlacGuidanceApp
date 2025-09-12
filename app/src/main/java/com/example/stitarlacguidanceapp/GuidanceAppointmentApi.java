@@ -59,7 +59,7 @@ public interface GuidanceAppointmentApi {
 
     // Reject an appointment
     @PUT("api/GuidanceAppointment/{id}/reject")
-    Call<ResponseBody> rejectAppointment(@Path("id") int id);
+    Call<ResponseBody> rejectAppointment(@Path("id") int id, @Body RejectAppointmentRequest request);
 
     // Update appointment status (generic)
     @PUT("api/GuidanceAppointment/{id}/status")
@@ -79,6 +79,23 @@ public interface GuidanceAppointmentApi {
 
         public void setStatus(String status) {
             this.status = status;
+        }
+    }
+
+    // Add the request class
+    class RejectAppointmentRequest {
+        private String rejectionReason;
+
+        public RejectAppointmentRequest(String rejectionReason) {
+            this.rejectionReason = rejectionReason;
+        }
+
+        public String getRejectionReason() {
+            return rejectionReason;
+        }
+
+        public void setRejectionReason(String rejectionReason) {
+            this.rejectionReason = rejectionReason;
         }
     }
 }

@@ -9,6 +9,7 @@ public class GuidanceAppointment {
     private String date;        // Scheduled appointment date
     private String time;        // Scheduled appointment time
     private String status;
+    private String rejectionReason;
     private String createdAt;   // When appointment was submitted (from server)
     private String updatedAt;   // When status was last updated (from server)
 
@@ -88,6 +89,15 @@ public class GuidanceAppointment {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    // Add getter and setter
+    public String getRejectionReason() {
+        return rejectionReason;
+    }
+
+    public void setRejectionReason(String rejectionReason) {
+        this.rejectionReason = rejectionReason;
     }
 
     public String getCreatedAt() {

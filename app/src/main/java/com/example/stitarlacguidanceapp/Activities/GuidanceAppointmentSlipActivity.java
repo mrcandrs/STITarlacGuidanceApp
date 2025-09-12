@@ -227,15 +227,24 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             String studentName = root.etStudentName.getText().toString().trim();
             String programSection = root.etProgramSection.getText().toString().trim();
 
-            //Create the appointment object
+            // Create the appointment object
             GuidanceAppointment appointment = new GuidanceAppointment();
-            appointment.setStudentId(studentId); // optional if used in API
+            appointment.setStudentId(studentId);
             appointment.setStudentName(studentName);
             appointment.setProgramSection(programSection);
             appointment.setReason(reasonToSubmit);
             appointment.setDate(selectedDate);
             appointment.setTime(selectedTime);
             appointment.setStatus("pending");
+
+            // Add logging to see what's being sent
+            Log.d("AppointmentData", "Sending appointment: " +
+                    "StudentId=" + studentId +
+                    ", StudentName=" + studentName +
+                    ", ProgramSection=" + programSection +
+                    ", Reason=" + reasonToSubmit +
+                    ", Date=" + selectedDate +
+                    ", Time=" + selectedTime);
 
             //Submit to API
             GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
@@ -254,7 +263,34 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                         // Check appointment status again to update UI
                         checkAppointmentStatus();
                     } else {
-                        Toast.makeText(GuidanceAppointmentSlipActivity.this, "Server Error: " + response.code(), Toast.LENGTH_LONG).show();
+                        String errorMessage = "Error " + response.code();
+                        String userFriendlyMessage = "Appointment submission failed";
+
+                        try {
+                            String errorBody = response.errorBody().string();
+                            errorMessage += ": " + errorBody;
+
+                            // Log the error to logcat
+                            Log.e("AppointmentError", "HTTP " + response.code() + ": " + errorBody);
+                            Log.e("AppointmentError", "Full error message: " + errorMessage);
+
+                            // Extract the actual error message from JSON
+                            if (errorBody.contains("\"message\":")) {
+                                // Find the message value in the JSON
+                                int messageStart = errorBody.indexOf("\"message\":\"") + 11;
+                                int messageEnd = errorBody.indexOf("\"", messageStart);
+                                if (messageStart > 10 && messageEnd > messageStart) {
+                                    userFriendlyMessage = errorBody.substring(messageStart, messageEnd);
+                                }
+                            }
+
+                        } catch (Exception e) {
+                            errorMessage += " (could not read error body)";
+                            Log.e("AppointmentError", "Could not read error body: " + e.getMessage());
+                        }
+
+                        // Show the actual error message to the user
+                        Toast.makeText(GuidanceAppointmentSlipActivity.this, userFriendlyMessage, Toast.LENGTH_LONG).show();
                     }
                 }
 
@@ -766,6 +802,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         TextView tvDate = dialogView.findViewById(R.id.tv_date);
         TextView tvTime = dialogView.findViewById(R.id.tv_time);
         TextView tvStatus = dialogView.findViewById(R.id.tv_status);
+        TextView tvRejectionReason = dialogView.findViewById(R.id.tv_rejection_reason);
         TextView tvSubmittedDate = dialogView.findViewById(R.id.tv_submitted_date);
         TextView tvUpdatedDate = dialogView.findViewById(R.id.tv_updated_date);
         ImageView ivStatusIcon = dialogView.findViewById(R.id.iv_status_icon);
@@ -796,6 +833,17 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 ivStatusIcon.setImageResource(R.drawable.ic_pending);
                 llStatusContainer.setBackgroundColor(getResources().getColor(R.color.pending_yellow_light));
                 break;
+        }
+
+        // Show/hide rejection reason based on status
+        if (appointment.getStatus().toLowerCase().equals("rejected") &&
+                appointment.getRejectionReason() != null &&
+                !appointment.getRejectionReason().isEmpty()) {
+
+            tvRejectionReason.setVisibility(View.VISIBLE);
+            tvRejectionReason.setText("Reason: " + appointment.getRejectionReason());
+        } else {
+            tvRejectionReason.setVisibility(View.GONE);
         }
 
         if (appointment.getCreatedAt() != null) {
