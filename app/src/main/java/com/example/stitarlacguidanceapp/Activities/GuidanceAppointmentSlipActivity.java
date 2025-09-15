@@ -26,6 +26,7 @@ import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.SimpleTextWatcher;
 import com.example.stitarlacguidanceapp.databinding.ActivityGuidanceAppointmentSlipBinding;
+import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.text.SimpleDateFormat;
@@ -57,6 +58,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     private String lastKnownStatus = "";
 
     private final Map<String, List<String>> availableSlots = new HashMap<>();
+
+    private final Set<String> availableDates = new HashSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -351,38 +354,95 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     // Update the openDatePicker method to refresh slots when date changes
     private void openDatePicker() {
-        final Calendar cal = Calendar.getInstance();
-        DatePickerDialog dialog = new DatePickerDialog(this, (view, year, month, dayOfMonth) -> {
-            String date = String.format(Locale.US, "%04d-%02d-%02d", year, month + 1, dayOfMonth);
+        if (availableDates.isEmpty()) {
+            Snackbar.make(root.getRoot(), "No available dates at the moment.", Snackbar.LENGTH_SHORT)
+                    .setBackgroundTint(ContextCompat.getColor(this, R.color.darkred))
+                    .setTextColor(Color.WHITE)
+                    .show();
+            return;
+        }
 
-            // Check if we have slots for this date, if not, fetch them
-            if (!availableSlots.containsKey(date)) {
-                fetchAvailableSlotsForDate(date);
+        // Convert allowed yyyy-MM-dd to UTC midnight millis
+        Set<Long> allowedDaysMillis = new HashSet<>();
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            for (String d : availableDates) {
+                Date date = sdf.parse(d);
+                if (date != null) {
+                    allowedDaysMillis.add(date.getTime());
+                }
             }
+        } catch (Exception ignored) {}
 
-            if (availableSlots.containsKey(date)) {
-                selectedDate = date;
-                root.btnSelectDate.setText(formatDate(date));
-                root.btnSelectDate.setError(null);
-                selectedTime = "";
-                root.btnSelectTime.setText("Select available time");
-                root.btnSelectTime.setEnabled(true);
-                root.btnSelectTime.setTextColor(getResources().getColor(R.color.blue));
-            } else {
-                selectedDate = "";
-                root.btnSelectDate.setText("Select date");
-                root.btnSelectDate.setError("No available slots for this date");
-                Snackbar.make(root.getRoot(), "No available slots for this date.", Snackbar.LENGTH_SHORT)
-                        .setBackgroundTint(ContextCompat.getColor(this, R.color.darkred))
-                        .setTextColor(Color.WHITE)
-                        .show();
+        CalendarConstraints.DateValidator validator = new DateValidatorAvailableDates(allowedDaysMillis);
+
+        CalendarConstraints constraints = new CalendarConstraints.Builder()
+                .setValidator(validator)
+                .build();
+
+        com.google.android.material.datepicker.MaterialDatePicker<Long> picker =
+                com.google.android.material.datepicker.MaterialDatePicker.Builder
+                        .datePicker()
+                        .setTitleText("Select available date")
+                        .setCalendarConstraints(constraints)
+                        .build();
+
+        picker.addOnPositiveButtonClickListener(selection -> {
+            // selection is UTC midnight millis
+            SimpleDateFormat out = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            out.setTimeZone(TimeZone.getTimeZone("UTC"));
+            String picked = out.format(new Date(selection));
+
+            // Safe: only allowed dates can be picked
+            selectedDate = picked;
+            root.btnSelectDate.setText(formatDate(picked));
+            root.btnSelectDate.setError(null);
+
+            selectedTime = "";
+            root.btnSelectTime.setText("Select available time");
+            root.btnSelectTime.setEnabled(true);
+            root.btnSelectTime.setTextColor(getResources().getColor(R.color.blue));
+
+            // Ensure we have times for this date (fetch if not cached)
+            if (!availableSlots.containsKey(picked)) {
+                fetchAvailableSlotsForDate(picked);
             }
 
             checkFormValid();
-        }, cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH));
+        });
 
-        dialog.getDatePicker().setMinDate(cal.getTimeInMillis());
-        dialog.show();
+        picker.show(getSupportFragmentManager(), "available_date_picker");
+    }
+
+    // Custom validator that only enables given days (UTC midnight millis)
+    public static class DateValidatorAvailableDates implements CalendarConstraints.DateValidator, java.io.Serializable {
+        private final HashSet<Long> allowedDays;
+
+        public DateValidatorAvailableDates(Set<Long> allowedDaysMillis) {
+            this.allowedDays = new HashSet<>(allowedDaysMillis);
+        }
+
+        @Override
+        public boolean isValid(long date) {
+            // Normalize to UTC midnight
+            Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"), Locale.US);
+            utc.setTimeInMillis(date);
+            utc.set(Calendar.HOUR_OF_DAY, 0);
+            utc.set(Calendar.MINUTE, 0);
+            utc.set(Calendar.SECOND, 0);
+            utc.set(Calendar.MILLISECOND, 0);
+            return allowedDays.contains(utc.getTimeInMillis());
+        }
+
+        @Override
+        public int describeContents() { return 0; }
+        @Override
+        public void writeToParcel(android.os.Parcel dest, int flags) {}
+        public static final Creator<DateValidatorAvailableDates> CREATOR = new Creator<DateValidatorAvailableDates>() {
+            @Override public DateValidatorAvailableDates createFromParcel(android.os.Parcel in) { return null; }
+            @Override public DateValidatorAvailableDates[] newArray(int size) { return new DateValidatorAvailableDates[size]; }
+        };
     }
 
 
@@ -599,9 +659,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     // Add this new method to update slots from the student API
     private void updateAvailableSlotsFromStudentAPI(List<AvailableSlotForStudent> slots) {
         availableSlots.clear();
+        availableDates.clear();
 
         for (AvailableSlotForStudent slot : slots) {
-            String date = slot.getDate();
+            String date = slot.getDate(); // "yyyy-MM-dd"
+            availableDates.add(date);
             if (!availableSlots.containsKey(date)) {
                 availableSlots.put(date, new ArrayList<>());
             }
