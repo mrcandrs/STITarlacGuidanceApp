@@ -564,6 +564,8 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
                     enableFormForNewAppointment();
                     hideGuidancePass();
                     lastKnownStatus = "";
+                    status = "none";          // NEW
+                    updateStatusBadge();      // NEW
                 }
             }
 
@@ -764,28 +766,41 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
         root.btnSubmit.setEnabled(isValid);
     }
 
-    private void updateStatusBadge() {
-        switch (status) {
-            case "approved":
-                root.statusText.setText("Status: Approved");
-                root.statusText.setTextColor(getResources().getColor(R.color.green_700));
-                root.statusBadge.setBackgroundColor(getResources().getColor(R.color.approved_green));
-                root.statusIcon.setImageResource(R.drawable.ic_approved);
-                break;
-            case "rejected":
-                root.statusText.setText("Status: Rejected");
-                root.statusText.setTextColor(getResources().getColor(R.color.red_700));
-                root.statusBadge.setBackgroundColor(getResources().getColor(R.color.rejected_red));
-                root.statusIcon.setImageResource(R.drawable.ic_rejected);
-                break;
-            default:
-                root.statusText.setText("Status: Pending");
-                root.statusText.setTextColor(getResources().getColor(R.color.yellow_700));
-                root.statusBadge.setBackgroundColor(getResources().getColor(R.color.pending_yellow));
-                root.statusIcon.setImageResource(R.drawable.ic_pending);
-                break;
+        private void updateStatusBadge() {
+            switch (status == null ? "" : status.toLowerCase()) {
+                case "approved":
+                    root.statusText.setText("Status: Approved");
+                    root.statusText.setTextColor(getResources().getColor(R.color.green_700));
+                    root.statusBadge.setBackgroundColor(getResources().getColor(R.color.approved_green));
+                    root.statusIcon.setImageResource(R.drawable.ic_approved);
+                    break;
+                case "rejected":
+                    root.statusText.setText("Status: Rejected");
+                    root.statusText.setTextColor(getResources().getColor(R.color.red_700));
+                    root.statusBadge.setBackgroundColor(getResources().getColor(R.color.rejected_red));
+                    root.statusIcon.setImageResource(R.drawable.ic_rejected);
+                    break;
+                case "completed":   // NEW
+                case "closed":      // optional alias
+                    root.statusText.setText("Status: Completed");
+                    root.statusText.setTextColor(Color.parseColor("#1f2937"));         // neutral gray-800
+                    root.statusBadge.setBackgroundColor(Color.parseColor("#E5E7EB"));   // neutral gray-200
+                    root.statusIcon.setImageResource(R.drawable.ic_done);               // pick a check/done icon you have
+                    break;
+                case "none":        // NEW: no active appointment
+                    root.statusText.setText("Status: No Active Appointment");
+                    root.statusText.setTextColor(Color.parseColor("#374151"));
+                    root.statusBadge.setBackgroundColor(Color.parseColor("#F3F4F6"));
+                    root.statusIcon.setImageResource(R.drawable.ic_info);
+                    break;
+                default:
+                    root.statusText.setText("Status: Pending");
+                    root.statusText.setTextColor(getResources().getColor(R.color.yellow_700));
+                    root.statusBadge.setBackgroundColor(getResources().getColor(R.color.pending_yellow));
+                    root.statusIcon.setImageResource(R.drawable.ic_pending);
+                    break;
+            }
         }
-    }
 
     // Method to disable form when there's a pending appointment
     private void disableFormForPendingAppointment() {
@@ -1015,10 +1030,15 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
         private void showGuidancePass() {
             if (currentGuidancePass != null) {
                 root.guidancePassContainer.setVisibility(View.VISIBLE);
-                String passDetails = "Issued: " + formatMaybeIsoDate(currentGuidancePass.getIssuedDate()) + "\n" +
-                        "Appointment: " + formatMaybeIsoDate(currentGuidancePass.getAppointment().getDate()) +
-                        " at " + currentGuidancePass.getAppointment().getTime() + "\n" +
-                        "Issued by: " + currentGuidancePass.getCounselor().getName();
+                root.guidancePassContainer.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                root.guidancePassContainer.setPadding(24, 16, 24, 16);
+                root.btnViewGuidancePass.setAllCaps(false);
+                root.btnViewGuidancePass.setText("View Guidance Pass");
+                String passDetails =
+                        "Issued: " + formatMaybeIsoDate(currentGuidancePass.getIssuedDate()) + "\n" +
+                                "Appt: " + formatMaybeIsoDate(currentGuidancePass.getAppointment().getDate()) +
+                                " • " + currentGuidancePass.getAppointment().getTime() + "\n" +
+                                "By: " + currentGuidancePass.getCounselor().getName();
                 root.tvGuidancePassDetails.setText(passDetails);
                 root.btnViewGuidancePass.setOnClickListener(v -> showGuidancePassDialog(currentGuidancePass));
 

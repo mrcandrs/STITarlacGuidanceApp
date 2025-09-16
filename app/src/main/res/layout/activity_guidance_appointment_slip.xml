@@ -210,6 +210,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Select available time"
+            android:textColor="@color/dimgray"
             android:background="@drawable/button_border_2"
             app:backgroundTint="@null"
             android:fontFamily="@font/poppins_semibold"
