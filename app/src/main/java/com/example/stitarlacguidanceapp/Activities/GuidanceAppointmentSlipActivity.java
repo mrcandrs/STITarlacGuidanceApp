@@ -23,11 +23,17 @@ import com.example.stitarlacguidanceapp.GuidanceAppointmentApi;
 import com.example.stitarlacguidanceapp.Models.AvailableSlotForStudent;
 import com.example.stitarlacguidanceapp.Models.AvailableTimeSlot;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
+import com.example.stitarlacguidanceapp.Models.GuidancePass;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.SimpleTextWatcher;
 import com.example.stitarlacguidanceapp.databinding.ActivityGuidanceAppointmentSlipBinding;
 import com.google.android.material.datepicker.CalendarConstraints;
 import com.google.android.material.snackbar.Snackbar;
+import android.content.Context;
+import android.print.PrintAttributes;
+import android.print.PrintDocumentAdapter;
+import android.print.PrintManager;
+import android.webkit.WebView;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,7 +45,7 @@ import retrofit2.Response;
 
 import com.example.stitarlacguidanceapp.NotificationHelper;
 
-public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
+    public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     private ActivityGuidanceAppointmentSlipBinding root;
 
@@ -56,6 +62,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
     private NotificationHelper notificationHelper;
     private String lastKnownStatus = "";
+
+    private GuidancePass currentGuidancePass = null;
 
     private final Map<String, List<String>> availableSlots = new HashMap<>();
 
@@ -106,6 +114,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
 
         //Check appointment status when activity loads
         checkAppointmentStatus();
+
+        checkGuidancePass();
 
         //Start periodic status checking (optional)
         startStatusPolling();
@@ -527,6 +537,11 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     // Update last known status
                     lastKnownStatus = currentStatus;
 
+                    // If not approved anymore, hide the Guidance Pass and allow booking again
+                    if (!"approved".equalsIgnoreCase(currentStatus)) {
+                        hideGuidancePass();
+                    }
+
                     // Check if there's a pending appointment
                     hasPendingAppointment = "pending".equals(currentStatus);
                     if (hasPendingAppointment) {
@@ -547,6 +562,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                     hasPendingAppointment = false;
                     pendingAppointment = null;
                     enableFormForNewAppointment();
+                    hideGuidancePass();
                     lastKnownStatus = "";
                 }
             }
@@ -556,6 +572,8 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
                 Log.e("AppointmentStatus", "Failed to check status: " + t.getMessage());
             }
         });
+        // After checking appointment status, also check for guidance pass
+        checkGuidancePass();
     }
 
     private void requestNotificationPermission() {
@@ -614,11 +632,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
-                // Only check if we have a pending appointment
-                if (hasPendingAppointment) {
-                    checkAppointmentStatus();
-                }
-                handler.postDelayed(this, 15000); // Check every 15 seconds instead of 2 minutes
+                // Always poll so we catch transitions from approved -> completed
+                checkAppointmentStatus();
+                handler.postDelayed(this, 10000); // Check every 10 seconds instead of 2 minutes
             }
         };
         handler.post(runnable);
@@ -807,7 +823,9 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
     }
 
     // Method to enable form for new appointment
+    // enableFormForNewAppointment — ensure it DOES NOT call hideGuidancePass()
     private void enableFormForNewAppointment() {
+        // Only re-enable inputs and reset submit button
         root.etProgramSection.setEnabled(true);
         root.etProgramSection.setBackgroundColor(Color.WHITE);
         root.etProgramSection.setTextColor(Color.BLACK);
@@ -817,7 +835,7 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
             View child = root.rgReason.getChildAt(i);
             if (child instanceof RadioButton) {
                 child.setEnabled(true);
-                child.setAlpha(1.0f);
+                child.setAlpha(1f);
             }
         }
 
@@ -826,14 +844,46 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         root.etOtherReason.setTextColor(Color.BLACK);
 
         root.btnSelectDate.setEnabled(true);
-        root.btnSelectDate.setAlpha(1.0f);
-        root.btnSelectTime.setEnabled(false); // Will be enabled when date is selected
-        root.btnSelectTime.setAlpha(1.0f);
+        root.btnSelectDate.setAlpha(1f);
+        root.btnSelectTime.setEnabled(true);
+        root.btnSelectTime.setAlpha(1f);
 
-        root.btnSubmit.setEnabled(false); // Will be enabled when form is valid
-        root.btnSubmit.setAlpha(1.0f);
-        root.btnSubmit.setText("Submit Appointment Request");
+        root.btnSubmit.setEnabled(true);
+        root.btnSubmit.setAlpha(1f);
+        root.btnSubmit.setText("Set Appointment");
+
+        // IMPORTANT: Do not call hideGuidancePass() here.
+        // Do not change guidancePassContainer visibility here.
     }
+
+        // Put inside GuidanceAppointmentSlipActivity
+        private void disableFormForActivePass() {
+            root.etProgramSection.setEnabled(false);
+            root.etProgramSection.setBackgroundColor(Color.parseColor("#f5f5f5"));
+            root.etProgramSection.setTextColor(Color.parseColor("#999999"));
+
+            root.rgReason.setEnabled(false);
+            for (int i = 0; i < root.rgReason.getChildCount(); i++) {
+                View child = root.rgReason.getChildAt(i);
+                if (child instanceof RadioButton) {
+                    child.setEnabled(false);
+                    child.setAlpha(0.5f);
+                }
+            }
+
+            root.etOtherReason.setEnabled(false);
+            root.etOtherReason.setBackgroundColor(Color.parseColor("#f5f5f5"));
+            root.etOtherReason.setTextColor(Color.parseColor("#999999"));
+
+            root.btnSelectDate.setEnabled(false);
+            root.btnSelectDate.setAlpha(0.5f);
+            root.btnSelectTime.setEnabled(false);
+            root.btnSelectTime.setAlpha(0.5f);
+
+            root.btnSubmit.setEnabled(false);
+            root.btnSubmit.setAlpha(0.5f);
+            root.btnSubmit.setText("You have an approved appointment");
+        }
 
     // Add this method to your GuidanceAppointmentSlipActivity class
     private void setupStatusClickListener() {
@@ -932,6 +982,170 @@ public class GuidanceAppointmentSlipActivity extends AppCompatActivity {
         AlertDialog dialog = builder.create();
         dialog.show();
     }
+
+        // Add this method to check for guidance pass
+        private void checkGuidancePass() {
+            SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+            int studentId = prefs.getInt("studentId", -1);
+
+            if (studentId == -1) return;
+
+            GuidanceAppointmentApi apiService = ApiClient.getClient().create(GuidanceAppointmentApi.class);
+            Call<GuidancePass> call = apiService.getGuidancePassByStudent(studentId);
+
+            call.enqueue(new Callback<GuidancePass>() {
+                @Override
+                public void onResponse(Call<GuidancePass> call, Response<GuidancePass> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        currentGuidancePass = response.body();
+                        showGuidancePass();
+                    } else {
+                        hideGuidancePass();
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<GuidancePass> call, Throwable t) {
+                    Log.e("GuidancePass", "Failed to fetch guidance pass: " + t.getMessage());
+                    hideGuidancePass();
+                }
+            });
+        }
+
+        private void showGuidancePass() {
+            if (currentGuidancePass != null) {
+                root.guidancePassContainer.setVisibility(View.VISIBLE);
+                String passDetails = "Issued: " + formatMaybeIsoDate(currentGuidancePass.getIssuedDate()) + "\n" +
+                        "Appointment: " + formatMaybeIsoDate(currentGuidancePass.getAppointment().getDate()) +
+                        " at " + currentGuidancePass.getAppointment().getTime() + "\n" +
+                        "Issued by: " + currentGuidancePass.getCounselor().getName();
+                root.tvGuidancePassDetails.setText(passDetails);
+                root.btnViewGuidancePass.setOnClickListener(v -> showGuidancePassDialog(currentGuidancePass));
+
+                // Block new bookings while pass is active
+                disableFormForActivePass();
+            }
+        }
+
+        private void hideGuidancePass() {
+            root.guidancePassContainer.setVisibility(View.GONE);
+            currentGuidancePass = null;
+
+            // If there is no pending appointment, allow booking again
+            if (!hasPendingAppointment) {
+                enableFormForNewAppointment();
+            }
+        }
+
+        private String formatMaybeIsoDate(String input) {
+            if (input == null) return "";
+            // Try ISO first
+            try {
+                SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                Date d = iso.parse(input);
+                SimpleDateFormat out = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.US);
+                return out.format(d);
+            } catch (Exception ignored) {}
+
+            // Fallback to yyyy-MM-dd
+            try {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                Date d = sdf.parse(input);
+                SimpleDateFormat out = new SimpleDateFormat("EEEE, MMMM dd, yyyy", Locale.US);
+                return out.format(d);
+            } catch (Exception e) {
+                return input;
+            }
+        }
+
+        private void showGuidancePassDialog(GuidancePass pass) {
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_guidance_pass, null);
+
+            TextView tvStudentName = dialogView.findViewById(R.id.tv_student_name);
+            TextView tvProgramSection = dialogView.findViewById(R.id.tv_program_section);
+            TextView tvAppointmentDate = dialogView.findViewById(R.id.tv_appointment_date);
+            TextView tvAppointmentTime = dialogView.findViewById(R.id.tv_appointment_time);
+            TextView tvIssuedDate = dialogView.findViewById(R.id.tv_issued_date);
+            TextView tvIssuedBy = dialogView.findViewById(R.id.tv_issued_by);
+            TextView tvNotes = dialogView.findViewById(R.id.tv_notes);
+
+            tvStudentName.setText(pass.getAppointment().getStudentName());
+            tvProgramSection.setText(pass.getAppointment().getProgramSection());
+            tvAppointmentDate.setText(formatMaybeIsoDate(pass.getAppointment().getDate()));
+            tvAppointmentTime.setText(pass.getAppointment().getTime());
+            tvIssuedDate.setText(formatMaybeIsoDate(pass.getIssuedDate()));
+            tvIssuedBy.setText(pass.getCounselor().getName());
+
+            if (pass.getNotes() != null && !pass.getNotes().isEmpty()) {
+                tvNotes.setText(pass.getNotes());
+                tvNotes.setVisibility(View.VISIBLE);
+            } else {
+                tvNotes.setVisibility(View.GONE);
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setView(dialogView)
+                    .setPositiveButton("OK", (dialog, which) -> dialog.dismiss());
+
+            AlertDialog dialog = builder.create();
+            dialog.show();
+        }
+        /*private void printGuidancePass(GuidancePass pass) {
+            if (pass == null || pass.getAppointment() == null || pass.getCounselor() == null) {
+                Toast.makeText(this, "Guidance Pass data is incomplete.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            String html =
+                    "<!DOCTYPE html><html><head><meta charset='utf-8'/>" +
+                            "<style>" +
+                            "body{font-family:sans-serif;margin:24px;}" +
+                            ".header{text-align:center;margin-bottom:24px}" +
+                            ".logo{font-size:22px;font-weight:700;color:#0477BF}" +
+                            ".title{font-size:18px;margin-top:6px}" +
+                            ".card{border:2px solid #0477BF;padding:16px}" +
+                            ".row{margin:8px 0}" +
+                            ".label{font-weight:700}" +
+                            ".sig{display:flex;justify-content:space-between;margin-top:28px}" +
+                            ".line{width:220px;border-bottom:1px solid #000;padding-top:28px;text-align:center}" +
+                            "</style></head><body>" +
+                            "<div class='header'><div class='logo'>STI</div>" +
+                            "<div>STI Guidance and Counseling Office</div>" +
+                            "<div class='title'>Guidance Pass</div></div>" +
+                            "<div class='card'>" +
+                            "<div class='row'><span class='label'>Date:</span> " + formatMaybeIsoDate(pass.getIssuedDate()) + "</div>" +
+                            "<div class='row'><span class='label'>Student's Name:</span> " + pass.getAppointment().getStudentName() + "</div>" +
+                            "<div class='row'><span class='label'>Program and Section:</span> " + pass.getAppointment().getProgramSection() + "</div>" +
+                            "<div class='row'><span class='label'>Room Number:</span> _____________</div>" +
+                            "<div class='row'><span class='label'>Time Started:</span> " + pass.getAppointment().getTime() + "</div>" +
+                            "<div class='row'><span class='label'>Time Ended:</span> _____________</div>" +
+                            "<div class='row'><span class='label'>Prepared by:</span> " + pass.getCounselor().getName() + "</div>" +
+                            (pass.getNotes() != null && !pass.getNotes().isEmpty()
+                                    ? "<div class='row'><span class='label'>Notes:</span> " + pass.getNotes() + "</div>" : "") +
+                            "</div>" +
+                            "<div class='sig'>" +
+                            "<div><div class='line'></div><div>Name and Signature of Guidance Counselor/Associate</div></div>" +
+                            "<div><div class='line'></div><div>Name and Signature of Teacher/Professor</div></div>" +
+                            "</div>" +
+                            "</body></html>";
+
+            WebView webView = new WebView(this);
+            webView.getSettings().setJavaScriptEnabled(false);
+            webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null);
+
+            webView.post(() -> {
+                PrintManager pm = (PrintManager) getSystemService(Context.PRINT_SERVICE);
+                if (pm == null) {
+                    Toast.makeText(this, "Print service not available.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String jobName = "GuidancePass_" + pass.getAppointment().getStudentName().replaceAll("\\s+", "_");
+                PrintDocumentAdapter adapter = webView.createPrintDocumentAdapter(jobName);
+                pm.print(jobName, adapter, new PrintAttributes.Builder()
+                        .setColorMode(PrintAttributes.COLOR_MODE_COLOR)
+                        .build());
+            });
+        }*/
 
     // Add this method to handle permission request results
     @Override

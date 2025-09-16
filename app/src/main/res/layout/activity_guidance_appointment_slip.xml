@@ -56,6 +56,46 @@
                     android:fontFamily="@font/poppins_semibold"
                     android:layout_marginStart="8dp"/>
             </LinearLayout>
+
+            <!-- Guidance Pass (appears after Status badge) -->
+            <LinearLayout
+                android:id="@+id/guidancePassContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:orientation="vertical"
+                android:visibility="gone"
+                android:padding="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Guidance Pass"
+                    android:fontFamily="@font/poppins_bold"
+                    android:textColor="@color/blue"
+                    android:textSize="16sp"
+                    android:gravity="center"/>
+
+                <TextView
+                    android:id="@+id/tvGuidancePassDetails"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textSize="14sp"
+                    android:textColor="@color/black"/>
+
+                <Button
+                    android:id="@+id/btnViewGuidancePass"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="View Guidance Pass"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:backgroundTint="#10B981"
+                    android:textColor="#FFFFFF" />
+            </LinearLayout>
+
         </LinearLayout>
 
         <!--Student Name-->

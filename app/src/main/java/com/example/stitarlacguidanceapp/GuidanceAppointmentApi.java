@@ -3,6 +3,7 @@ package com.example.stitarlacguidanceapp;
 import com.example.stitarlacguidanceapp.Models.AvailableSlotForStudent;
 import com.example.stitarlacguidanceapp.Models.AvailableTimeSlot;
 import com.example.stitarlacguidanceapp.Models.GuidanceAppointment;
+import com.example.stitarlacguidanceapp.Models.GuidancePass;
 
 import java.util.List;
 
@@ -64,6 +65,13 @@ public interface GuidanceAppointmentApi {
     // Update appointment status (generic)
     @PUT("api/GuidanceAppointment/{id}/status")
     Call<ResponseBody> updateAppointmentStatus(@Path("id") int id, @Body StatusUpdateRequest request);
+
+    // Add these methods to GuidanceAppointmentApi.java
+    @GET("api/guidancepass/student/{studentId}")
+    Call<GuidancePass> getGuidancePassByStudent(@Path("studentId") int studentId);
+
+    @POST("api/guidancepass/deactivate-slot/{appointmentId}")
+    Call<ResponseBody> deactivateSlotForAppointment(@Path("appointmentId") int appointmentId);
 
     // Helper class for status updates
     class StatusUpdateRequest {
