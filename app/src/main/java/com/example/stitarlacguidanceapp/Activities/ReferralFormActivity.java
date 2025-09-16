@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -105,6 +106,7 @@ public class ReferralFormActivity extends AppCompatActivity {
                 layoutFeedbackSection.setAlpha(0f);
                 layoutFeedbackSection.animate().alpha(1f).setDuration(300);
                 root.btnToggleFeedback.setText("Hide Feedback Slip");
+                loadLatestReferralAndFeedback(); // fetch on open
             } else {
                 layoutFeedbackSection.animate().alpha(0f).setDuration(200).withEndAction(() -> {
                     layoutFeedbackSection.setVisibility(View.GONE);
@@ -592,6 +594,45 @@ public class ReferralFormActivity extends AppCompatActivity {
     //Validate ChipGroup (must have at least one checked chip)
     private boolean isChipGroupChecked(com.google.android.material.chip.ChipGroup chipGroup) {
         return chipGroup.getCheckedChipIds().size() > 0;
+    }
+
+    private void loadLatestReferralAndFeedback() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        if (studentId <= 0) return;
+
+        ReferralApi apiService = ApiClient.getReferralFormApi();
+        apiService.getLatestReferral(studentId).enqueue(new Callback<ReferralForm>() {
+            @Override public void onResponse(Call<ReferralForm> call, Response<ReferralForm> response) {
+                if (!response.isSuccessful() || response.body() == null) { return; }
+                ReferralForm ref = response.body();
+
+                // Fill feedback section (read-only)
+                String fbName = ref.getCounselorFeedbackStudentName();
+                if (fbName == null || fbName.trim().isEmpty()) {
+                    fbName = ref.getFullName();
+                }
+                root.edtStudentName.setText(nullToDash(fbName));
+                root.edtDateReferred.setText(formatIsoDate(ref.getCounselorFeedbackDateReferred()));
+                root.edtSessionDate.setText(formatIsoDate(ref.getCounselorSessionDate()));
+                // The “Actions Taken” is shown as a centered TextView (“-” initially)
+                // Update that TextView:
+                TextView actionsTakenView = findViewById(R.id.actionsTakenTextView /* set an id on the "-" TextView */);
+                if (actionsTakenView != null) {
+                    actionsTakenView.setText(nullToDash(ref.getCounselorActionsTaken()));
+                }
+                root.edtCounselorName.setText(nullToDash(ref.getCounselorName()));
+            }
+            @Override public void onFailure(Call<ReferralForm> call, Throwable t) {
+                Log.e("REFERRAL_FETCH", "Failed to get latest referral: " + t.getMessage());
+            }
+        });
+    }
+
+    private String nullToDash(String s) { return s == null || s.trim().isEmpty() ? "-" : s; }
+
+    private String formatIsoDate(String iso) {
+        return iso == null || iso.isEmpty() ? "-" : iso.substring(0, Math.min(10, iso.length()));
     }
 
 }
