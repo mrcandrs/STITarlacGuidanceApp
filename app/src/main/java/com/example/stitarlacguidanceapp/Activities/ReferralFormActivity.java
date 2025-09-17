@@ -192,8 +192,8 @@ public class ReferralFormActivity extends AppCompatActivity {
 
                 List<java.util.Map<String, String>> data = new ArrayList<>();
                 for (ReferralForm r : list) {
-                    String date = safeDate(r.getSubmissionDate());
-                    String rel = relativeDays(r.getSubmissionDate());
+                    String date = safeDate(r.getDateReferred());      // uses yyyy-MM-dd
+                    String rel  = relativeDays(r.getDateReferred());  // Manila TZ
                     boolean hasFeedback =
                             notEmpty(r.getCounselorName()) ||
                                     notEmpty(r.getCounselorFeedbackDateReferred()) ||
@@ -244,16 +244,31 @@ public class ReferralFormActivity extends AppCompatActivity {
     private String safeDateStr(String iso) { return iso == null ? "" : iso; }
     private String safeDate(String iso) {
         if (iso == null) return "-";
-        return iso.length() >= 10 ? iso.substring(0,10) : iso;
+        try {
+            java.text.SimpleDateFormat input = new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            java.text.SimpleDateFormat output = new java.text.SimpleDateFormat("MMM dd, yyyy", Locale.getDefault());
+            output.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
+            Date date = input.parse(iso.substring(0, Math.min(10, iso.length())));
+            return output.format(date);
+        } catch (Exception e) {
+            return iso.length() >= 10 ? iso.substring(0,10) : iso;
+        }
     }
     private String relativeDays(String iso) {
         try {
             if (iso == null) return "";
             String d = safeDate(iso);
             java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            f.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
             Date dt = f.parse(d);
             if (dt == null) return "";
-            long days = (System.currentTimeMillis() - dt.getTime()) / (1000*60*60*24);
+
+            // Get current Manila time
+            java.util.Calendar now = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"));
+            java.util.Calendar then = java.util.Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"));
+            then.setTime(dt);
+
+            long days = (now.getTimeInMillis() - then.getTimeInMillis()) / (1000*60*60*24);
             if (days == 0) return "(today)";
             if (days == 1) return "(1d ago)";
             return "(" + days + "d ago)";
