@@ -115,6 +115,9 @@ public class ReferralFormActivity extends AppCompatActivity {
             }
         });
 
+        //Previous referrals button
+        root.btnViewPreviousReferrals.setOnClickListener(v -> loadAndShowPreviousReferrals());
+
         //Submit button
         root.btnSubmit.setOnClickListener(v -> {
             if (validateForm()) {
@@ -161,6 +164,118 @@ public class ReferralFormActivity extends AppCompatActivity {
                 android.R.layout.simple_dropdown_item_1line //for AutoCompleteTextView
         );
         root.edtProgram.setAdapter(programAdapter);
+    }
+
+    private void loadAndShowPreviousReferrals() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        if (studentId <= 0) {
+            Toast.makeText(this, "Missing student session.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ReferralApi api = ApiClient.getReferralFormApi();
+        api.getAllReferrals(studentId).enqueue(new Callback<List<ReferralForm>>() {
+            @Override public void onResponse(Call<List<ReferralForm>> call, Response<List<ReferralForm>> resp) {
+                if (!resp.isSuccessful() || resp.body() == null) {
+                    Toast.makeText(ReferralFormActivity.this, "No previous referrals found.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                List<ReferralForm> list = resp.body();
+                if (list.isEmpty()) {
+                    Toast.makeText(ReferralFormActivity.this, "No previous referrals found.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                // Optional: sort client-side just in case
+                list.sort((a, b) -> safeDateStr(b.getSubmissionDate()).compareTo(safeDateStr(a.getSubmissionDate())));
+
+                List<java.util.Map<String, String>> data = new ArrayList<>();
+                for (ReferralForm r : list) {
+                    String date = safeDate(r.getSubmissionDate());
+                    String rel = relativeDays(r.getSubmissionDate());
+                    boolean hasFeedback =
+                            notEmpty(r.getCounselorName()) ||
+                                    notEmpty(r.getCounselorFeedbackDateReferred()) ||
+                                    notEmpty(r.getCounselorActionsTaken());
+
+                    String title = String.format(Locale.getDefault(),
+                            "%s %s • Feedback: %s",
+                            date, rel, hasFeedback ? "Yes" : "None");
+
+                    String reason = trimForList(r.getReferralReasons());
+                    String sub = reason.equals("-") ? "(No reason provided)" : reason;
+
+                    java.util.Map<String, String> row = new java.util.HashMap<>();
+                    row.put("title", title);
+                    row.put("subtitle", sub);
+                    data.add(row);
+                }
+
+                android.widget.SimpleAdapter adapter = new android.widget.SimpleAdapter(
+                        ReferralFormActivity.this,
+                        data,
+                        android.R.layout.simple_list_item_2,
+                        new String[] { "title", "subtitle" },
+                        new int[] { android.R.id.text1, android.R.id.text2 }
+                );
+
+                new androidx.appcompat.app.AlertDialog.Builder(ReferralFormActivity.this)
+                        .setTitle("Previous Referrals")
+                        .setAdapter(adapter, (dialog, which) -> {
+                            ReferralForm selected = list.get(which);
+                            populateFeedbackSection(selected);
+                            View layoutFeedbackSection = findViewById(R.id.layoutFeedbackSection);
+                            if (layoutFeedbackSection.getVisibility() == View.GONE) {
+                                root.btnToggleFeedback.performClick();
+                            }
+                        })
+                        .setPositiveButton("Close", null)
+                        .show();
+            }
+            @Override public void onFailure(Call<List<ReferralForm>> call, Throwable t) {
+                Toast.makeText(ReferralFormActivity.this, "Failed to load previous referrals.", Toast.LENGTH_SHORT).show();
+                Log.e("REFERRAL_FETCH_ALL", t.getMessage(), t);
+            }
+        });
+    }
+
+    private boolean notEmpty(String s) { return s != null && !s.trim().isEmpty(); }
+    private String safeDateStr(String iso) { return iso == null ? "" : iso; }
+    private String safeDate(String iso) {
+        if (iso == null) return "-";
+        return iso.length() >= 10 ? iso.substring(0,10) : iso;
+    }
+    private String relativeDays(String iso) {
+        try {
+            if (iso == null) return "";
+            String d = safeDate(iso);
+            java.text.SimpleDateFormat f = new java.text.SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Date dt = f.parse(d);
+            if (dt == null) return "";
+            long days = (System.currentTimeMillis() - dt.getTime()) / (1000*60*60*24);
+            if (days == 0) return "(today)";
+            if (days == 1) return "(1d ago)";
+            return "(" + days + "d ago)";
+        } catch (Exception e) { return ""; }
+    }
+    private String trimForList(String s) {
+        if (s == null) return "-";
+        s = s.trim().replaceAll("\\s+", " ");
+        if (s.length() > 80) return s.substring(0, 77) + "...";
+        return s;
+    }
+    private String nullToDash(String s) { return s == null || s.trim().isEmpty() ? "-" : s; }
+
+    private void populateFeedbackSection(ReferralForm ref) {
+        String fbName = ref.getCounselorFeedbackStudentName();
+        if (fbName == null || fbName.trim().isEmpty()) fbName = ref.getFullName();
+        root.edtStudentName.setText(nullToDash(fbName));
+        root.edtDateReferred.setText(formatIsoDate(ref.getCounselorFeedbackDateReferred()));
+        root.edtSessionDate.setText(formatIsoDate(ref.getCounselorSessionDate()));
+        TextView actionsTakenView = findViewById(R.id.actionsTakenTextView);
+        if (actionsTakenView != null) actionsTakenView.setText(nullToDash(ref.getCounselorActionsTaken()));
+        root.edtCounselorName.setText(nullToDash(ref.getCounselorName()));
     }
 
     private void setupDatePicker(EditText editText, TextInputLayout layout) {
@@ -628,8 +743,6 @@ public class ReferralFormActivity extends AppCompatActivity {
             }
         });
     }
-
-    private String nullToDash(String s) { return s == null || s.trim().isEmpty() ? "-" : s; }
 
     private String formatIsoDate(String iso) {
         return iso == null || iso.isEmpty() ? "-" : iso.substring(0, Math.min(10, iso.length()));

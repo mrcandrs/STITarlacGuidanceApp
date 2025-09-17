@@ -168,6 +168,17 @@
                 android:textColor="@color/black"
                 android:fontFamily="@font/poppins_semibold"/>
 
+            <Button
+                android:id="@+id/btnViewPreviousReferrals"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="12dp"
+                android:text="View Previous Referrals"
+                android:background="@drawable/button_border_2"
+                app:backgroundTint="@null"
+                android:textColor="@color/blue"
+                android:fontFamily="@font/poppins_semibold"/>
+
             <!--Student Info Card View-->
             <androidx.cardview.widget.CardView
                 android:layout_width="match_parent"
