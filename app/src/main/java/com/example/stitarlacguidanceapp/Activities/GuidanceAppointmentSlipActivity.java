@@ -511,7 +511,7 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
         int studentId = prefs.getInt("studentId", -1);
 
         if (studentId == -1) {
-            Toast.makeText(this, "Student ID not found", Toast.LENGTH_SHORT).show();
+            Log.e("AppointmentStatus", "Student ID not found");
             return;
         }
 
