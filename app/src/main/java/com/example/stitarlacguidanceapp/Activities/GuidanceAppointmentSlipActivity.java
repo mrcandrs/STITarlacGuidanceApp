@@ -525,16 +525,11 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
                     GuidanceAppointment latestAppointment = response.body().get(0);
                     String currentStatus = latestAppointment.getStatus();
 
-                    // Track for dialog use across all statuses
                     GuidanceAppointmentSlipActivity.this.latestAppointment = latestAppointment;
 
-                    // Only check for status changes if we have a previous status to compare
                     if (!lastKnownStatus.isEmpty() && !lastKnownStatus.equals(currentStatus)) {
-                        Log.d("StatusChange", "Status changed from " + lastKnownStatus + " to " + currentStatus);
                         showStatusChangeNotification(latestAppointment, lastKnownStatus, currentStatus);
                     }
-
-                    // Update last known status
                     lastKnownStatus = currentStatus;
 
                     // If not approved anymore, hide the Guidance Pass and allow booking again
@@ -542,30 +537,47 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
                         hideGuidancePass();
                     }
 
-                    // Check if there's a pending appointment
-                    hasPendingAppointment = "pending".equals(currentStatus);
-                    if (hasPendingAppointment) {
+                    // Handle active/pending vs completed/closed vs rejected
+                    if ("pending".equalsIgnoreCase(currentStatus)) {
+                        hasPendingAppointment = true;
                         pendingAppointment = latestAppointment;
                         disableFormForPendingAppointment();
-                    } else {
+                        status = "pending";
+                    } else if ("completed".equalsIgnoreCase(currentStatus) || "closed".equalsIgnoreCase(currentStatus)) {
+                        // Treat completed as no active appointment for the badge
+                        hasPendingAppointment = false;
                         pendingAppointment = null;
                         enableFormForNewAppointment();
+                        hideGuidancePass();
+                        status = "none"; // badge: No Active Appointment
+                    } else if ("approved".equalsIgnoreCase(currentStatus)) {
+                        hasPendingAppointment = false;
+                        pendingAppointment = null;
+                        // block booking due to active pass if one exists (checkGuidancePass will handle UI)
+                        status = "approved";
+                    } else if ("rejected".equalsIgnoreCase(currentStatus)) {
+                        hasPendingAppointment = false;
+                        pendingAppointment = null;
+                        enableFormForNewAppointment();
+                        hideGuidancePass();
+                        status = "rejected";
+                    } else {
+                        hasPendingAppointment = false;
+                        pendingAppointment = null;
+                        enableFormForNewAppointment();
+                        hideGuidancePass();
+                        status = "none";
                     }
 
-                    // Update the status if it has changed
-                    if (!currentStatus.equals(status)) {
-                        status = currentStatus;
-                        updateStatusBadge();
-                    }
+                    updateStatusBadge();
                 } else {
-                    // No appointments found, enable form
                     hasPendingAppointment = false;
                     pendingAppointment = null;
                     enableFormForNewAppointment();
                     hideGuidancePass();
                     lastKnownStatus = "";
-                    status = "none";          // NEW
-                    updateStatusBadge();      // NEW
+                    status = "none";
+                    updateStatusBadge();
                 }
             }
 
