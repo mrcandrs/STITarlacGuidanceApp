@@ -65,6 +65,8 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
 
     private GuidancePass currentGuidancePass = null;
 
+    private String lastFeedbackHash = "";
+
     private final Map<String, List<String>> availableSlots = new HashMap<>();
 
     private final Set<String> availableDates = new HashSet<>();
@@ -74,6 +76,9 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
         super.onCreate(savedInstanceState);
         root = ActivityGuidanceAppointmentSlipBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
+
+        lastFeedbackHash = getSharedPreferences("referral_prefs", MODE_PRIVATE)
+                .getString("last_feedback_hash", "");
 
         // Defensive reset and session gate (ADD THIS HERE)
         status = "pending";
@@ -647,8 +652,8 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
             @Override
             public void run() {
                 // Always poll so we catch transitions from approved -> completed
-                checkAppointmentStatus();
-                handler.postDelayed(this, 10000); // Check every 10 seconds instead of 2 minutes
+                checkAppointmentStatus(); //appointment
+                handler.postDelayed(this, 10000); // every 10 seconds
             }
         };
         handler.post(runnable);

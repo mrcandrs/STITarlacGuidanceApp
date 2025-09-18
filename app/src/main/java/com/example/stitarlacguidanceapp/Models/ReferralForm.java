@@ -2,6 +2,7 @@ package com.example.stitarlacguidanceapp.Models;
 
 public class ReferralForm {
     private int studentId;
+    private int referralId;
 
     //Basic Info
     private String fullName;
@@ -81,6 +82,9 @@ public class ReferralForm {
     public void setStudentId(int studentId) {
         this.studentId = studentId;
     }
+
+    public int getReferralId() { return referralId; }
+    public void setReferralId(int referralId) { this.referralId = referralId; }
 
     public String getFullName() {
         return fullName;

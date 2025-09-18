@@ -13,6 +13,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
+
+import com.example.stitarlacguidanceapp.Activities.ReferralFormActivity;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.Activities.GuidanceAppointmentSlipActivity;
 
@@ -166,6 +168,23 @@ public class NotificationHelper {
                 .setLights(0xFFF44336, 1000, 1000);
 
         showNotificationSafely(2, builder, "rejected");
+    }
+
+    public void showReferralFeedbackNotification(String studentName) {
+        Intent intent = new Intent(context, ReferralFormActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pi = PendingIntent.getActivity(context, 100, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder b = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.feedback) // your feedback icon
+                .setContentTitle("New Feedback from Counselor")
+                .setContentText("Your referral has new feedback. Tap to view.")
+                .setStyle(new NotificationCompat.BigTextStyle().bigText("Hi " + studentName + ", your counselor posted feedback on your referral."))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pi);
+
+        showNotificationSafely(100, b, "referral_feedback");
     }
 
     public void showAppointmentReminderNotification(String studentName, String appointmentDate, String appointmentTime) {
