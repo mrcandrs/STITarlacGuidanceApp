@@ -22,7 +22,9 @@ public class MyApp extends Application {
     private final Runnable poll = new Runnable() {
         @Override public void run() {
             try {
-                int studentId = getSharedPreferences("student_session", MODE_PRIVATE).getInt("studentId", -1);
+                SharedPreferences sessionPrefs = getSharedPreferences("student_session", MODE_PRIVATE);
+                int studentId = sessionPrefs.getInt("studentId", -1);
+                String loggedInStudentName = sessionPrefs.getString("fullName", "");
                 if (studentId > 0) {
                     ReferralApi api = ApiClient.getReferralFormApi();
                     api.getLatestReferral(studentId).enqueue(new Callback<ReferralForm>() {
@@ -48,7 +50,8 @@ public class MyApp extends Application {
                             String lastKey = sp.getString("last_feedback_key", "");
 
                             if (!newKey.equals(lastKey)) {
-                                String name = (r.getFullName()!=null && !r.getFullName().trim().isEmpty()) ? r.getFullName() : "Student";
+                                // Use logged-in student's name instead of referred student's name
+                                String name = (!loggedInStudentName.trim().isEmpty()) ? loggedInStudentName : "Student";
                                 new NotificationHelper(getApplicationContext()).showReferralFeedbackNotification(name);
                                 sp.edit().putString("last_feedback_key", newKey).apply();
                             }

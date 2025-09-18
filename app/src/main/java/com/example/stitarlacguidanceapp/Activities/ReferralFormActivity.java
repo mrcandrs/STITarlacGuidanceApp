@@ -52,10 +52,6 @@ public class ReferralFormActivity extends AppCompatActivity {
 
     private ActivityReferralFormBinding root;
 
-    private long lastFeedbackNotifiedAt = 0; // persisted if you want, via SharedPreferences
-    private Handler feedbackPollHandler = new Handler();
-
-    private String lastFeedbackHash = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +59,6 @@ public class ReferralFormActivity extends AppCompatActivity {
         root = ActivityReferralFormBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
-        lastFeedbackHash = getSharedPreferences("referral_prefs", MODE_PRIVATE)
-                .getString("last_feedback_hash", "");
 
         setupDatePicker(root.txtDateReferred, root.layoutDateReferred);
         setupDatePicker(root.edtFeedbackDate, root.layoutFeedbackDate);
@@ -75,9 +69,6 @@ public class ReferralFormActivity extends AppCompatActivity {
 
         //for real-time validation of student no. and age
         setupRealTimeValidation();
-
-        //restore last notified time
-        lastFeedbackNotifiedAt = getSharedPreferences("referral_prefs", MODE_PRIVATE).getLong("last_feedback_notified", 0L);
 
         //Allows only numbers, and max length of 2 digits for Age
         root.edtAge.setFilters(new InputFilter[]{
@@ -585,66 +576,6 @@ public class ReferralFormActivity extends AppCompatActivity {
             return true;
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        startFeedbackPolling();
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        feedbackPollHandler.removeCallbacksAndMessages(null);
-    }
-
-    private void startFeedbackPolling() {
-        feedbackPollHandler.post(new Runnable() {
-            @Override public void run() {
-                checkLatestReferralFeedback();
-                feedbackPollHandler.postDelayed(this, 2000); // 2s
-            }
-        });
-    }
-
-    // Replace checkLatestReferralFeedback() body with:
-    private void checkLatestReferralFeedback() {
-        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
-        int studentId = prefs.getInt("studentId", -1);
-        if (studentId <= 0) return;
-
-        ReferralApi api = ApiClient.getReferralFormApi();
-        api.getLatestReferral(studentId).enqueue(new retrofit2.Callback<com.example.stitarlacguidanceapp.Models.ReferralForm>() {
-            @Override public void onResponse(retrofit2.Call<ReferralForm> call, retrofit2.Response<ReferralForm> resp) {
-                if (!resp.isSuccessful() || resp.body() == null) return;
-                ReferralForm r = resp.body();
-
-                String actions = safeStr(r.getCounselorActionsTaken());
-                String fbDate = safeStr(r.getCounselorFeedbackDateReferred());
-                String session = safeStr(r.getCounselorSessionDate());
-                String counselor = safeStr(r.getCounselorName());
-
-                boolean hasFeedback =
-                        (!actions.isEmpty()) || (!fbDate.isEmpty()) || (!session.isEmpty()) || (!counselor.isEmpty());
-
-                if (!hasFeedback) return;
-
-                String newHash = Integer.toHexString((actions + "|" + fbDate + "|" + session + "|" + counselor).hashCode());
-                if (!newHash.equals(lastFeedbackHash)) {
-                    new NotificationHelper(ReferralFormActivity.this)
-                            .showReferralFeedbackNotification(r.getFullName()!=null ? r.getFullName() : "Student");
-                    lastFeedbackHash = newHash;
-                    getSharedPreferences("referral_prefs", MODE_PRIVATE)
-                            .edit()
-                            .putString("last_feedback_hash", lastFeedbackHash)
-                            .apply();
-                }
-            }
-            @Override public void onFailure(retrofit2.Call<ReferralForm> call, Throwable t) { /* ignore */ }
-        });
-    }
-
-    private String safeStr(String s) { return (s == null) ? "" : s.trim(); }
 
     private ReferralForm buildReferralForm() {
         ReferralForm form = new ReferralForm();
