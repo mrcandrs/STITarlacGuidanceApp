@@ -70,6 +70,34 @@ public class MyApp extends Application {
 
     @Override public void onCreate() {
         super.onCreate();
+
+        MaintenanceApi api = ApiClient.getClient().create(MaintenanceApi.class);
+        AppConfigRepository repo = new AppConfigRepository(this);
+
+        api.getDictionaries().enqueue(new retrofit2.Callback<com.example.stitarlacguidanceapp.Models.DictionariesResponse>() {
+            @Override public void onResponse(retrofit2.Call<com.example.stitarlacguidanceapp.Models.DictionariesResponse> call,
+                                             retrofit2.Response<com.example.stitarlacguidanceapp.Models.DictionariesResponse> resp) {
+                if (resp.isSuccessful() && resp.body() != null) repo.saveDictionaries(resp.body());
+            }
+            @Override public void onFailure(retrofit2.Call<com.example.stitarlacguidanceapp.Models.DictionariesResponse> call, Throwable t) {}
+        });
+
+        api.getMobileConfig().enqueue(new retrofit2.Callback<com.example.stitarlacguidanceapp.Models.MobileConfig>() {
+            @Override public void onResponse(retrofit2.Call<com.example.stitarlacguidanceapp.Models.MobileConfig> call,
+                                             retrofit2.Response<com.example.stitarlacguidanceapp.Models.MobileConfig> resp) {
+                if (resp.isSuccessful() && resp.body() != null) repo.saveMobileConfig(resp.body());
+            }
+            @Override public void onFailure(retrofit2.Call<com.example.stitarlacguidanceapp.Models.MobileConfig> call, Throwable t) {}
+        });
+
+        api.getQuotes().enqueue(new retrofit2.Callback<java.util.List<com.example.stitarlacguidanceapp.Models.QuoteDto>>() {
+            @Override public void onResponse(retrofit2.Call<java.util.List<com.example.stitarlacguidanceapp.Models.QuoteDto>> call,
+                                             retrofit2.Response<java.util.List<com.example.stitarlacguidanceapp.Models.QuoteDto>> resp) {
+                if (resp.isSuccessful() && resp.body() != null) repo.saveQuotes(resp.body());
+            }
+            @Override public void onFailure(retrofit2.Call<java.util.List<com.example.stitarlacguidanceapp.Models.QuoteDto>> call, Throwable t) {}
+        });
+
         ProcessLifecycleOwner.get().getLifecycle().addObserver(new DefaultLifecycleObserver() {
             @Override public void onStart(LifecycleOwner owner) { handler.post(poll); }
             @Override public void onStop(LifecycleOwner owner) { handler.removeCallbacksAndMessages(null); }

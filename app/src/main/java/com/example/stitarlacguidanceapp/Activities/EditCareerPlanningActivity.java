@@ -24,8 +24,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.example.stitarlacguidanceapp.ApiClient;
+import com.example.stitarlacguidanceapp.AppConfigRepository;
 import com.example.stitarlacguidanceapp.CareerPlanningApi;
+import com.example.stitarlacguidanceapp.ConfigSync;
 import com.example.stitarlacguidanceapp.Models.CareerPlanningForm;
+import com.example.stitarlacguidanceapp.Models.DictionariesResponse;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityEditCareerPlanningBinding;
@@ -60,6 +63,19 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
 
         scrollView = root.editCareerPlanningScrollView;
 
+        // Sync latest maintenance data, then bind dropdowns
+        ConfigSync.sync(this, new ConfigSync.SyncCallback() {
+            @Override public void onComplete() {
+                DictionariesResponse dict = new AppConfigRepository(EditCareerPlanningActivity.this).getDictionaries();
+                runOnUiThread(() -> setupProgramAndSectionDropdowns(dict));
+            }
+            @Override public void onError(Throwable t) {
+                // Fallback to whatever is cached locally (or defaults) if sync fails
+                DictionariesResponse dict = new AppConfigRepository(EditCareerPlanningActivity.this).getDictionaries();
+                runOnUiThread(() -> setupProgramAndSectionDropdowns(dict));
+            }
+        });
+
         if (root.fullNameInput != null) {
             root.fullNameInput.setEnabled(false);
             root.fullNameInput.setBackgroundColor(Color.parseColor("#696969"));
@@ -70,14 +86,6 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
             root.studentNoInput.setBackgroundColor(Color.parseColor("#696969"));
             root.studentNoInput.setTextColor(Color.LTGRAY);
         }
-
-        //Array Adapters for Spinners/AutoCompleteTextView/RadioButtons
-        ArrayAdapter<CharSequence> courseAdapter = ArrayAdapter.createFromResource(
-                this,
-                R.array.career_form_course_options,
-                android.R.layout.simple_dropdown_item_1line //for AutoCompleteTextView
-        );
-        root.courseInput.setAdapter(courseAdapter);
 
         // Always show all items on dropdown
         root.courseInput.setOnClickListener(v -> {
@@ -124,6 +132,41 @@ public class EditCareerPlanningActivity extends AppCompatActivity {
         root.birthdayInput.setOnClickListener(v -> showDatePicker());
 
         setupListeners();
+    }
+
+    private void setupProgramAndSectionDropdowns(DictionariesResponse dict) {
+        // Build program list
+        java.util.List<String> programChoices = new java.util.ArrayList<>();
+        if (dict != null && dict.programs != null) {
+            for (DictionariesResponse.ProgramItem p : dict.programs) {
+                programChoices.add(p.name + " (" + p.code + ")");
+            }
+        }
+
+        ArrayAdapter<String> courseAdapter = new ArrayAdapter<>(
+                this,
+                android.R.layout.simple_dropdown_item_1line,
+                programChoices.isEmpty() ? java.util.Arrays.asList("BSIT", "BSCS") : programChoices
+        );
+        root.courseInput.setAdapter(courseAdapter);
+
+        root.courseInput.setOnItemClickListener((parent, view, position, id) -> {
+            String choice = programChoices.get(position);
+            String code = choice.replaceAll(".*\\(([^)]+)\\)$", "$1"); // extract code inside ( )
+            java.util.List<String> sections = (dict != null && dict.sectionsByProgram != null && code != null)
+                    ? dict.sectionsByProgram.getOrDefault(code, new java.util.ArrayList<>())
+                    : new java.util.ArrayList<>();
+            ArrayAdapter<String> sectionAdapter = new ArrayAdapter<>(
+                    this, android.R.layout.simple_dropdown_item_1line,
+                    sections.isEmpty() ? java.util.Arrays.asList("A", "B") : sections
+            );
+            root.sectionInput.setAdapter(sectionAdapter);
+            if (!sections.isEmpty()) root.sectionInput.setText(sections.get(0), false);
+        });
+
+        root.courseInput.setOnClickListener(v -> root.courseInput.showDropDown());
+        root.courseInput.setOnFocusChangeListener((v, hasFocus) -> { if (hasFocus) root.courseInput.showDropDown(); });
+        root.courseInput.setThreshold(0);
     }
 
     private void showDatePicker() {

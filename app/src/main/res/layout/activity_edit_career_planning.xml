@@ -97,17 +97,23 @@
                 android:theme="@style/InputLabel"
                 android:layout_marginEnd="8dp"/>
 
-            <EditText
-                android:id="@+id/sectionInput"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:hint="Section"
-                android:inputType="text"
-                android:background="@drawable/edittext_background"
-                android:fontFamily="@font/poppins_regular"
-                android:padding="12dp"
-                android:layout_marginEnd="8dp"/>
+                android:layout_marginEnd="8dp"
+                app:endIconMode="dropdown_menu"
+                android:hint="Section">
+
+                <com.google.android.material.textfield.MaterialAutoCompleteTextView
+                    android:id="@+id/sectionInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:padding="12dp"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <Spinner
                 android:id="@+id/genderSpinner"
