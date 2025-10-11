@@ -67,6 +67,7 @@ public class JournalFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_journal, container, false);
         recyclerView = view.findViewById(R.id.recyclerJournal);
         TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage);
+        final TextView finalTxtEmptyMessage = txtEmptyMessage;
 
         prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
 
@@ -74,7 +75,7 @@ public class JournalFragment extends Fragment {
                 journalEntries,
                 getContext(),
                 this::saveToPreferences,
-                () -> checkEmptyList(txtEmptyMessage),
+                () -> checkEmptyList(finalTxtEmptyMessage),
                 new JournalAdapter.OnJournalActionListener() {
                     @Override
                     public void onEdit(JournalEntry entry, int position) {
@@ -84,7 +85,7 @@ public class JournalFragment extends Fragment {
                     @Override
                     public void onDelete(JournalEntry entry, int position) {
                         if (journalEntries.isEmpty()) {
-                            txtEmptyMessage.setVisibility(View.VISIBLE);
+                            finalTxtEmptyMessage.setVisibility(View.VISIBLE);
                         }
                     }
                 }
@@ -95,7 +96,7 @@ public class JournalFragment extends Fragment {
 
         loadJournalEntries(); // now the adapter is ready
 
-        checkEmptyList(txtEmptyMessage); // initial empty check
+        checkEmptyList(finalTxtEmptyMessage); // initial empty check
 
         return view;
     }
