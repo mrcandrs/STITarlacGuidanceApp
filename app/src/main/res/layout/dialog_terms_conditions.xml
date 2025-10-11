@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Terms and Conditions"
+        android:textSize="20sp"
+        android:textColor="@color/blue"
+        android:fontFamily="@font/poppins_bold"
+        android:textAlignment="center"
+        android:layout_marginBottom="16dp"/>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:layout_marginBottom="16dp">
+
+        <TextView
+            android:id="@+id/txtTermsContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="14sp"
+            android:textColor="@color/blue"
+            android:fontFamily="@font/poppins_regular"
+            android:lineSpacingExtra="4dp"
+            android:lineSpacingMultiplier="1.2"
+            android:padding="8dp"/>
+
+    </ScrollView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+
+        <Button
+            android:id="@+id/btnAcceptTerms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="I Accept"
+            android:layout_marginEnd="8dp"
+            style="@style/Widget.Material3.Button"/>
+
+        <Button
+            android:id="@+id/btnDeclineTerms"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Decline"
+            style="@style/Widget.Material3.Button.OutlinedButton"/>
+
+    </LinearLayout>
+
+</LinearLayout>
