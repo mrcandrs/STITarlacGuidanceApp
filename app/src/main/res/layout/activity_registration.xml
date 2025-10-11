@@ -43,7 +43,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="CREATE AN ACCOUNT"
+                android:text="CREATE YOUR ACCOUNT"
                 android:textAlignment="center"
                 android:textSize="25dp"
                 android:textColor="@color/blue"
@@ -186,12 +186,44 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
+            <!-- Terms and Conditions Checkbox -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center_vertical">
+
+                <CheckBox
+                    android:id="@+id/checkboxTermsConditions"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"/>
+
+                <TextView
+                    android:id="@+id/txtTermsConditionsLink"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="I agree to the Terms and Conditions"
+                    android:textColor="@color/blue"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textSize="14sp"
+                    android:background="?android:attr/selectableItemBackground"
+                    android:padding="4dp"
+                    android:clickable="true"
+                    android:focusable="true"/>
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btnRegister"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Register"
-                android:layout_marginTop="10dp"/>
+                android:layout_marginTop="10dp"
+                android:enabled="false"/>
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

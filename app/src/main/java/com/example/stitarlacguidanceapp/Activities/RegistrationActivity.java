@@ -6,7 +6,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+import android.widget.CheckBox;
+import android.widget.TextView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.stitarlacguidanceapp.ApiClient;
@@ -15,6 +21,7 @@ import com.example.stitarlacguidanceapp.Models.CareerPlanningForm;
 import com.example.stitarlacguidanceapp.Models.ConsentForm;
 import com.example.stitarlacguidanceapp.Models.FullRegistration;
 import com.example.stitarlacguidanceapp.Models.InventoryForm;
+import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.Models.Student;
@@ -94,9 +101,60 @@ public class RegistrationActivity extends AppCompatActivity {
             root.edtGradeYear.setTextColor(Color.LTGRAY);
         }
 
+        // Prefill Email Address from Individual Inventory form
+        SharedPreferences inventoryPrefs = getSharedPreferences("InventoryForm", MODE_PRIVATE);
+        String emailFromInventory = inventoryPrefs.getString("Email1", "");
+        if (!emailFromInventory.isEmpty()) {
+            root.edtEmail.setText(emailFromInventory);
+            root.edtEmail.setEnabled(false);
+            root.edtEmail.setBackgroundColor(Color.parseColor("#696969"));
+            root.edtEmail.setTextColor(Color.LTGRAY);
+        }
 
+
+        // Terms and Conditions click listener
+        root.txtTermsConditionsLink.setOnClickListener(v -> showTermsAndConditionsDialog());
+        
+        // Terms checkbox listener to enable/disable Register button
+        root.checkboxTermsConditions.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            checkAllFieldsAndEnableButton();
+        });
+        
+        // Add listeners to all required fields to check validation
+        root.edtStudentUsername.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                checkAllFieldsAndEnableButton();
+            }
+        });
+        
+        root.edtStudentPassword.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                checkAllFieldsAndEnableButton();
+            }
+        });
+        
         root.btnRegister.setOnClickListener(v -> checkDuplicateThenSave());
         root.btnBack.setOnClickListener(v -> onBackPressed());
+    }
+
+    private void checkAllFieldsAndEnableButton() {
+        // Check if all required fields are filled and Terms are accepted
+        boolean usernameFilled = !root.edtStudentUsername.getText().toString().trim().isEmpty();
+        boolean passwordFilled = !root.edtStudentPassword.getText().toString().trim().isEmpty();
+        boolean termsAccepted = root.checkboxTermsConditions.isChecked();
+        
+        // Enable button only if all conditions are met
+        root.btnRegister.setEnabled(usernameFilled && passwordFilled && termsAccepted);
     }
 
     private void addLiveValidation(com.google.android.material.textfield.TextInputLayout layout,
@@ -117,6 +175,12 @@ public class RegistrationActivity extends AppCompatActivity {
     }
 
     private void checkDuplicateThenSave() {
+        // Check if Terms and Conditions are accepted
+        if (!root.checkboxTermsConditions.isChecked()) {
+            Toast.makeText(this, "Please accept the Terms and Conditions to continue", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
         String email = root.edtEmail.getText().toString().trim();
         String username = root.edtStudentUsername.getText().toString().trim();
 
@@ -197,6 +261,144 @@ public class RegistrationActivity extends AppCompatActivity {
         }
     }
 
+    private void showTermsAndConditionsDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_terms_conditions, null);
+        
+        // Set the terms content with proper formatting
+        TextView txtTermsContent = dialogView.findViewById(R.id.txtTermsContent);
+        
+        // Create properly formatted terms text
+        StringBuilder termsBuilder = new StringBuilder();
+        termsBuilder.append("TERMS AND CONDITIONS FOR STI TARLAC GUIDANCE APP\n\n");
+        termsBuilder.append("By using the STI Tarlac Guidance App, you agree to the following terms and conditions:\n\n");
+        
+        termsBuilder.append("1. ACCEPTANCE OF TERMS\n\n");
+        termsBuilder.append("By creating an account and using this application, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.\n\n");
+        
+        termsBuilder.append("2. APP PURPOSE AND SERVICES\n\n");
+        termsBuilder.append("This application provides the following services to STI Tarlac students:\n\n");
+        termsBuilder.append("• Guidance and Counseling Appointments\n");
+        termsBuilder.append("• Daily Mood Tracking and Emotional Assessment\n");
+        termsBuilder.append("• Private Journal and Personal Reflection Tools\n");
+        termsBuilder.append("• Career Planning and Academic Guidance\n");
+        termsBuilder.append("• Personal Inventory and Assessment Forms\n");
+        termsBuilder.append("• Referral Services to Professional Counselors\n");
+        termsBuilder.append("• Exit Interview Management\n");
+        termsBuilder.append("• Profile and Settings Management\n\n");
+        
+        termsBuilder.append("3. USER ACCOUNT AND REGISTRATION\n\n");
+        termsBuilder.append("• You must provide accurate and complete information during registration\n");
+        termsBuilder.append("• You are responsible for maintaining the confidentiality of your account credentials\n");
+        termsBuilder.append("• You must notify the guidance office immediately of any unauthorized use of your account\n");
+        termsBuilder.append("• Only current STI Tarlac students are eligible to use this application\n\n");
+        
+        termsBuilder.append("4. PRIVACY AND CONFIDENTIALITY\n\n");
+        termsBuilder.append("• All personal information and data shared through this app is strictly confidential\n");
+        termsBuilder.append("• Your counseling sessions, journal entries, and personal assessments are protected\n");
+        termsBuilder.append("• Information may only be shared with authorized guidance counselors and staff\n");
+        termsBuilder.append("• Data may be used for academic and counseling purposes only\n");
+        termsBuilder.append("• We comply with applicable privacy laws and regulations\n\n");
+        
+        termsBuilder.append("5. DATA COLLECTION AND USAGE\n\n");
+        termsBuilder.append("The app collects the following types of data:\n\n");
+        termsBuilder.append("• Personal information (name, student number, contact details)\n");
+        termsBuilder.append("• Academic information (program, year level)\n");
+        termsBuilder.append("• Emotional and psychological assessments\n");
+        termsBuilder.append("• Journal entries and personal reflections\n");
+        termsBuilder.append("• Appointment scheduling and counseling records\n");
+        termsBuilder.append("• Career planning and inventory responses\n\n");
+        
+        termsBuilder.append("6. USER RESPONSIBILITIES\n\n");
+        termsBuilder.append("• Use the app only for legitimate educational and counseling purposes\n");
+        termsBuilder.append("• Provide honest and accurate information in all forms and assessments\n");
+        termsBuilder.append("• Respect the confidentiality of other users' information\n");
+        termsBuilder.append("• Report any technical issues or concerns to the guidance office\n");
+        termsBuilder.append("• Maintain appropriate and respectful communication\n\n");
+        
+        termsBuilder.append("7. PROHIBITED ACTIVITIES\n\n");
+        termsBuilder.append("You may not:\n\n");
+        termsBuilder.append("• Share your account credentials with others\n");
+        termsBuilder.append("• Attempt to access other users' accounts or data\n");
+        termsBuilder.append("• Use the app for any illegal or unauthorized purposes\n");
+        termsBuilder.append("• Submit false or misleading information\n");
+        termsBuilder.append("• Interfere with the app's functionality or security\n\n");
+        
+        termsBuilder.append("8. MOOD TRACKER SPECIFIC TERMS\n\n");
+        termsBuilder.append("• Daily mood tracking is voluntary but encouraged for better counseling support\n");
+        termsBuilder.append("• Mood data is used to provide personalized guidance and support\n");
+        termsBuilder.append("• A 24-hour cooldown period applies between mood tracking sessions\n");
+        termsBuilder.append("• Mood data is confidential and used only by authorized guidance staff\n\n");
+        
+        termsBuilder.append("9. JOURNAL AND PRIVACY\n\n");
+        termsBuilder.append("• Private journal entries are encrypted and stored securely\n");
+        termsBuilder.append("• Journal content is accessible only to you and authorized guidance counselors\n");
+        termsBuilder.append("• Entries may be discussed during counseling sessions with your consent\n");
+        termsBuilder.append("• You can edit or delete your journal entries at any time\n\n");
+        
+        termsBuilder.append("10. APPOINTMENT SCHEDULING\n\n");
+        termsBuilder.append("• Appointments are subject to counselor availability\n");
+        termsBuilder.append("• Cancellations should be made at least 24 hours in advance\n");
+        termsBuilder.append("• No-show policies may apply as per guidance office procedures\n");
+        termsBuilder.append("• Emergency situations may require immediate counselor contact\n\n");
+        
+        termsBuilder.append("11. DATA RETENTION AND DELETION\n\n");
+        termsBuilder.append("• Your data will be retained for the duration of your enrollment at STI Tarlac\n");
+        termsBuilder.append("• Upon graduation or withdrawal, data retention policies will apply\n");
+        termsBuilder.append("• You may request data deletion subject to legal and administrative requirements\n");
+        termsBuilder.append("• Some data may be retained for statistical and research purposes (anonymized)\n\n");
+        
+        termsBuilder.append("12. TECHNICAL SUPPORT AND AVAILABILITY\n\n");
+        termsBuilder.append("• The app is provided \"as is\" without warranties\n");
+        termsBuilder.append("• Technical support is available during regular office hours\n");
+        termsBuilder.append("• The app may experience downtime for maintenance or updates\n");
+        termsBuilder.append("• We strive to maintain 99% uptime but cannot guarantee uninterrupted service\n\n");
+        
+        termsBuilder.append("13. MODIFICATIONS TO TERMS\n\n");
+        termsBuilder.append("• These terms may be updated periodically\n");
+        termsBuilder.append("• Users will be notified of significant changes\n");
+        termsBuilder.append("• Continued use of the app constitutes acceptance of modified terms\n");
+        termsBuilder.append("• Previous versions of terms are available upon request\n\n");
+        
+        termsBuilder.append("14. TERMINATION\n\n");
+        termsBuilder.append("• Your access to the app may be terminated for violation of these terms\n");
+        termsBuilder.append("• Termination does not affect the confidentiality of your data\n");
+        termsBuilder.append("• You may request account deletion at any time\n");
+        termsBuilder.append("• Data retention policies apply even after account termination\n\n");
+        
+        termsBuilder.append("15. CONTACT INFORMATION\n\n");
+        termsBuilder.append("For questions about these Terms and Conditions, contact:\n\n");
+        termsBuilder.append("STI Tarlac Guidance Office\n");
+        termsBuilder.append("Email: guidance@sti.edu.ph\n");
+        termsBuilder.append("Phone: (045) 982-0115\n");
+        termsBuilder.append("Office Hours: Monday-Friday, 8:00 AM - 5:00 PM\n\n");
+        
+        termsBuilder.append("16. GOVERNING LAW\n\n");
+        termsBuilder.append("These terms are governed by Philippine law and STI Tarlac institutional policies.\n\n");
+        
+        termsBuilder.append("By checking the \"I agree to the Terms and Conditions\" checkbox, you confirm that you have read, understood, and agree to be bound by these Terms and Conditions.");
+        
+        txtTermsContent.setText(termsBuilder.toString());
+        
+        builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
+        
+        Button btnAccept = dialogView.findViewById(R.id.btnAcceptTerms);
+        Button btnDecline = dialogView.findViewById(R.id.btnDeclineTerms);
+        
+        btnAccept.setOnClickListener(v -> {
+            root.checkboxTermsConditions.setChecked(true);
+            dialog.dismiss();
+        });
+        
+        btnDecline.setOnClickListener(v -> {
+            root.checkboxTermsConditions.setChecked(false);
+            dialog.dismiss();
+        });
+        
+        dialog.show();
+    }
 
     private void registerStudent() {
         root.btnRegister.setEnabled(false);
