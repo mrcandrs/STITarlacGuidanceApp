@@ -32,9 +32,11 @@ import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.Models.Quote;
 import com.example.stitarlacguidanceapp.Models.StudentUpdateRequest;
+import com.example.stitarlacguidanceapp.Models.MoodCooldownResponse;
 import com.example.stitarlacguidanceapp.QuoteAdapter;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
+import com.example.stitarlacguidanceapp.MoodTrackerApi;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -225,8 +227,81 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         SharedPreferences sessionPrefs = getSharedPreferences("student_session", MODE_PRIVATE);
         int studentId = sessionPrefs.getInt("studentId", -1);
-        SharedPreferences prefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
 
+        // First check server-side cooldown status
+        checkServerCooldownStatus(studentId, txtCooldown, moodCard);
+    }
+
+    private void checkServerCooldownStatus(int studentId, TextView txtCooldown, CardView moodCard) {
+        MoodTrackerApi apiService = ApiClient.getClient().create(MoodTrackerApi.class);
+        Call<MoodCooldownResponse> call = apiService.checkCooldown(studentId);
+
+        call.enqueue(new Callback<MoodCooldownResponse>() {
+            @Override
+            public void onResponse(Call<MoodCooldownResponse> call, Response<MoodCooldownResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    MoodCooldownResponse cooldownResponse = response.body();
+                    handleCooldownResponse(cooldownResponse, txtCooldown, moodCard);
+                } else {
+                    // Fallback to local check if server fails
+                    Log.e("MoodTracker", "Server cooldown check failed, falling back to local check");
+                    fallbackToLocalCooldown(studentId, txtCooldown, moodCard);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoodCooldownResponse> call, Throwable t) {
+                Log.e("MoodTracker", "Network error checking cooldown: " + t.getMessage());
+                // Fallback to local check if network fails
+                fallbackToLocalCooldown(studentId, txtCooldown, moodCard);
+            }
+        });
+    }
+
+    private void handleCooldownResponse(MoodCooldownResponse response, TextView txtCooldown, CardView moodCard) {
+        if (response.isCanTakeMoodTracker()) {
+            txtCooldown.setText("Mood Tracker available");
+            txtCooldown.setTextColor(getResources().getColor(R.color.darkgreen));
+            moodCard.setEnabled(true);
+        } else {
+            moodCard.setEnabled(false);
+            txtCooldown.setTextColor(getResources().getColor(R.color.darkred));
+            
+            // Start countdown timer
+            startCooldownCountdown(response.getTimeRemaining(), txtCooldown, moodCard);
+        }
+    }
+
+    private void startCooldownCountdown(long timeRemaining, TextView txtCooldown, CardView moodCard) {
+        final long startTime = System.currentTimeMillis();
+        
+        cooldownRunnable = new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = System.currentTimeMillis() - startTime;
+                long remaining = timeRemaining - elapsed;
+
+                if (remaining <= 0) {
+                    txtCooldown.setText("Mood Tracker available");
+                    txtCooldown.setTextColor(getResources().getColor(R.color.darkgreen));
+                    moodCard.setEnabled(true);
+                    cooldownHandler.removeCallbacks(this);
+                } else {
+                    int hrs = (int) (remaining / (1000 * 60 * 60));
+                    int mins = (int) ((remaining / (1000 * 60)) % 60);
+                    int secs = (int) ((remaining / 1000) % 60);
+                    txtCooldown.setText(String.format("Available in: %02d:%02d:%02d", hrs, mins, secs));
+
+                    //Schedule next update in 1 second
+                    cooldownHandler.postDelayed(this, 1000);
+                }
+            }
+        };
+        cooldownHandler.post(cooldownRunnable);
+    }
+
+    private void fallbackToLocalCooldown(int studentId, TextView txtCooldown, CardView moodCard) {
+        SharedPreferences prefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
         long lastTakenMillis = prefs.getLong("lastMoodTimestamp", 0);
         long now = System.currentTimeMillis();
         long timeLeft = COOLDOWN_PERIOD - (now - lastTakenMillis);
@@ -262,7 +337,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
             txtCooldown.setTextColor(getResources().getColor(R.color.darkgreen));
             moodCard.setEnabled(true);
         }
-
     }
 
 
