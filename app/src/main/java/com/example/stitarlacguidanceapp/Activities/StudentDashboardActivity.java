@@ -37,6 +37,7 @@ import com.example.stitarlacguidanceapp.QuoteAdapter;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.MoodTrackerApi;
+import okhttp3.ResponseBody;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBinding;
 import com.github.dhaval2404.imagepicker.ImagePicker;
@@ -52,6 +53,10 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 
 import okhttp3.MediaType;
@@ -203,8 +208,6 @@ public class StudentDashboardActivity extends AppCompatActivity {
         String program = prefs.getString("program", "");
         String yearLevel = prefs.getString("yearLevel", "");
         studentId = prefs.getInt("studentId", -1);
-        String profileKey = "profileUri_" + studentId;
-        String profileUriString = prefs.getString(profileKey, null);
         String lastLogin = prefs.getString("lastLogin", "Not available");
 
         // Update your UI (example using ViewBinding or findViewById)
@@ -214,10 +217,80 @@ public class StudentDashboardActivity extends AppCompatActivity {
         root.txtYear.setText(yearLevel);
         root.txtLastLogin.setText("Last login: " + lastLogin);
 
-        // ✅ Load and display profile image if saved
+        // Load profile photo from server first, then fallback to local
+        loadProfilePhoto(studentId);
+    }
+
+    private void loadProfilePhoto(int studentId) {
+        // First try to load from server
+        StudentApi apiService = ApiClient.getClient().create(StudentApi.class);
+        Call<ResponseBody> call = apiService.getProfilePhoto(studentId);
+
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // Save the photo locally and display it
+                    saveAndDisplayProfilePhoto(response.body(), studentId);
+                } else {
+                    // Server doesn't have photo, fallback to local storage
+                    fallbackToLocalProfilePhoto(studentId);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                Log.e("ProfilePhoto", "Failed to load profile photo from server: " + t.getMessage());
+                // Network error, fallback to local storage
+                fallbackToLocalProfilePhoto(studentId);
+            }
+        });
+    }
+
+    private void saveAndDisplayProfilePhoto(ResponseBody responseBody, int studentId) {
+        try {
+            // Create a temporary file to save the photo
+            File tempFile = File.createTempFile("profile_" + studentId, ".jpg", getCacheDir());
+            FileOutputStream fos = new FileOutputStream(tempFile);
+            
+            InputStream inputStream = responseBody.byteStream();
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                fos.write(buffer, 0, bytesRead);
+            }
+            
+            fos.close();
+            inputStream.close();
+            
+            // Save the file path to SharedPreferences
+            SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+            String profileKey = "profileUri_" + studentId;
+            prefs.edit().putString(profileKey, Uri.fromFile(tempFile).toString()).apply();
+            
+            // Display the photo
+            Glide.with(this)
+                    .load(tempFile)
+                    .circleCrop()
+                    .into(root.imgProfile);
+                    
+        } catch (IOException e) {
+            Log.e("ProfilePhoto", "Failed to save profile photo: " + e.getMessage());
+            fallbackToLocalProfilePhoto(studentId);
+        }
+    }
+
+    private void fallbackToLocalProfilePhoto(int studentId) {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        String profileKey = "profileUri_" + studentId;
+        String profileUriString = prefs.getString(profileKey, null);
+        
         if (profileUriString != null) {
             Uri profileUri = Uri.parse(profileUriString);
-            root.imgProfile.setImageURI(profileUri);
+            Glide.with(this)
+                    .load(profileUri)
+                    .circleCrop()
+                    .into(root.imgProfile);
         }
     }
 
