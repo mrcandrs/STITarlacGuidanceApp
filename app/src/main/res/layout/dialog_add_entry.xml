@@ -94,20 +94,97 @@
         </com.google.android.material.textfield.TextInputLayout>
 
 
-        <com.google.android.material.textfield.TextInputLayout
+        <!-- Mood Selection -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp">
+            android:text="How are you feeling?"
+            android:textSize="16sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@android:color/black"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="8dp" />
 
-            <EditText
-                android:id="@+id/edtMood"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Mood (e.g., 😊 Happy)"
-                android:fontFamily="@font/poppins_regular"
-                android:layout_marginTop="12dp"/>
+        <LinearLayout
+            android:id="@+id/layoutMoodSelection"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginBottom="8dp">
 
-        </com.google.android.material.textfield.TextInputLayout>
+            <TextView
+                android:id="@+id/btnMoodHappy"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="😊"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="@drawable/bg_mood_selector"
+                android:layout_margin="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btnMoodSad"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="😢"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="@drawable/bg_mood_selector"
+                android:layout_margin="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btnMoodAngry"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="😠"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="@drawable/bg_mood_selector"
+                android:layout_margin="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btnMoodExcited"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="🤩"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="@drawable/bg_mood_selector"
+                android:layout_margin="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+            <TextView
+                android:id="@+id/btnMoodCalm"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:text="😌"
+                android:textSize="32sp"
+                android:gravity="center"
+                android:background="@drawable/bg_mood_selector"
+                android:layout_margin="4dp"
+                android:clickable="true"
+                android:focusable="true" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtSelectedMood"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Select a mood above"
+            android:textSize="14sp"
+            android:fontFamily="@font/poppins_regular"
+            android:textColor="@android:color/darker_gray"
+            android:gravity="center"
+            android:layout_marginBottom="8dp" />
 
     </LinearLayout>
 </ScrollView>

@@ -105,8 +105,19 @@ public class JournalFragment extends Fragment {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
         EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
         EditText edtContent = dialogView.findViewById(R.id.edtContent);
-        EditText edtMood = dialogView.findViewById(R.id.edtMood);
         EditText edtDate = dialogView.findViewById(R.id.edtDate);
+        
+        // Mood selection views
+        TextView btnMoodHappy = dialogView.findViewById(R.id.btnMoodHappy);
+        TextView btnMoodSad = dialogView.findViewById(R.id.btnMoodSad);
+        TextView btnMoodAngry = dialogView.findViewById(R.id.btnMoodAngry);
+        TextView btnMoodExcited = dialogView.findViewById(R.id.btnMoodExcited);
+        TextView btnMoodCalm = dialogView.findViewById(R.id.btnMoodCalm);
+        TextView txtSelectedMood = dialogView.findViewById(R.id.txtSelectedMood);
+        
+        // Use arrays to make variables effectively final
+        final String[] selectedMood = {""};
+        final String[] selectedMoodEmoji = {""};
 
         //Set default to today
         String today = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date());
@@ -125,6 +136,44 @@ public class JournalFragment extends Fragment {
             datePicker.getDatePicker().setMaxDate(System.currentTimeMillis()); //Prevent future dates
             datePicker.show();
         });
+
+        // Mood selection click listeners
+        View.OnClickListener moodClickListener = v -> {
+            // Reset all mood buttons
+            btnMoodHappy.setSelected(false);
+            btnMoodSad.setSelected(false);
+            btnMoodAngry.setSelected(false);
+            btnMoodExcited.setSelected(false);
+            btnMoodCalm.setSelected(false);
+            
+            // Set selected mood
+            v.setSelected(true);
+            
+            if (v == btnMoodHappy) {
+                selectedMood[0] = "Happy";
+                selectedMoodEmoji[0] = "😊";
+            } else if (v == btnMoodSad) {
+                selectedMood[0] = "Sad";
+                selectedMoodEmoji[0] = "😢";
+            } else if (v == btnMoodAngry) {
+                selectedMood[0] = "Angry";
+                selectedMoodEmoji[0] = "😠";
+            } else if (v == btnMoodExcited) {
+                selectedMood[0] = "Excited";
+                selectedMoodEmoji[0] = "🤩";
+            } else if (v == btnMoodCalm) {
+                selectedMood[0] = "Calm";
+                selectedMoodEmoji[0] = "😌";
+            }
+            
+            txtSelectedMood.setText(selectedMoodEmoji[0] + " " + selectedMood[0]);
+        };
+        
+        btnMoodHappy.setOnClickListener(moodClickListener);
+        btnMoodSad.setOnClickListener(moodClickListener);
+        btnMoodAngry.setOnClickListener(moodClickListener);
+        btnMoodExcited.setOnClickListener(moodClickListener);
+        btnMoodCalm.setOnClickListener(moodClickListener);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
@@ -150,7 +199,6 @@ public class JournalFragment extends Fragment {
             saveBtn.setOnClickListener(v -> {
                 String title = edtTitle.getText().toString().trim();
                 String content = edtContent.getText().toString().trim();
-                String mood = edtMood.getText().toString().trim();
                 String selectedDate = edtDate.getText().toString().trim();
 
                 // Validate content
@@ -186,8 +234,9 @@ public class JournalFragment extends Fragment {
                     return;
                 }
 
-                if (mood.isEmpty()) {
-                    edtMood.setError("Mood is required");
+                if (selectedMood[0].isEmpty()) {
+                    txtSelectedMood.setTextColor(ContextCompat.getColor(requireContext(), R.color.darkred));
+                    txtSelectedMood.setText("Please select a mood");
                     return;
                 }
 
@@ -197,7 +246,7 @@ public class JournalFragment extends Fragment {
                         selectedDate,
                         title.isEmpty() ? "Untitled Entry" : title,
                         content,
-                        mood
+                        selectedMoodEmoji[0] + " " + selectedMood[0]
                 );
 
                 Log.d("JournalSubmit", "Preparing to submit journal entry:");
@@ -205,12 +254,16 @@ public class JournalFragment extends Fragment {
                 Log.d("JournalSubmit", "Date: " + selectedDate);
                 Log.d("JournalSubmit", "Title: " + title);
                 Log.d("JournalSubmit", "Content: " + content);
-                Log.d("JournalSubmit", "Mood: " + mood);
+                Log.d("JournalSubmit", "Mood: " + selectedMoodEmoji[0] + " " + selectedMood[0]);
 
 
+                // Add entry to list immediately for better UX
+                journalEntries.add(0, entry); // Add to top of list
+                adapter.notifyItemInserted(0);
+                saveToPreferences();
+                
+                // Scroll to top to show new entry
                 recyclerView.scrollToPosition(0);
-
-                saveToPreferences(); //Save the updated list
 
                 //Submit to server using Retrofit
                 JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
@@ -220,10 +273,17 @@ public class JournalFragment extends Fragment {
                     public void onResponse(Call<JournalEntry> call, Response<JournalEntry> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             JournalEntry savedEntry = response.body(); // ✅ Has correct journalId from backend
-                            //making sure the entry is the right journal ID
+                            // Update the entry with the correct journalId from server
                             if (savedEntry != null) {
-                                journalEntries.add(savedEntry);
-                                adapter.notifyItemInserted(journalEntries.size() - 1);
+                                // Find and update the entry in the list
+                                for (int i = 0; i < journalEntries.size(); i++) {
+                                    if (journalEntries.get(i).getDate().equals(savedEntry.getDate()) && 
+                                        journalEntries.get(i).getContent().equals(savedEntry.getContent())) {
+                                        journalEntries.set(i, savedEntry);
+                                        adapter.notifyItemChanged(i);
+                                        break;
+                                    }
+                                }
                                 saveToPreferences();
                             }
 
@@ -232,6 +292,11 @@ public class JournalFragment extends Fragment {
                                     .setTextColor(Color.WHITE)
                                     .show();
                         } else {
+                            // Remove the entry if server save failed
+                            journalEntries.remove(0);
+                            adapter.notifyItemRemoved(0);
+                            saveToPreferences();
+                            
                             Snackbar.make(requireView(), "Error occurred.", Snackbar.LENGTH_SHORT)
                                     .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.darkred))
                                     .setTextColor(Color.WHITE)
@@ -241,6 +306,11 @@ public class JournalFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<JournalEntry> call, Throwable t) {
+                        // Remove the entry if network failed
+                        journalEntries.remove(0);
+                        adapter.notifyItemRemoved(0);
+                        saveToPreferences();
+                        
                         Toast.makeText(getContext(), "Failed to connect to server.", Toast.LENGTH_SHORT).show();
                     }
                 });
@@ -264,14 +334,90 @@ public class JournalFragment extends Fragment {
 
         EditText edtTitle = dialogView.findViewById(R.id.edtTitle);
         EditText edtContent = dialogView.findViewById(R.id.edtContent);
-        EditText edtMood = dialogView.findViewById(R.id.edtMood);
         EditText edtDate = dialogView.findViewById(R.id.edtDate);
+        
+        // Mood selection views
+        TextView btnMoodHappy = dialogView.findViewById(R.id.btnMoodHappy);
+        TextView btnMoodSad = dialogView.findViewById(R.id.btnMoodSad);
+        TextView btnMoodAngry = dialogView.findViewById(R.id.btnMoodAngry);
+        TextView btnMoodExcited = dialogView.findViewById(R.id.btnMoodExcited);
+        TextView btnMoodCalm = dialogView.findViewById(R.id.btnMoodCalm);
+        TextView txtSelectedMood = dialogView.findViewById(R.id.txtSelectedMood);
+        
+        // Use arrays to make variables effectively final
+        final String[] selectedMood = {""};
+        final String[] selectedMoodEmoji = {""};
 
         //Populate fields with existing data
         edtTitle.setText(entry.getTitle());
         edtContent.setText(entry.getContent());
-        edtMood.setText(entry.getMood());
         edtDate.setText(entry.getDate());
+        
+        // Parse existing mood and set selection
+        String existingMood = entry.getMood();
+        if (existingMood.contains("😊")) {
+            selectedMood[0] = "Happy";
+            selectedMoodEmoji[0] = "😊";
+            btnMoodHappy.setSelected(true);
+        } else if (existingMood.contains("😢")) {
+            selectedMood[0] = "Sad";
+            selectedMoodEmoji[0] = "😢";
+            btnMoodSad.setSelected(true);
+        } else if (existingMood.contains("😠")) {
+            selectedMood[0] = "Angry";
+            selectedMoodEmoji[0] = "😠";
+            btnMoodAngry.setSelected(true);
+        } else if (existingMood.contains("🤩")) {
+            selectedMood[0] = "Excited";
+            selectedMoodEmoji[0] = "🤩";
+            btnMoodExcited.setSelected(true);
+        } else if (existingMood.contains("😌")) {
+            selectedMood[0] = "Calm";
+            selectedMoodEmoji[0] = "😌";
+            btnMoodCalm.setSelected(true);
+        }
+        
+        if (!selectedMood[0].isEmpty()) {
+            txtSelectedMood.setText(selectedMoodEmoji[0] + " " + selectedMood[0]);
+        }
+
+        // Mood selection click listeners
+        View.OnClickListener moodClickListener = v -> {
+            // Reset all mood buttons
+            btnMoodHappy.setSelected(false);
+            btnMoodSad.setSelected(false);
+            btnMoodAngry.setSelected(false);
+            btnMoodExcited.setSelected(false);
+            btnMoodCalm.setSelected(false);
+            
+            // Set selected mood
+            v.setSelected(true);
+            
+            if (v == btnMoodHappy) {
+                selectedMood[0] = "Happy";
+                selectedMoodEmoji[0] = "😊";
+            } else if (v == btnMoodSad) {
+                selectedMood[0] = "Sad";
+                selectedMoodEmoji[0] = "😢";
+            } else if (v == btnMoodAngry) {
+                selectedMood[0] = "Angry";
+                selectedMoodEmoji[0] = "😠";
+            } else if (v == btnMoodExcited) {
+                selectedMood[0] = "Excited";
+                selectedMoodEmoji[0] = "🤩";
+            } else if (v == btnMoodCalm) {
+                selectedMood[0] = "Calm";
+                selectedMoodEmoji[0] = "😌";
+            }
+            
+            txtSelectedMood.setText(selectedMoodEmoji[0] + " " + selectedMood[0]);
+        };
+        
+        btnMoodHappy.setOnClickListener(moodClickListener);
+        btnMoodSad.setOnClickListener(moodClickListener);
+        btnMoodAngry.setOnClickListener(moodClickListener);
+        btnMoodExcited.setOnClickListener(moodClickListener);
+        btnMoodCalm.setOnClickListener(moodClickListener);
 
         //Date picker
         edtDate.setOnClickListener(v -> {
@@ -319,7 +465,6 @@ public class JournalFragment extends Fragment {
             updateBtn.setOnClickListener(v -> {
                 String newTitle = edtTitle.getText().toString().trim();
                 String newContent = edtContent.getText().toString().trim();
-                String newMood = edtMood.getText().toString().trim();
                 String newDate = edtDate.getText().toString().trim();
 
                 if (newContent.isEmpty()) {
@@ -352,7 +497,7 @@ public class JournalFragment extends Fragment {
                 // THEN update the other fields
                 entry.setTitle(newTitle.isEmpty() ? "Untitled Entry" : newTitle);
                 entry.setContent(newContent);
-                entry.setMood(newMood);
+                entry.setMood(selectedMoodEmoji + " " + selectedMood);
                 entry.setDate(newDate);
 
 
