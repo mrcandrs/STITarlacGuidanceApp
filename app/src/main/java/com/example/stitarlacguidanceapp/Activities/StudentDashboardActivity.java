@@ -1,9 +1,15 @@
 package com.example.stitarlacguidanceapp.Activities;
 
+import android.Manifest;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -15,6 +21,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
@@ -33,6 +43,7 @@ import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.Models.Quote;
 import com.example.stitarlacguidanceapp.Models.StudentUpdateRequest;
 import com.example.stitarlacguidanceapp.Models.MoodCooldownResponse;
+import com.example.stitarlacguidanceapp.NotificationHelper;
 import com.example.stitarlacguidanceapp.QuoteAdapter;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
@@ -83,6 +94,13 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
     private final Handler cooldownHandler = new Handler(Looper.getMainLooper());
     private Runnable cooldownRunnable;
+    
+    // Notification constants
+    private static final String CHANNEL_ID = "mood_tracker_notifications";
+    private static final int NOTIFICATION_ID = 1001;
+    
+    // NotificationHelper instance
+    private NotificationHelper notificationHelper;
 
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
@@ -105,11 +123,20 @@ public class StudentDashboardActivity extends AppCompatActivity {
         root = ActivityStudentDashboardBinding.inflate(getLayoutInflater());
         setContentView(root.getRoot());
 
+        // Initialize NotificationHelper
+        notificationHelper = new NotificationHelper(this);
+
         //load the student's info in profile
         loadStudentInfo();
 
         //Mood Tracker cooldown
         setupMoodTrackerCooldown();
+        
+        // Check if Mood Tracker is available and highlight it
+        checkAndHighlightMoodTracker();
+
+        // For testing Mood Tracker when available
+        //simulateMoodTrackerAvailable();
 
         //Edit Inventory Form button
         root.btnEditInventoryForm.setOnClickListener(v -> editInventoryForm());
@@ -150,6 +177,7 @@ public class StudentDashboardActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
     }
+    
 
     //for edit inventory form
     private void editInventoryForm() {
@@ -373,6 +401,282 @@ public class StudentDashboardActivity extends AppCompatActivity {
         cooldownHandler.post(cooldownRunnable);
     }
 
+    private void checkAndHighlightMoodTracker() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        
+        // Check if Mood Tracker has been used since last highlighting
+        String highlightKey = "mood_tracker_highlighted_" + studentId;
+        boolean hasBeenHighlighted = prefs.getBoolean(highlightKey, false);
+        
+        // Use server-side cooldown check instead of local
+        checkServerCooldownForHighlighting(studentId, hasBeenHighlighted);
+    }
+    
+    private void checkServerCooldownForHighlighting(int studentId, boolean hasBeenHighlighted) {
+        MoodTrackerApi apiService = ApiClient.getClient().create(MoodTrackerApi.class);
+        Call<MoodCooldownResponse> call = apiService.checkCooldown(studentId);
+
+        call.enqueue(new Callback<MoodCooldownResponse>() {
+            @Override
+            public void onResponse(Call<MoodCooldownResponse> call, Response<MoodCooldownResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    MoodCooldownResponse cooldownResponse = response.body();
+                    
+                    // If Mood Tracker is available and hasn't been highlighted yet, highlight it
+                    if (cooldownResponse.isCanTakeMoodTracker() && !hasBeenHighlighted) {
+                        highlightMoodTrackerButton();
+                    }
+                } else {
+                    // Fallback to local check if server fails
+                    Log.e("MoodTracker", "Server cooldown check failed for highlighting, falling back to local check");
+                    fallbackToLocalHighlightingCheck(studentId, hasBeenHighlighted);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoodCooldownResponse> call, Throwable t) {
+                Log.e("MoodTracker", "Network error checking cooldown for highlighting: " + t.getMessage());
+                // Fallback to local check if network fails
+                fallbackToLocalHighlightingCheck(studentId, hasBeenHighlighted);
+            }
+        });
+    }
+    
+    private void fallbackToLocalHighlightingCheck(int studentId, boolean hasBeenHighlighted) {
+        SharedPreferences moodPrefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
+        long lastTakenMillis = moodPrefs.getLong("lastMoodTimestamp", 0);
+        long now = System.currentTimeMillis();
+        long timeLeft = COOLDOWN_PERIOD - (now - lastTakenMillis);
+        
+        // If Mood Tracker is available and hasn't been highlighted yet, highlight it
+        if (timeLeft <= 0 && !hasBeenHighlighted) {
+            highlightMoodTrackerButton();
+        }
+    }
+    
+    private void highlightMoodTrackerButton() {
+        CardView moodCard = findViewById(R.id.cv_MoodTracker);
+        TextView newBadge = findViewById(R.id.txtNewBadge);
+        
+        if (moodCard != null) {
+            // Set the highlighted background
+            moodCard.setCardBackgroundColor(getResources().getColor(R.color.blue_light));
+            
+            // Show the "READY" badge instead of "NEW"
+            if (newBadge != null) {
+                newBadge.setText("READY");
+                newBadge.setVisibility(View.VISIBLE);
+            }
+            
+            // Add a pulsing animation that repeats
+            startPulsingAnimation(moodCard);
+            
+            // Show notification using NotificationHelper
+            SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+            String studentName = prefs.getString("fullName", "Student");
+            notificationHelper.showMoodTrackerReadyNotification(studentName);
+            
+            // Mark as highlighted so it persists until used
+            int studentId = prefs.getInt("studentId", -1);
+            String highlightKey = "mood_tracker_highlighted_" + studentId;
+            prefs.edit().putBoolean(highlightKey, true).apply();
+        }
+    }
+    
+    private void startPulsingAnimation(CardView cardView) {
+        // Create a continuous pulsing animation that repeats every 3 seconds
+        Runnable pulseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                cardView.animate()
+                        .scaleX(1.15f)
+                        .scaleY(1.15f)
+                        .setDuration(500)
+                        .withEndAction(() -> {
+                            cardView.animate()
+                                    .scaleX(1.0f)
+                                    .scaleY(1.0f)
+                                    .setDuration(500)
+                                    .withEndAction(() -> {
+                                        // Schedule next pulse in 3 seconds
+                                        new Handler(Looper.getMainLooper()).postDelayed(this, 3000);
+                                    })
+                                    .start();
+                        })
+                        .start();
+            }
+        };
+        
+        // Start the first pulse after a short delay
+        new Handler(Looper.getMainLooper()).postDelayed(pulseRunnable, 1000);
+    }
+    
+    // Restore highlighting state when dashboard resumes
+    private void restoreMoodTrackerHighlighting() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        
+        // Check if Mood Tracker should be highlighted
+        String highlightKey = "mood_tracker_highlighted_" + studentId;
+        boolean shouldBeHighlighted = prefs.getBoolean(highlightKey, false);
+        
+        if (shouldBeHighlighted) {
+            // Check if Mood Tracker is still available (not on cooldown)
+            SharedPreferences moodPrefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
+            long lastTakenMillis = moodPrefs.getLong("lastMoodTimestamp", 0);
+            long now = System.currentTimeMillis();
+            long timeLeft = COOLDOWN_PERIOD - (now - lastTakenMillis);
+            
+            // If still available, restore the highlighting
+            if (timeLeft <= 0) {
+                CardView moodCard = findViewById(R.id.cv_MoodTracker);
+                TextView readyBadge = findViewById(R.id.txtNewBadge);
+                
+                if (moodCard != null) {
+                    // Restore visual highlighting
+                    moodCard.setCardBackgroundColor(getResources().getColor(R.color.blue_light));
+                    
+                    if (readyBadge != null) {
+                        readyBadge.setText("READY");
+                        readyBadge.setVisibility(View.VISIBLE);
+                    }
+                    
+                    // Restart pulsing animation
+                    startPulsingAnimation(moodCard);
+                }
+            } else {
+                // Cooldown is active, clear highlighting flag
+                prefs.edit().putBoolean(highlightKey, false).apply();
+            }
+        }
+    }
+    
+    
+    // Clear highlighting when user uses the Mood Tracker
+    private void clearMoodTrackerHighlighting() {
+        CardView moodCard = findViewById(R.id.cv_MoodTracker);
+        TextView readyBadge = findViewById(R.id.txtNewBadge);
+        
+        if (moodCard != null) {
+            // Reset background color
+            moodCard.setCardBackgroundColor(getResources().getColor(R.color.white));
+            moodCard.clearAnimation();
+            
+            // Hide the READY badge
+            if (readyBadge != null) {
+                readyBadge.setVisibility(View.GONE);
+            }
+            
+            // Mark as not highlighted so it can be highlighted again next time
+            SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+            int studentId = prefs.getInt("studentId", -1);
+            String highlightKey = "mood_tracker_highlighted_" + studentId;
+            prefs.edit().putBoolean(highlightKey, false).apply();
+        }
+    }
+    
+    // Static method to clear highlighting from other activities/fragments
+    public static void clearMoodTrackerHighlighting(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        String highlightKey = "mood_tracker_highlighted_" + studentId;
+        prefs.edit().putBoolean(highlightKey, false).apply();
+    }
+    
+    // Static method to check and show notification from anywhere
+    public static void checkAndShowMoodTrackerNotification(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        
+        if (studentId == -1) return; // No student logged in
+        
+        // Check if Mood Tracker has been highlighted since last use
+        String highlightKey = "mood_tracker_highlighted_" + studentId;
+        boolean hasBeenHighlighted = prefs.getBoolean(highlightKey, false);
+        
+        // Use server-side cooldown check instead of local
+        checkServerCooldownForNotification(context, studentId, hasBeenHighlighted);
+    }
+    
+    private static void checkServerCooldownForNotification(Context context, int studentId, boolean hasBeenHighlighted) {
+        MoodTrackerApi apiService = ApiClient.getClient().create(MoodTrackerApi.class);
+        Call<MoodCooldownResponse> call = apiService.checkCooldown(studentId);
+
+        call.enqueue(new Callback<MoodCooldownResponse>() {
+            @Override
+            public void onResponse(Call<MoodCooldownResponse> call, Response<MoodCooldownResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    MoodCooldownResponse cooldownResponse = response.body();
+                    
+                    // If Mood Tracker is available and hasn't been highlighted yet, show notification
+                    if (cooldownResponse.isCanTakeMoodTracker() && !hasBeenHighlighted) {
+                        // Get student name for notification
+                        SharedPreferences prefs = context.getSharedPreferences("student_session", Context.MODE_PRIVATE);
+                        String studentName = prefs.getString("fullName", "Student");
+                        
+                        // Show notification using NotificationHelper
+                        NotificationHelper notificationHelper = new NotificationHelper(context);
+                        notificationHelper.showMoodTrackerReadyNotification(studentName);
+                        
+                        // Mark as highlighted so it doesn't show again until used
+                        prefs.edit().putBoolean("mood_tracker_highlighted_" + studentId, true).apply();
+                    }
+                } else {
+                    // Fallback to local check if server fails
+                    Log.e("MoodTracker", "Server cooldown check failed for notification, falling back to local check");
+                    fallbackToLocalNotificationCheck(context, studentId, hasBeenHighlighted);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MoodCooldownResponse> call, Throwable t) {
+                Log.e("MoodTracker", "Network error checking cooldown for notification: " + t.getMessage());
+                // Fallback to local check if network fails
+                fallbackToLocalNotificationCheck(context, studentId, hasBeenHighlighted);
+            }
+        });
+    }
+    
+    private static void fallbackToLocalNotificationCheck(Context context, int studentId, boolean hasBeenHighlighted) {
+        SharedPreferences moodPrefs = context.getSharedPreferences("MoodPrefs_" + studentId, Context.MODE_PRIVATE);
+        long lastTakenMillis = moodPrefs.getLong("lastMoodTimestamp", 0);
+        long now = System.currentTimeMillis();
+        long timeLeft = (24 * 60 * 60 * 1000) - (now - lastTakenMillis); // 24 hours
+        
+        // If Mood Tracker is available and hasn't been highlighted yet, show notification
+        if (timeLeft <= 0 && !hasBeenHighlighted) {
+            // Get student name for notification
+            SharedPreferences prefs = context.getSharedPreferences("student_session", Context.MODE_PRIVATE);
+            String studentName = prefs.getString("fullName", "Student");
+            
+            // Show notification using NotificationHelper
+            NotificationHelper notificationHelper = new NotificationHelper(context);
+            notificationHelper.showMoodTrackerReadyNotification(studentName);
+            
+            // Mark as highlighted so it doesn't show again until used
+            prefs.edit().putBoolean("mood_tracker_highlighted_" + studentId, true).apply();
+        }
+    }
+    
+    
+    // Method for testing - simulates Mood Tracker being available
+    private void simulateMoodTrackerAvailable() {
+        SharedPreferences prefs = getSharedPreferences("student_session", MODE_PRIVATE);
+        int studentId = prefs.getInt("studentId", -1);
+        
+        // Reset the highlighting flag to simulate availability
+        String highlightKey = "mood_tracker_highlighted_" + studentId;
+        prefs.edit().putBoolean(highlightKey, false).apply();
+        
+        // Clear any existing cooldown to make it available
+        SharedPreferences moodPrefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
+        moodPrefs.edit().remove("lastMoodTimestamp").apply();
+        
+        // Trigger the highlighting
+        highlightMoodTrackerButton();
+    }
+
     private void fallbackToLocalCooldown(int studentId, TextView txtCooldown, CardView moodCard) {
         SharedPreferences prefs = getSharedPreferences("MoodPrefs_" + studentId, MODE_PRIVATE);
         long lastTakenMillis = prefs.getLong("lastMoodTimestamp", 0);
@@ -436,6 +740,12 @@ public class StudentDashboardActivity extends AppCompatActivity {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
         loadStudentInfo();
+        
+        // Restore highlighting state if it should be highlighted
+        restoreMoodTrackerHighlighting();
+        
+        // Check for Mood Tracker notification when app comes to foreground
+        checkAndShowMoodTrackerNotification(this);
     }
 
     @Override

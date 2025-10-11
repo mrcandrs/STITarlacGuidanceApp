@@ -101,4 +101,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Check for Mood Tracker notification when app comes to foreground
+        StudentDashboardActivity.checkAndShowMoodTrackerNotification(this);
+    }
 }

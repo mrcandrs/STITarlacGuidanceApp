@@ -210,6 +210,30 @@ public class NotificationHelper {
         showNotificationSafely(3, builder, "reminder");
     }
 
+    public void showMoodTrackerReadyNotification(String studentName) {
+        Log.d(TAG, "showMoodTrackerReadyNotification called for: " + studentName);
+
+        Intent intent = new Intent(context, com.example.stitarlacguidanceapp.Activities.MoodTrackerActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(
+                context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
+                .setSmallIcon(R.drawable.smile)
+                .setContentTitle("🎯 Mood Tracker Ready!")
+                .setContentText("Track your daily emotions - it's time for your mood check-in")
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText("Hello " + studentName + "! Your Mood Tracker is ready for today. " +
+                                "Take a moment to track your emotions and help us understand how you're feeling."))
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setAutoCancel(true)
+                .setContentIntent(pendingIntent)
+                .setVibrate(new long[]{0, 300, 200, 300})
+                .setLights(0xFF2196F3, 1000, 1000);
+
+        showNotificationSafely(4, builder, "mood_tracker_ready");
+    }
+
     // Method to check if notifications are available
     public boolean canShowNotifications() {
         return areNotificationsEnabled();

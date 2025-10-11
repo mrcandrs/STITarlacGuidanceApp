@@ -126,6 +126,9 @@ public class MoodTrackerResultFragment extends Fragment {
         //Save current time to SharedPreferences for cooldown
         SharedPreferences moodPrefs = requireActivity().getSharedPreferences("MoodPrefs_" + studentId, Context.MODE_PRIVATE);
         moodPrefs.edit().putLong("lastMoodTimestamp", System.currentTimeMillis()).apply();
+        
+        // Clear highlighting since mood tracking is now completed
+        StudentDashboardActivity.clearMoodTrackerHighlighting(requireContext());
 
 
         root.btnReturnDashboard.setOnClickListener(v -> {
