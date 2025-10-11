@@ -66,7 +66,7 @@ public class JournalFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_journal, container, false);
         recyclerView = view.findViewById(R.id.recyclerJournal);
-        TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage);
+        final TextView txtEmptyMessage = view.findViewById(R.id.txtEmptyMessage);
 
         prefs = requireContext().getSharedPreferences("journal_prefs", Context.MODE_PRIVATE);
 
@@ -316,6 +316,7 @@ public class JournalFragment extends Fragment {
             updateBtn.setTextSize(16);
             cancelBtn.setTextSize(16);
 
+            final int finalPosition = position;
             updateBtn.setOnClickListener(v -> {
                 String newTitle = edtTitle.getText().toString().trim();
                 String newContent = edtContent.getText().toString().trim();
@@ -368,7 +369,7 @@ public class JournalFragment extends Fragment {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                         if (response.isSuccessful()) {
-                            adapter.notifyItemChanged(position);
+                            adapter.notifyItemChanged(finalPosition);
                             saveToPreferences();
                             checkEmptyList(requireView().findViewById(R.id.txtEmptyMessage));
                             Snackbar.make(requireView(), "Journal updated.", Snackbar.LENGTH_SHORT)
