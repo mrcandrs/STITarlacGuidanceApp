@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -401,30 +402,104 @@ public class InventoryFormActivity extends AppCompatActivity {
     }
 
     private void addWorkView() {
-        if (root.workContainer.getChildCount() >= 5) {
+        if (root.workContainer.getChildCount() >= 10) { // 5 pairs of label + view = 10 children
             Toast.makeText(this, "Maximum of 5 work experiences only.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Calculate work experience number based on actual work experiences (not total children)
+        int workCount = (root.workContainer.getChildCount() / 2) + 1;
+        
+        // Create label for work experience
+        TextView workLabel = new TextView(this);
+        workLabel.setText("Work Experience " + workCount);
+        workLabel.setTextSize(16);
+        workLabel.setTextColor(getResources().getColor(R.color.blue));
+        
+        // Fix API level compatibility for font
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            workLabel.setTypeface(getResources().getFont(R.font.poppins_semibold));
+        } else {
+            workLabel.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        }
+        workLabel.setPadding(0, 16, 0, 8);
+        
         WorkRowBinding workBinding = WorkRowBinding.inflate(getLayoutInflater(), root.workContainer, false);
         View workView = workBinding.getRoot();
-        workBinding.btnRemoveWork.setOnClickListener(v -> root.workContainer.removeView(workView));
+        workBinding.btnRemoveWork.setOnClickListener(v -> {
+            root.workContainer.removeView(workView);
+            root.workContainer.removeView(workLabel);
+            updateWorkLabels(); // Update remaining labels
+        });
+        
+        root.workContainer.addView(workLabel);
         root.workContainer.addView(workView);
     }
 
 
     private void addSiblingView() {
-        if (root.siblingContainer.getChildCount() >= 5) {
+        if (root.siblingContainer.getChildCount() >= 10) { // 5 pairs of label + view = 10 children
             Toast.makeText(this, "Maximum of 5 siblings only.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Calculate sibling number based on actual siblings (not total children)
+        int siblingCount = (root.siblingContainer.getChildCount() / 2) + 1;
+        
+        // Create label for sibling
+        TextView siblingLabel = new TextView(this);
+        siblingLabel.setText("Sibling " + siblingCount);
+        siblingLabel.setTextSize(16);
+        siblingLabel.setTextColor(getResources().getColor(R.color.blue));
+        
+        // Fix API level compatibility for font
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            siblingLabel.setTypeface(getResources().getFont(R.font.poppins_semibold));
+        } else {
+            siblingLabel.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        }
+        siblingLabel.setPadding(0, 16, 0, 8);
+        
         SiblingRowBinding siblingBinding = SiblingRowBinding.inflate(getLayoutInflater(), root.siblingContainer, false);
         View siblingView = siblingBinding.getRoot();
-        siblingBinding.btnRemoveSibling.setOnClickListener(v -> root.siblingContainer.removeView(siblingView));
+        siblingBinding.btnRemoveSibling.setOnClickListener(v -> {
+            root.siblingContainer.removeView(siblingView);
+            root.siblingContainer.removeView(siblingLabel);
+            updateSiblingLabels(); // Update remaining labels
+        });
+        
+        root.siblingContainer.addView(siblingLabel);
         root.siblingContainer.addView(siblingView);
     }
 
+
+    private void updateWorkLabels() {
+        int workCount = 0;
+        for (int i = 0; i < root.workContainer.getChildCount(); i++) {
+            View child = root.workContainer.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView label = (TextView) child;
+                if (label.getText().toString().startsWith("Work Experience")) {
+                    workCount++;
+                    label.setText("Work Experience " + workCount);
+                }
+            }
+        }
+    }
+
+    private void updateSiblingLabels() {
+        int siblingCount = 0;
+        for (int i = 0; i < root.siblingContainer.getChildCount(); i++) {
+            View child = root.siblingContainer.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView label = (TextView) child;
+                if (label.getText().toString().startsWith("Sibling")) {
+                    siblingCount++;
+                    label.setText("Sibling " + siblingCount);
+                }
+            }
+        }
+    }
 
     private boolean isValidEmail(String email) {
         return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches();
