@@ -36,6 +36,7 @@ public class InventoryFormActivity extends AppCompatActivity {
     private ActivityInventoryFormBinding root;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private boolean isSubmitting = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,82 +50,110 @@ public class InventoryFormActivity extends AppCompatActivity {
         // Load student name from Client Consent Form and disable the field
         loadDataFromConsentForm();
 
-        //Live validation for full name
+        //Enhanced live validation for full name
         addLiveValidation(root.edtFullName, input -> {
-            return input.isEmpty() ? "Full name is required" : null;
+            if (isEmpty(input)) return "Full name is required";
+            if (input.length() < 2) return "Name must be at least 2 characters";
+            if (input.length() > 100) return "Name must not exceed 100 characters";
+            if (!input.matches("^[a-zA-Z\\s\\-\\.']+$")) return "Name contains invalid characters";
+            if (input.contains("  ")) return "Name cannot contain multiple consecutive spaces";
+            return null;
         });
 
-
-        //Live validation for student number
+        //Enhanced live validation for student number
         addLiveValidation(root.edtStudentNumber, input -> {
-            return input.matches("\\d{11}") ? null : "Student Number must be 11 digits";
+            if (isEmpty(input)) return "Student Number is required";
+            if (!input.matches("\\d{11}")) return "Student Number must be exactly 11 digits";
+            return null;
         });
 
-        //Live validation for email 1
+        //Enhanced live validation for program
+        addLiveValidation(root.edtProgram, input -> {
+            if (isEmpty(input)) return "Program is required";
+            if (input.length() < 3) return "Program must be at least 3 characters";
+            if (input.length() > 100) return "Program must not exceed 100 characters";
+            return null;
+        });
+
+        //Enhanced live validation for email 1
         addLiveValidation(root.edtEmail1, input -> {
-            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+            if (isEmpty(input)) return "Email is required";
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) return "Invalid email address";
+            return null;
         });
 
-        //Live validation for email 2
+        //Enhanced live validation for email 2
         addLiveValidation(root.edtEmail2, input -> {
-            return android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches() ? null : "Invalid email address";
+            if (!isEmpty(input) && !android.util.Patterns.EMAIL_ADDRESS.matcher(input).matches()) {
+                return "Invalid email address";
+            }
+            return null;
         });
 
-        //Live validation for phone number
+        //Enhanced live validation for phone number
         addLiveValidation(root.edtPhone, input -> {
-            return input.matches("\\d{11}") ? null : "Phone must be 11 digits";
+            if (isEmpty(input)) return "Phone number is required";
+            if (!input.matches("\\d{11}")) return "Phone must be exactly 11 digits";
+            return null;
         });
 
-        //Live validation for guardian number
+        //Enhanced live validation for guardian number
         addLiveValidation(root.edtGuardianContact, input -> {
-            return input.matches("\\d{11}") ? null : "Guardian Contact must be 11 digits";
+            if (!isEmpty(input) && !input.matches("\\d{11}")) {
+                return "Guardian Contact must be exactly 11 digits";
+            }
+            return null;
         });
 
 
-        //Gender spinner populate
+        //Gender AutoCompleteTextView populate
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
-                this, R.array.inventory_form_gender_options, android.R.layout.simple_spinner_item);
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.inventory_form_gender_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerGender.setAdapter(genderAdapter);
+        root.spinnerGender.setThreshold(0);
+        root.spinnerGender.setOnClickListener(v -> root.spinnerGender.showDropDown());
 
-        //Civil status spinner populate
+        //Civil status AutoCompleteTextView populate
         ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(
-                this, R.array.civil_status_options, android.R.layout.simple_spinner_item);
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.civil_status_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerStatus.setAdapter(statusAdapter);
+        root.spinnerStatus.setThreshold(0);
+        root.spinnerStatus.setOnClickListener(v -> root.spinnerStatus.showDropDown());
 
-        root.spinnerGender.setSelection(0);
-        root.spinnerStatus.setSelection(0);
-
-        //Parents status spinner populate
+        //Parents status AutoCompleteTextView populate
         ArrayAdapter<CharSequence> parentStatusAdapter = ArrayAdapter.createFromResource(
-                this, R.array.parent_status_options, android.R.layout.simple_spinner_item);
-        parentStatusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.parent_status_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerFatherStatus.setAdapter(parentStatusAdapter);
+        root.spinnerFatherStatus.setThreshold(0);
+        root.spinnerFatherStatus.setOnClickListener(v -> root.spinnerFatherStatus.showDropDown());
+        
         root.spinnerMotherStatus.setAdapter(parentStatusAdapter);
+        root.spinnerMotherStatus.setThreshold(0);
+        root.spinnerMotherStatus.setOnClickListener(v -> root.spinnerMotherStatus.showDropDown());
 
         //When married, shows the spouse EditText sections
-        root.spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object selected = root.spinnerStatus.getSelectedItem();
-                if (selected != null && selected.toString().equals("Married")) {
-                    root.layoutSpouse.setVisibility(View.VISIBLE);
-                } else {
-                    root.layoutSpouse.setVisibility(View.GONE);
-
-                    root.edtSpouseName.setText("");
-                    root.edtSpouseAge.setText("");
-                    root.edtSpouseOccupation.setText("");
-                    root.edtSpouseContact.setText("");
-                }
+        root.spinnerStatus.setOnItemClickListener((parent, view, position, id) -> {
+            String selected = root.spinnerStatus.getText().toString();
+            if (selected.equals("Married")) {
+                root.layoutSpouse.setVisibility(View.VISIBLE);
+            } else {
+                root.layoutSpouse.setVisibility(View.GONE);
+                root.edtSpouseName.setText("");
+                root.edtSpouseAge.setText("");
+                root.edtSpouseOccupation.setText("");
+                root.edtSpouseContact.setText("");
             }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         root.btnAddWork.setOnClickListener(v -> addWorkView());
         root.btnAddSibling.setOnClickListener(v -> addSiblingView());
-        root.btnSubmit.setOnClickListener(v -> checkDuplicateThenSave());
+        root.btnSubmit.setOnClickListener(v -> {
+            if (isSubmitting) {
+                Toast.makeText(this, "Please wait, form is being submitted...", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            checkDuplicateThenSave();
+        });
         root.edtBirthday.setOnClickListener(v -> showBirthdayDatePicker());
         root.edtLastDoctorVisit.setOnClickListener(v -> showLastDoctorVisitDatePicker());
 
@@ -224,7 +253,7 @@ public class InventoryFormActivity extends AppCompatActivity {
         editor.putString("Nickname", safeText(root.edtNickname));
 
         editor.putString("Nationality", safeText(root.edtNationality));
-        Object gender = root.spinnerGender.getSelectedItem();
+        Object gender = root.spinnerGender.getText().toString();
         editor.putString("Gender", gender != null ? gender.toString() : "");
         editor.putString("Religion", safeText(root.edtReligion));
         editor.putString("Birthday", safeText(root.edtBirthday));
@@ -237,7 +266,7 @@ public class InventoryFormActivity extends AppCompatActivity {
         editor.putString("PermanentAddress", safeText(root.edtPermanentAddress));
         editor.putString("ProvincialAddress", safeText(root.edtProvincialAddress));
 
-        Object civilStatus = root.spinnerStatus.getSelectedItem();
+        Object civilStatus = root.spinnerStatus.getText().toString();
         editor.putString("CivilStatus", civilStatus != null ? civilStatus.toString() : "");
 
         if (root.layoutSpouse.getVisibility() == View.VISIBLE) {
@@ -257,14 +286,14 @@ public class InventoryFormActivity extends AppCompatActivity {
         editor.putString("FatherOccupation", safeText(root.edtFatherOccupation));
         editor.putString("FatherContact", safeText(root.edtFatherContactNo));
         editor.putString("FatherIncome", safeText(root.edtFatherIncome));
-        Object fatherStatus = root.spinnerFatherStatus.getSelectedItem();
+        Object fatherStatus = root.spinnerFatherStatus.getText().toString();
         editor.putString("FatherStatus", fatherStatus != null ? fatherStatus.toString() : "");
 
         editor.putString("MotherName", safeText(root.edtMotherName));
         editor.putString("MotherOccupation", safeText(root.edtMotherOccupation));
         editor.putString("MotherContact", safeText(root.edtMotherContactNo));
         editor.putString("MotherIncome", safeText(root.edtMotherIncome));
-        Object motherStatus = root.spinnerMotherStatus.getSelectedItem();
+        Object motherStatus = root.spinnerMotherStatus.getText().toString();
         editor.putString("MotherStatus", motherStatus != null ? motherStatus.toString() : "");
 
         editor.putString("GuardianName", safeText(root.edtGuardianName));
@@ -418,6 +447,55 @@ public class InventoryFormActivity extends AppCompatActivity {
         //For simplicity, just check non-empty or add real date parsing if needed
         return !isEmpty(date);
     }
+    
+    /**
+     * Enhanced name validation with comprehensive checks
+     */
+    private boolean isValidName(String name) {
+        if (isEmpty(name)) return false;
+        
+        // Check minimum length
+        if (name.trim().length() < 2) return false;
+        
+        // Check maximum length
+        if (name.length() > 100) return false;
+        
+        // Check for valid characters (letters, spaces, hyphens, periods, apostrophes)
+        if (!name.matches("^[a-zA-Z\\s\\-\\.']+$")) return false;
+        
+        // Check for multiple consecutive spaces
+        if (name.contains("  ")) return false;
+        
+        return true;
+    }
+    
+    /**
+     * Enhanced student number validation
+     */
+    private boolean isValidStudentNumber(String studentNumber) {
+        if (isEmpty(studentNumber)) return false;
+        
+        // Must be exactly 11 digits
+        if (!studentNumber.matches("\\d{11}")) return false;
+        
+        // Additional checks can be added here (e.g., specific format requirements)
+        return true;
+    }
+    
+    /**
+     * Enhanced program validation
+     */
+    private boolean isValidProgram(String program) {
+        if (isEmpty(program)) return false;
+        
+        // Check minimum length
+        if (program.trim().length() < 3) return false;
+        
+        // Check maximum length
+        if (program.length() > 100) return false;
+        
+        return true;
+    }
 
     private void checkDuplicateThenSave() {
         String studentNumber = root.edtStudentNumber.getText().toString().trim();
@@ -425,7 +503,9 @@ public class InventoryFormActivity extends AppCompatActivity {
 
         if (!validateForm()) return;
 
+        isSubmitting = true;
         root.btnSubmit.setEnabled(false);
+        root.btnSubmit.setText("Submitting...");
 
         StudentApi api = ApiClient.getClient().create(StudentApi.class);
         Call<DuplicateCheckResponse> call = api.checkDuplicate(studentNumber, email);
@@ -433,7 +513,7 @@ public class InventoryFormActivity extends AppCompatActivity {
         call.enqueue(new Callback<DuplicateCheckResponse>() {
             @Override
             public void onResponse(Call<DuplicateCheckResponse> call, Response<DuplicateCheckResponse> response) {
-                root.btnSubmit.setEnabled(true);
+                resetSubmitButton();
 
                 if (response.isSuccessful() && response.body() != null) {
                     boolean emailExists = response.body().isEmailExists();
@@ -460,43 +540,74 @@ public class InventoryFormActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<DuplicateCheckResponse> call, Throwable t) {
-                root.btnSubmit.setEnabled(true);
+                resetSubmitButton();
                 Toast.makeText(InventoryFormActivity.this, "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
+    
+    /**
+     * Reset submit button state in case of error
+     */
+    private void resetSubmitButton() {
+        isSubmitting = false;
+        root.btnSubmit.setEnabled(true);
+        root.btnSubmit.setText("Submit");
+    }
 
 
-    //Validation
+    //Enhanced Validation
     private boolean validateForm() {
+        boolean isValid = true;
+        
         //Validate Full Name
-        if (isEmpty(root.edtFullName.getText().toString())) {
-            root.edtFullName.setError("Full Name is required");
+        String fullName = root.edtFullName.getText().toString().trim();
+        if (!isValidName(fullName)) {
+            if (isEmpty(fullName)) {
+                root.edtFullName.setError("Full Name is required");
+            } else if (fullName.length() < 2) {
+                root.edtFullName.setError("Name must be at least 2 characters");
+            } else if (fullName.length() > 100) {
+                root.edtFullName.setError("Name must not exceed 100 characters");
+            } else if (!fullName.matches("^[a-zA-Z\\s\\-\\.']+$")) {
+                root.edtFullName.setError("Name contains invalid characters");
+            } else if (fullName.contains("  ")) {
+                root.edtFullName.setError("Name cannot contain multiple consecutive spaces");
+            }
             root.edtFullName.requestFocus();
-            return false;
+            isValid = false;
+        } else {
+            root.edtFullName.setError(null);
         }
 
         //Validate student number
         String studentNumber = root.edtStudentNumber.getText().toString().trim();
-
-        if (studentNumber.isEmpty()) {
-            root.edtStudentNumber.setError("Student Number is required");
+        if (!isValidStudentNumber(studentNumber)) {
+            if (isEmpty(studentNumber)) {
+                root.edtStudentNumber.setError("Student Number is required");
+            } else {
+                root.edtStudentNumber.setError("Student Number must be exactly 11 digits");
+            }
             root.edtStudentNumber.requestFocus();
-            return false;
+            isValid = false;
+        } else {
+            root.edtStudentNumber.setError(null);
         }
-
-        if (!studentNumber.matches("\\d{11}")) {
-            root.edtStudentNumber.setError("Student Number must be exactly 11 digits");
-            root.edtStudentNumber.requestFocus();
-            return false;
-        }
-
 
         //Validate Program
-        if (isEmpty(root.edtProgram.getText().toString())) {
-            root.edtProgram.setError("Program is required");
+        String program = root.edtProgram.getText().toString().trim();
+        if (!isValidProgram(program)) {
+            if (isEmpty(program)) {
+                root.edtProgram.setError("Program is required");
+            } else if (program.length() < 3) {
+                root.edtProgram.setError("Program must be at least 3 characters");
+            } else {
+                root.edtProgram.setError("Program must not exceed 100 characters");
+            }
             root.edtProgram.requestFocus();
-            return false;
+            isValid = false;
+        } else {
+            root.edtProgram.setError(null);
         }
 
         // Validate Birthday
@@ -523,15 +634,17 @@ public class InventoryFormActivity extends AppCompatActivity {
             return false;
         }
 
-        // Validate Gender Spinner (assuming first is "Select Gender")
-        if (root.spinnerGender.getSelectedItemPosition() == 0) {
+        // Validate Gender AutoCompleteTextView
+        String gender = root.spinnerGender.getText().toString().trim();
+        if (isEmpty(gender)) {
             Toast.makeText(this, "Please select a Gender", Toast.LENGTH_SHORT).show();
             root.spinnerGender.requestFocus();
             return false;
         }
 
-        // Validate Civil Status Spinner (assuming first is "Select Civil Status")
-        if (root.spinnerStatus.getSelectedItemPosition() == 0) {
+        // Validate Civil Status AutoCompleteTextView
+        String civilStatus = root.spinnerStatus.getText().toString().trim();
+        if (isEmpty(civilStatus)) {
             Toast.makeText(this, "Please select Civil Status", Toast.LENGTH_SHORT).show();
             root.spinnerStatus.requestFocus();
             return false;

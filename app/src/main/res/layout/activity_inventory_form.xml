@@ -28,14 +28,29 @@
                 android:fontFamily="@font/poppins_bold"
                 android:textAlignment="center"/>
 
-            <!--Student Info-->
-            <TextView
+            <!--Student Info Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Student Information"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Student Information"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Full Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -43,16 +58,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"
+                android:hint="Full Name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFullName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Full Name"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/blue"
-                    android:inputType="text">
+                    android:inputType="textCapWords"
+                    android:maxLength="100">
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -62,16 +79,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"
+                android:hint="Student Number"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtStudentNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Student Number"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/blue"
-                    android:inputType="text">
+                    android:inputType="number"
+                    android:maxLength="11">
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -113,18 +132,57 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Status Spinner with visibility toggle -->
-            <TextView android:text="Civil Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerStatus"
-                android:theme="@style/InputLabel"
+            <!--Personal Information Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Personal Information"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
+
+            <!-- Civil Status AutoCompleteTextView -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Civil Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:padding="12dp"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Spouse Info (conditionally visible)-->
             <LinearLayout
@@ -216,19 +274,33 @@
             </LinearLayout>
 
 
-            <!-- Gender Spinner -->
-            <TextView
-                android:text="Gender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerGender"
-                android:theme="@style/InputLabel"
+            <!-- Gender AutoCompleteTextView -->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerGender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"/>
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Gender"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:padding="12dp"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Birthday-->
             <com.google.android.material.textfield.TextInputLayout
@@ -507,17 +579,33 @@
             </com.google.android.material.textfield.TextInputLayout>
 
 
-            <!--Father's Status-->
-            <TextView
-                android:text="Father's Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerFatherStatus"
+            <!--Father's Status AutoCompleteTextView-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerFatherStatus"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Father's Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerFatherStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:padding="12dp"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Mother's Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -595,17 +683,33 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Mother's Status-->
-            <TextView
-                android:text="Mother's Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerMotherStatus"
+            <!--Mother's Status AutoCompleteTextView-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerMotherStatus"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Mother's Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerMotherStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/poppins_regular"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:inputType="none"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:padding="12dp"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Guardian Name-->
             <com.google.android.material.textfield.TextInputLayout
