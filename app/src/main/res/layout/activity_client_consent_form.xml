@@ -96,7 +96,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="12dp"
-                android:inputType="text"
+                android:inputType="textCapWords"
+                android:maxLength="100"
                 android:paddingBottom="12dp"/>
 
             <!--Name of Parents/Guardians-->
@@ -107,7 +108,8 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"
                 android:textSize="12dp"
-                android:inputType="text"
+                android:inputType="textCapWords"
+                android:maxLength="100"
                 android:paddingBottom="12dp"/>
 
             <!--Name of Guidance Counselor/Associate-->

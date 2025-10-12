@@ -46,6 +46,8 @@ public class InventoryFormActivity extends AppCompatActivity {
         sharedPreferences = getSharedPreferences("InventoryForm", MODE_PRIVATE);
         editor = sharedPreferences.edit();
 
+        // Load student name from Client Consent Form and disable the field
+        loadDataFromConsentForm();
 
         //Live validation for full name
         addLiveValidation(root.edtFullName, input -> {
@@ -695,6 +697,30 @@ public class InventoryFormActivity extends AppCompatActivity {
 
     interface ValidationRule {
         String validate(String input); //Return null if valid, or error message if invalid
+    }
+
+    /**
+     * Load student name from Client Consent Form and pre-fill the Full Name field (disabled)
+     */
+    private void loadDataFromConsentForm() {
+        try {
+            SharedPreferences consentPrefs = getSharedPreferences("OnboardingData", MODE_PRIVATE);
+            String studentName = consentPrefs.getString("Consent_StudentName", "");
+            
+            // Pre-fill student name and disable the field
+            if (!studentName.isEmpty()) {
+                root.edtFullName.setText(studentName);
+                root.edtFullName.setEnabled(false);
+                root.edtFullName.setBackgroundColor(getResources().getColor(android.R.color.darker_gray));
+                root.edtFullName.setTextColor(getResources().getColor(android.R.color.darker_gray));
+                Log.d("InventoryForm", "Pre-filled and disabled student name: " + studentName);
+            } else {
+                Log.d("InventoryForm", "No student name found in consent form");
+            }
+            
+        } catch (Exception e) {
+            Log.e("InventoryForm", "Error loading student name from consent form: " + e.getMessage());
+        }
     }
 
 }
