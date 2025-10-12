@@ -29,14 +29,29 @@
                 android:fontFamily="@font/poppins_bold"
                 android:textAlignment="center"/>
 
-            <!--Student Info-->
-            <TextView
+            <!--Student Information Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Student Information"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Student Information"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Full Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -44,16 +59,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"
+                android:hint="Full Name"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFullName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Full Name"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/blue"
-                    android:inputType="text">
+                    android:inputType="textCapWords"
+                    android:maxLength="100">
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -63,16 +80,18 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp"
+                android:hint="Student Number"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtStudentNumber"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="Student Number"
                     android:fontFamily="@font/poppins_regular"
                     android:textColor="@color/blue"
-                    android:inputType="text">
+                    android:inputType="number"
+                    android:maxLength="11">
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -82,7 +101,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtProgram"
@@ -101,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtNickname"
@@ -114,18 +133,56 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Status Spinner with visibility toggle -->
-            <TextView android:text="Civil Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerStatus"
-                android:theme="@style/InputLabel"
+            <!--Personal Information Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Personal Information"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
+
+            <!--Civil Status-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Civil Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:clickable="true"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:padding="12dp"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Spouse Info (conditionally visible)-->
             <LinearLayout
@@ -141,7 +198,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="@color/blue"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtSpouseName"
@@ -161,7 +218,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="@color/blue"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtSpouseAge"
@@ -181,7 +238,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="@color/blue"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtSpouseOccupation"
@@ -201,7 +258,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textColorHint="@color/blue"
-                    android:layout_marginBottom="10dp">
+                    android:layout_marginBottom="16dp">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/edtSpouseContact"
@@ -217,19 +274,32 @@
             </LinearLayout>
 
 
-            <!-- Gender Spinner -->
-            <TextView
-                android:text="Gender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_semibold"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerGender"
-                android:theme="@style/InputLabel"
+            <!--Gender-->
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerGender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:spinnerMode="dropdown"/>
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Gender"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerGender"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:clickable="true"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:padding="12dp"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Birthday-->
             <com.google.android.material.textfield.TextInputLayout
@@ -237,7 +307,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtBirthday"
@@ -252,14 +322,29 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Religion and Nationality-->
-            <TextView
+            <!--Religion and Nationality Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Religion and Nationality"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Religion and Nationality"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Religion-->
             <com.google.android.material.textfield.TextInputLayout
@@ -267,7 +352,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtReligion"
@@ -286,7 +371,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtNationality"
@@ -299,14 +384,29 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Contact Information-->
-            <TextView
+            <!--Contact Information Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Contact Information"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Contact Information"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Cellphone Number-->
             <com.google.android.material.textfield.TextInputLayout
@@ -314,7 +414,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtPhone"
@@ -333,7 +433,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtEmail1"
@@ -352,7 +452,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtEmail2"
@@ -371,7 +471,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtPresentAddress"
@@ -390,7 +490,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtPermanentAddress"
@@ -409,7 +509,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtProvincialAddress"
@@ -422,14 +522,29 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Family Background-->
-            <TextView
+            <!--Family Background Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Family Background"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Family Background"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Father's Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -437,7 +552,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFatherName"
@@ -456,7 +571,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFatherOccupation"
@@ -475,7 +590,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFatherContactNo"
@@ -494,7 +609,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFatherIncome"
@@ -509,16 +624,31 @@
 
 
             <!--Father's Status-->
-            <TextView
-                android:text="Father's Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerFatherStatus"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerFatherStatus"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Father's Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerFatherStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:clickable="true"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:padding="12dp"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Mother's Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -526,7 +656,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtMotherName"
@@ -545,7 +675,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtMotherOccupation"
@@ -564,7 +694,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtMotherContactNo"
@@ -583,7 +713,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtMotherIncome"
@@ -597,16 +727,31 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!--Mother's Status-->
-            <TextView
-                android:text="Mother's Status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:fontFamily="@font/poppins_regular"
-                android:textSize="16dp"/>
-            <Spinner
-                android:id="@+id/spinnerMotherStatus"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/layout_spinnerMotherStatus"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/blue"
+                android:layout_marginBottom="16dp"
+                android:hint="Mother's Status"
+                app:boxStrokeColor="@color/blue"
+                app:endIconMode="dropdown_menu"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox">
+
+                <AutoCompleteTextView
+                    android:id="@+id/spinnerMotherStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="none"
+                    android:clickable="true"
+                    android:completionThreshold="0"
+                    android:dropDownHeight="200dp"
+                    android:dropDownWidth="match_parent"
+                    android:textColor="@color/black"
+                    android:textSize="18sp"
+                    android:padding="12dp"
+                    android:focusable="false"/>
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!--Guardian Name-->
             <com.google.android.material.textfield.TextInputLayout
@@ -614,7 +759,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtGuardianName"
@@ -633,7 +778,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtGuardianContact"
@@ -668,14 +813,29 @@
                 android:fontFamily="@font/poppins_regular"/>
 
 
-            <!--Educational Background-->
-            <TextView
+            <!--Educational Background Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Educational Background"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Educational Background"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Elementary-->
             <com.google.android.material.textfield.TextInputLayout
@@ -683,7 +843,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtElementary"
@@ -702,7 +862,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtJuniorHigh"
@@ -721,7 +881,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSeniorHigh"
@@ -740,7 +900,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtCollege"
@@ -753,14 +913,29 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Work Experience-->
-            <TextView
+            <!--Work Experience Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Work Experience"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Work Experience"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/workContainer"
@@ -774,14 +949,29 @@
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/poppins_regular"/>
 
-            <!--Interests and Recreational Activities-->
-            <TextView
+            <!--Interests and Recreational Activities Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Interests and Recreational Activities"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Interests and Recreational Activities"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Sports-->
             <com.google.android.material.textfield.TextInputLayout
@@ -789,7 +979,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSports"
@@ -808,7 +998,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtHobbies"
@@ -827,7 +1017,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtTalents"
@@ -855,7 +1045,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSocioCivic"
@@ -874,7 +1064,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtSchoolOrgs"
@@ -887,14 +1077,29 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Health History-->
-            <TextView
+            <!--Health History Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Health History"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Health History"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Hospitalized?-->
             <CheckBox
@@ -910,7 +1115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtHospitalizedReason"
@@ -938,7 +1143,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtOperationReason"
@@ -966,7 +1171,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtCurrentIllness"
@@ -994,7 +1199,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtPrescriptionDrugs"
@@ -1022,7 +1227,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtFamilyIllness"
@@ -1041,7 +1246,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtLastDoctorVisit"
@@ -1061,7 +1266,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtDoctorVisitReason"
@@ -1074,14 +1279,29 @@
                 </com.google.android.material.textfield.TextInputEditText>
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!--Life Circumstances-->
-            <TextView
+            <!--Life Circumstances Section-->
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Life Circumstances"
-                android:fontFamily="@font/poppins_semibold"
-                android:paddingTop="10dp"
-                android:textSize="16dp"/>
+                android:orientation="vertical"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp">
+                
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Life Circumstances"
+                    android:fontFamily="@font/poppins_semibold"
+                    android:textSize="16dp"
+                    android:textColor="@color/blue"
+                    android:paddingBottom="8dp"/>
+                
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/blue"
+                    android:layout_marginBottom="12dp"/>
+            </LinearLayout>
 
             <!--Loss Experience-->
             <com.google.android.material.textfield.TextInputLayout
@@ -1089,7 +1309,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtLossExperience"
@@ -1108,7 +1328,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtProblems"
@@ -1127,7 +1347,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/blue"
-                android:layout_marginBottom="10dp">
+                android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/edtRelationshipConcerns"

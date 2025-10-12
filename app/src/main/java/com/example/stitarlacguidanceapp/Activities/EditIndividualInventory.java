@@ -9,7 +9,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -92,34 +94,37 @@ public class EditIndividualInventory extends AppCompatActivity {
             return input.matches("\\d{11}") ? null : "Guardian Contact must be 11 digits";
         });
 
-        //Gender spinner populate
+        //Gender AutoCompleteTextView populate
         ArrayAdapter<CharSequence> genderAdapter = ArrayAdapter.createFromResource(
-                this, R.array.inventory_form_gender_options, android.R.layout.simple_spinner_item);
-        genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.inventory_form_gender_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerGender.setAdapter(genderAdapter);
+        root.spinnerGender.setThreshold(0);
+        root.spinnerGender.setOnClickListener(v -> root.spinnerGender.showDropDown());
 
-        //Civil status spinner populate
+        //Civil status AutoCompleteTextView populate
         ArrayAdapter<CharSequence> statusAdapter = ArrayAdapter.createFromResource(
-                this, R.array.civil_status_options, android.R.layout.simple_spinner_item);
-        statusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.civil_status_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerStatus.setAdapter(statusAdapter);
+        root.spinnerStatus.setThreshold(0);
+        root.spinnerStatus.setOnClickListener(v -> root.spinnerStatus.showDropDown());
 
-        root.spinnerGender.setSelection(0);
-        root.spinnerStatus.setSelection(0);
-
-        //Parents status spinner populate
+        //Parents status AutoCompleteTextView populate
         ArrayAdapter<CharSequence> parentStatusAdapter = ArrayAdapter.createFromResource(
-                this, R.array.parent_status_options, android.R.layout.simple_spinner_item);
-        parentStatusAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                this, R.array.parent_status_options, android.R.layout.simple_dropdown_item_1line);
         root.spinnerFatherStatus.setAdapter(parentStatusAdapter);
+        root.spinnerFatherStatus.setThreshold(0);
+        root.spinnerFatherStatus.setOnClickListener(v -> root.spinnerFatherStatus.showDropDown());
+        
         root.spinnerMotherStatus.setAdapter(parentStatusAdapter);
+        root.spinnerMotherStatus.setThreshold(0);
+        root.spinnerMotherStatus.setOnClickListener(v -> root.spinnerMotherStatus.showDropDown());
 
         //When married, shows the spouse EditText sections
-        root.spinnerStatus.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        root.spinnerStatus.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Object selected = root.spinnerStatus.getSelectedItem();
-                if (selected != null && selected.toString().equals("Married")) {
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String selected = root.spinnerStatus.getText().toString();
+                if (selected.equals("Married")) {
                     root.layoutSpouse.setVisibility(View.VISIBLE);
                 } else {
                     root.layoutSpouse.setVisibility(View.GONE);
@@ -130,7 +135,6 @@ public class EditIndividualInventory extends AppCompatActivity {
                     root.edtSpouseContact.setText("");
                 }
             }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         root.btnAddWork.setOnClickListener(v -> addWorkView());
@@ -323,27 +327,101 @@ public class EditIndividualInventory extends AppCompatActivity {
     }
 
     private void addSiblingView() {
-        if (root.siblingContainer.getChildCount() >= 5) {
+        if (root.siblingContainer.getChildCount() >= 10) { // 5 pairs of label + view = 10 children
             Toast.makeText(this, "Maximum of 5 siblings only.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Calculate sibling number based on actual siblings (not total children)
+        int siblingCount = (root.siblingContainer.getChildCount() / 2) + 1;
+        
+        // Create label for sibling
+        TextView siblingLabel = new TextView(this);
+        siblingLabel.setText("Sibling " + siblingCount);
+        siblingLabel.setTextSize(16);
+        siblingLabel.setTextColor(getResources().getColor(R.color.blue));
+        
+        // Fix API level compatibility for font
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            siblingLabel.setTypeface(getResources().getFont(R.font.poppins_semibold));
+        } else {
+            siblingLabel.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        }
+        siblingLabel.setPadding(0, 16, 0, 8);
+        
         SiblingRowBinding siblingBinding = SiblingRowBinding.inflate(getLayoutInflater(), root.siblingContainer, false);
         View siblingView = siblingBinding.getRoot();
-        siblingBinding.btnRemoveSibling.setOnClickListener(v -> root.siblingContainer.removeView(siblingView));
+        siblingBinding.btnRemoveSibling.setOnClickListener(v -> {
+            root.siblingContainer.removeView(siblingView);
+            root.siblingContainer.removeView(siblingLabel);
+            updateSiblingLabels(); // Update remaining labels
+        });
+        
+        root.siblingContainer.addView(siblingLabel);
         root.siblingContainer.addView(siblingView);
     }
 
     private void addWorkView() {
-        if (root.workContainer.getChildCount() >= 5) {
+        if (root.workContainer.getChildCount() >= 10) { // 5 pairs of label + view = 10 children
             Toast.makeText(this, "Maximum of 5 work experiences only.", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // Calculate work experience number based on actual work experiences (not total children)
+        int workCount = (root.workContainer.getChildCount() / 2) + 1;
+        
+        // Create label for work experience
+        TextView workLabel = new TextView(this);
+        workLabel.setText("Work Experience " + workCount);
+        workLabel.setTextSize(16);
+        workLabel.setTextColor(getResources().getColor(R.color.blue));
+        
+        // Fix API level compatibility for font
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            workLabel.setTypeface(getResources().getFont(R.font.poppins_semibold));
+        } else {
+            workLabel.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        }
+        workLabel.setPadding(0, 16, 0, 8);
+        
         WorkRowBinding workBinding = WorkRowBinding.inflate(getLayoutInflater(), root.workContainer, false);
         View workView = workBinding.getRoot();
-        workBinding.btnRemoveWork.setOnClickListener(v -> root.workContainer.removeView(workView));
+        workBinding.btnRemoveWork.setOnClickListener(v -> {
+            root.workContainer.removeView(workView);
+            root.workContainer.removeView(workLabel);
+            updateWorkLabels(); // Update remaining labels
+        });
+        
+        root.workContainer.addView(workLabel);
         root.workContainer.addView(workView);
+    }
+
+    private void updateWorkLabels() {
+        int workCount = 0;
+        for (int i = 0; i < root.workContainer.getChildCount(); i++) {
+            View child = root.workContainer.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView label = (TextView) child;
+                if (label.getText().toString().startsWith("Work Experience")) {
+                    workCount++;
+                    label.setText("Work Experience " + workCount);
+                }
+            }
+        }
+    }
+
+    private void updateSiblingLabels() {
+        int siblingCount = 0;
+        for (int i = 0; i < root.siblingContainer.getChildCount(); i++) {
+            View child = root.siblingContainer.getChildAt(i);
+            if (child instanceof TextView) {
+                TextView label = (TextView) child;
+                if (label.getText().toString().startsWith("Sibling")) {
+                    siblingCount++;
+                    label.setText("Sibling " + siblingCount);
+                }
+            }
+        }
     }
 
     private InventoryForm buildUpdatedFormFromInputs() {
@@ -357,8 +435,8 @@ public class EditIndividualInventory extends AppCompatActivity {
         form.program = root.edtProgram.getText().toString().trim();
         form.nickname = root.edtNickname.getText().toString().trim();
         form.nationality = root.edtNationality.getText().toString().trim();
-        form.gender = root.spinnerGender.getSelectedItem().toString();
-        form.civilStatus = root.spinnerStatus.getSelectedItem().toString();
+        form.gender = root.spinnerGender.getText().toString();
+        form.civilStatus = root.spinnerStatus.getText().toString();
         form.religion = root.edtReligion.getText().toString().trim();
         form.birthday = root.edtBirthday.getText().toString().trim();
         form.phoneNumber = root.edtPhone.getText().toString().trim();
@@ -383,8 +461,8 @@ public class EditIndividualInventory extends AppCompatActivity {
         form.motherOccupation = root.edtMotherOccupation.getText().toString().trim();
         form.motherContact = root.edtMotherContactNo.getText().toString().trim();
         form.motherIncome = root.edtMotherIncome.getText().toString().trim();
-        form.fatherStatus = root.spinnerFatherStatus.getSelectedItem().toString();
-        form.motherStatus = root.spinnerMotherStatus.getSelectedItem().toString();
+        form.fatherStatus = root.spinnerFatherStatus.getText().toString();
+        form.motherStatus = root.spinnerMotherStatus.getText().toString();
         form.guardianName = root.edtGuardianName.getText().toString().trim();
         form.guardianContact = root.edtGuardianContact.getText().toString().trim();
 
@@ -517,8 +595,8 @@ public class EditIndividualInventory extends AppCompatActivity {
         root.edtProgram.setText(form.program != null ? form.program : "");
         root.edtNickname.setText(form.nickname != null ? form.nickname : "");
         root.edtNationality.setText(form.nationality != null ? form.nationality : "");
-        root.spinnerGender.setSelection(getSpinnerIndex(root.spinnerGender, form.gender));
-        root.spinnerStatus.setSelection(getSpinnerIndex(root.spinnerStatus, form.civilStatus));
+        root.spinnerGender.setText(form.gender != null ? form.gender : "");
+        root.spinnerStatus.setText(form.civilStatus != null ? form.civilStatus : "");
         root.edtReligion.setText(form.religion != null ? form.religion : "");
         root.edtBirthday.setText(form.birthday != null ? form.birthday : "");
         root.edtPhone.setText(form.phoneNumber != null ? form.phoneNumber : "");
@@ -545,8 +623,8 @@ public class EditIndividualInventory extends AppCompatActivity {
         root.edtMotherContactNo.setText(form.motherContact != null ? form.motherContact : "");
         root.edtMotherIncome.setText(form.motherIncome != null ? form.motherIncome : "");
 
-        root.spinnerFatherStatus.setSelection(getSpinnerIndex(root.spinnerFatherStatus, form.fatherStatus));
-        root.spinnerMotherStatus.setSelection(getSpinnerIndex(root.spinnerMotherStatus, form.motherStatus));
+        root.spinnerFatherStatus.setText(form.fatherStatus != null ? form.fatherStatus : "");
+        root.spinnerMotherStatus.setText(form.motherStatus != null ? form.motherStatus : "");
 
         root.edtGuardianName.setText(form.guardianName != null ? form.guardianName : "");
         root.edtGuardianContact.setText(form.guardianContact != null ? form.guardianContact : "");
@@ -732,15 +810,15 @@ public class EditIndividualInventory extends AppCompatActivity {
             return false;
         }
 
-        // Validate Gender Spinner (assuming first is "Select Gender")
-        if (root.spinnerGender.getSelectedItemPosition() == 0) {
+        // Validate Gender AutoCompleteTextView
+        if (root.spinnerGender.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Please select a Gender", Toast.LENGTH_SHORT).show();
             root.spinnerGender.requestFocus();
             return false;
         }
 
-        // Validate Civil Status Spinner (assuming first is "Select Civil Status")
-        if (root.spinnerStatus.getSelectedItemPosition() == 0) {
+        // Validate Civil Status AutoCompleteTextView
+        if (root.spinnerStatus.getText().toString().trim().isEmpty()) {
             Toast.makeText(this, "Please select Civil Status", Toast.LENGTH_SHORT).show();
             root.spinnerStatus.requestFocus();
             return false;
