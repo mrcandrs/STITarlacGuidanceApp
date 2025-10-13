@@ -1030,7 +1030,16 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
                 public void onResponse(Call<GuidancePass> call, Response<GuidancePass> response) {
                     if (response.isSuccessful() && response.body() != null) {
                         currentGuidancePass = response.body();
-                        showGuidancePass();
+                        String apptStatus = currentGuidancePass.getAppointment() != null
+                                ? currentGuidancePass.getAppointment().getStatus()
+                                : null;
+                        if (apptStatus != null && apptStatus.equalsIgnoreCase("approved")) {
+                            // Only show and block booking when the linked appointment is approved
+                            showGuidancePass();
+                        } else {
+                            // Hide pass for completed/closed (or any non-approved) so student can book again
+                            hideGuidancePass();
+                        }
                     } else {
                         hideGuidancePass();
                     }
@@ -1059,8 +1068,15 @@ import com.example.stitarlacguidanceapp.NotificationHelper;
                 root.tvGuidancePassDetails.setText(passDetails);
                 root.btnViewGuidancePass.setOnClickListener(v -> showGuidancePassDialog(currentGuidancePass));
 
-                // Block new bookings while pass is active
-                disableFormForActivePass();
+                // Only block booking if appointment status is approved
+                boolean isApproved = currentGuidancePass.getAppointment() != null &&
+                        "approved".equalsIgnoreCase(currentGuidancePass.getAppointment().getStatus());
+                if (isApproved) {
+                    disableFormForActivePass();
+                } else {
+                    // For completed/closed, allow booking
+                    enableFormForNewAppointment();
+                }
             }
         }
 
