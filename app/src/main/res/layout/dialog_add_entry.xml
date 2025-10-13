@@ -39,7 +39,7 @@
                 android:id="@+id/edtDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Select Date"
+                android:hint="Date"
                 android:fontFamily="@font/poppins_regular"
                 android:focusable="false"
                 android:inputType="none">

@@ -265,6 +265,11 @@ public class CalendarFragment extends Fragment {
 
                 if (response.isSuccessful() && response.body() != null) {
                     journalEntries = response.body();
+                    // Normalize dates from ISO to display format to match calendar comparison
+                    for (int i = 0; i < journalEntries.size(); i++) {
+                        JournalEntry e = journalEntries.get(i);
+                        e.setDate(toDisplayDate(e.getDate()));
+                    }
                     // Update calendar display after data is loaded
                     updateCalendarDisplay(customFont);
                 } else {
@@ -279,5 +284,24 @@ public class CalendarFragment extends Fragment {
                 Toast.makeText(getContext(), "Network error loading journal entries.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private boolean isIsoDate(String value) {
+        return value != null && value.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private String toDisplayDate(String value) {
+        try {
+            if (isIsoDate(value)) {
+                SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date d = iso.parse(value);
+                if (d != null) {
+                    SimpleDateFormat out = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                    out.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
+                    return out.format(d);
+                }
+            }
+        } catch (Exception ignored) {}
+        return value;
     }
 }

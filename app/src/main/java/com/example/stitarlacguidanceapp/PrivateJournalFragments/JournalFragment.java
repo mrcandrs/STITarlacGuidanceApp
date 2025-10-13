@@ -94,12 +94,134 @@ public class JournalFragment extends Fragment {
         recyclerView.setAdapter(adapter);
 
         loadJournalEntries(); // now the adapter is ready
+        precheckTodayEntry(); // pre-check today's entry to enforce one-per-day UX
 
         checkEmptyList(txtEmptyMessage); // initial empty check
 
         return view;
     }
 
+
+    private void precheckTodayEntry() {
+        SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+        int studentId = sessionPrefs.getInt("studentId", -1);
+        if (studentId == -1) return;
+
+        JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+        api.getToday(studentId).enqueue(new Callback<JournalEntry>() {
+            @Override
+            public void onResponse(Call<JournalEntry> call, Response<JournalEntry> response) {
+                if (response.isSuccessful()) {
+                    JournalEntry today = response.body();
+                    if (today != null) {
+                        // Normalize date to display format if backend returns yyyy-MM-dd
+                        today.setDate(toDisplayDate(today.getDate()));
+                        // Ensure today's entry is visible at top
+                        boolean exists = false;
+                        for (int i = 0; i < journalEntries.size(); i++) {
+                            JournalEntry e = journalEntries.get(i);
+                            if (e.getJournalId() == today.getJournalId()) {
+                                journalEntries.set(i, today);
+                                adapter.notifyItemChanged(i);
+                                exists = true;
+                                break;
+                            }
+                        }
+                        if (!exists) {
+                            journalEntries.add(0, today);
+                            adapter.notifyItemInserted(0);
+                        }
+                        saveToPreferences();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JournalEntry> call, Throwable t) {}
+        });
+    }
+
+    private void fetchTodayAndOpenEdit(int studentId) {
+        JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+        api.getToday(studentId).enqueue(new Callback<JournalEntry>() {
+            @Override
+            public void onResponse(Call<JournalEntry> call, Response<JournalEntry> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    JournalEntry today = response.body();
+                    today.setDate(toDisplayDate(today.getDate()));
+                    showEditDialog(today, 0);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<JournalEntry> call, Throwable t) {}
+        });
+    }
+
+    private boolean isToday(String displayDate) {
+        try {
+            Date parsed;
+            if (isIsoDate(displayDate)) {
+                SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                parsed = iso.parse(displayDate);
+            } else {
+                SimpleDateFormat display = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                parsed = display.parse(displayDate);
+            }
+            if (parsed == null) return false;
+            SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            key.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
+            String entryKey = key.format(parsed);
+
+            // Compute today in PH tz
+            Calendar now = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"));
+            Date todayPh = new Date(now.getTimeInMillis());
+            String todayKey = key.format(todayPh);
+            return entryKey.equals(todayKey);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private boolean isIsoDate(String value) {
+        return value != null && value.matches("\\d{4}-\\d{2}-\\d{2}");
+    }
+
+    private String toDisplayDate(String value) {
+        try {
+            if (isIsoDate(value)) {
+                SimpleDateFormat iso = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                Date d = iso.parse(value);
+                if (d != null) {
+                    SimpleDateFormat out = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+                    out.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
+                    return out.format(d);
+                }
+            }
+        } catch (Exception ignored) {}
+        return value; // already display format
+    }
+
+    private boolean sameDay(String d1, String d2) {
+        try {
+            SimpleDateFormat display = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+            Date a = isIsoDate(d1) ? new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(d1) : display.parse(d1);
+            Date b = isIsoDate(d2) ? new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).parse(d2) : display.parse(d2);
+            if (a == null || b == null) return false;
+            SimpleDateFormat key = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            return key.format(a).equals(key.format(b));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private String getTodayDisplayPh() {
+        Calendar now = Calendar.getInstance(java.util.TimeZone.getTimeZone("Asia/Manila"));
+        Date today = new Date(now.getTimeInMillis());
+        SimpleDateFormat display = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
+        display.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Manila"));
+        return display.format(today);
+    }
 
     public void showAddDialog() {
         View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_add_entry, null);
@@ -119,23 +241,11 @@ public class JournalFragment extends Fragment {
         final String[] selectedMood = {""};
         final String[] selectedMoodEmoji = {""};
 
-        //Set default to today
-        String today = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(new Date());
+        // Enforce server rule: only today's entry; set PH-today and disable edits
+        String today = getTodayDisplayPh();
         edtDate.setText(today);
-
-        //Show date picker on click
-        edtDate.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-                Calendar selected = Calendar.getInstance();
-                selected.set(year, month, dayOfMonth);
-                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
-                edtDate.setText(dateStr);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis()); //Prevent future dates
-            datePicker.show();
-        });
+        edtDate.setEnabled(false);
+        edtDate.setFocusable(false);
 
         // Mood selection click listeners
         View.OnClickListener moodClickListener = v -> {
@@ -199,7 +309,8 @@ public class JournalFragment extends Fragment {
             saveBtn.setOnClickListener(v -> {
                 String title = edtTitle.getText().toString().trim();
                 String content = edtContent.getText().toString().trim();
-                String selectedDate = edtDate.getText().toString().trim();
+                // Always use PH-today to match backend; ignore any client date edits
+                String selectedDate = getTodayDisplayPh();
 
                 // Validate content
                 if (content.isEmpty()) {
@@ -207,23 +318,8 @@ public class JournalFragment extends Fragment {
                     return;
                 }
 
-                // Validate date
-                if (selectedDate.isEmpty()) {
-                    edtDate.setError("Date is required");
-                    return;
-                }
-
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-                    Date date = sdf.parse(selectedDate);
-                    if (date.after(new Date())) {
-                        edtDate.setError("Date cannot be in the future");
-                        return;
-                    }
-                } catch (ParseException e) {
-                    edtDate.setError("Invalid date format");
-                    return;
-                }
+                // Date is fixed to PH-today; no validation needed beyond not empty
+                if (selectedDate.isEmpty()) return;
 
                 //Getting studentID
                 SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
@@ -273,12 +369,14 @@ public class JournalFragment extends Fragment {
                     public void onResponse(Call<JournalEntry> call, Response<JournalEntry> response) {
                         if (response.isSuccessful() && response.body() != null) {
                             JournalEntry savedEntry = response.body(); // ✅ Has correct journalId from backend
+                            // Normalize date for UI/calendar
+                            savedEntry.setDate(toDisplayDate(savedEntry.getDate()));
                             // Update the entry with the correct journalId from server
                             if (savedEntry != null) {
                                 // Find and update the entry in the list
                                 for (int i = 0; i < journalEntries.size(); i++) {
-                                    if (journalEntries.get(i).getDate().equals(savedEntry.getDate()) && 
-                                        journalEntries.get(i).getContent().equals(savedEntry.getContent())) {
+                                    if (sameDay(journalEntries.get(i).getDate(), savedEntry.getDate()) &&
+                                            journalEntries.get(i).getContent().equals(savedEntry.getContent())) {
                                         journalEntries.set(i, savedEntry);
                                         adapter.notifyItemChanged(i);
                                         break;
@@ -288,6 +386,19 @@ public class JournalFragment extends Fragment {
                             }
 
                             Snackbar.make(requireView(), "Journal entry saved.", Snackbar.LENGTH_SHORT)
+                                    .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
+                                    .setTextColor(Color.WHITE)
+                                    .show();
+                        } else if (response.code() == 409) {
+                            // Server says entry already exists today — switch to edit mode
+                            fetchTodayAndOpenEdit(studentId);
+
+                            // rollback optimistic add
+                            journalEntries.remove(0);
+                            adapter.notifyItemRemoved(0);
+                            saveToPreferences();
+
+                            Snackbar.make(requireView(), "Today's entry already exists. Switched to edit.", Snackbar.LENGTH_SHORT)
                                     .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.blue))
                                     .setTextColor(Color.WHITE)
                                     .show();
@@ -419,27 +530,9 @@ public class JournalFragment extends Fragment {
         btnMoodExcited.setOnClickListener(moodClickListener);
         btnMoodCalm.setOnClickListener(moodClickListener);
 
-        //Date picker
-        edtDate.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
-            try {
-                SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-                Date parsed = sdf.parse(entry.getDate());
-                if (parsed != null) calendar.setTime(parsed);
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-
-            DatePickerDialog datePicker = new DatePickerDialog(getContext(), (view, year, month, dayOfMonth) -> {
-                Calendar selected = Calendar.getInstance();
-                selected.set(year, month, dayOfMonth);
-                String dateStr = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault()).format(selected.getTime());
-                edtDate.setText(dateStr);
-            }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
-            datePicker.getDatePicker().setMaxDate(System.currentTimeMillis());
-            datePicker.show();
-        });
+        // Date should not be editable (backend controls day); lock the field
+        edtDate.setEnabled(false);
+        edtDate.setFocusable(false);
 
         AlertDialog dialog = new AlertDialog.Builder(getContext())
                 .setView(dialogView)
@@ -472,22 +565,7 @@ public class JournalFragment extends Fragment {
                     return;
                 }
 
-                if (newDate.isEmpty()) {
-                    edtDate.setError("Date is required");
-                    return;
-                }
-
-                try {
-                    SimpleDateFormat sdf = new SimpleDateFormat("MMMM dd, yyyy", Locale.getDefault());
-                    Date parsedDate = sdf.parse(newDate);
-                    if (parsedDate.after(new Date())) {
-                        edtDate.setError("Date cannot be in the future");
-                        return;
-                    }
-                } catch (ParseException e) {
-                    edtDate.setError("Invalid date format");
-                    return;
-                }
+                if (newDate.isEmpty()) return;
 
                 Log.d("JournalEditDialog", "Original Journal ID: " + entry.getJournalId());
                 SharedPreferences prefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
@@ -508,7 +586,16 @@ public class JournalFragment extends Fragment {
                 Log.d("JournalUpdate", "Title: " + entry.getTitle());
                 Log.d("JournalUpdate", "Date: " + entry.getDate());
 
-                Call<ResponseBody> call = apiService.updateJournal(entry.getJournalId(), entry);
+                // If editing today's entry, prefer update-today endpoint, else fallback to id-based update
+                JournalEntryApi api = ApiClient.getClient().create(JournalEntryApi.class);
+                SharedPreferences sessionPrefs = requireContext().getSharedPreferences("student_session", Context.MODE_PRIVATE);
+                int sid = sessionPrefs.getInt("studentId", -1);
+                Call<ResponseBody> call;
+                if (isToday(entry.getDate())) {
+                    call = api.updateToday(sid, entry);
+                } else {
+                    call = api.updateJournal(entry.getJournalId(), entry);
+                }
                 call.enqueue(new Callback<ResponseBody>() {
                     @Override
                     public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
@@ -612,6 +699,11 @@ public class JournalFragment extends Fragment {
             public void onResponse(Call<List<JournalEntry>> call, Response<List<JournalEntry>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     List<JournalEntry> sortedList = new ArrayList<>(response.body());
+                    // Normalize all dates from ISO -> display for UI & CalendarView compatibility
+                    for (int i = 0; i < sortedList.size(); i++) {
+                        JournalEntry e = sortedList.get(i);
+                        e.setDate(toDisplayDate(e.getDate()));
+                    }
                     Collections.sort(sortedList, (e1, e2) -> e2.getDate().compareTo(e1.getDate()));
 
                     adapter.updateEntries(sortedList); // Directly update adapter's list
