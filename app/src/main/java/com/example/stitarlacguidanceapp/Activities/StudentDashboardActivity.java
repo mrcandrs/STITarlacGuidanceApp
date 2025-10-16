@@ -181,9 +181,13 @@ public class StudentDashboardActivity extends AppCompatActivity {
     }
     
     private void loadQuotes() {
-        // First try to load from cache
+        loadQuotes(false);
+    }
+    
+    private void loadQuotes(boolean forceRefresh) {
+        // First try to load from cache (unless forcing refresh)
         List<QuoteDto> cachedQuotes = appConfigRepository.getQuotes();
-        if (!cachedQuotes.isEmpty()) {
+        if (!cachedQuotes.isEmpty() && !forceRefresh) {
             setupQuotesViewPager(convertQuoteDtosToQuotes(cachedQuotes));
         }
         
@@ -223,10 +227,20 @@ public class StudentDashboardActivity extends AppCompatActivity {
             quotes = getHardcodedQuotes();
         }
         
+        // Clear any existing slider handlers to prevent conflicts
+        sliderHandler.removeCallbacks(sliderRunnable);
+        
         quoteList = quotes;
         QuoteAdapter adapter = new QuoteAdapter(quoteList);
         viewPager.setAdapter(adapter);
-        sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+        
+        // Reset current page to 0 when quotes change
+        currentPage = 0;
+        if (quoteList.size() > 0) {
+            viewPager.setCurrentItem(0, false);
+            // Start the slider only if we have quotes
+            sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+        }
     }
     
     private List<Quote> convertQuoteDtosToQuotes(List<QuoteDto> quoteDtos) {
@@ -788,11 +802,13 @@ public class StudentDashboardActivity extends AppCompatActivity {
     private final Runnable sliderRunnable = new Runnable() {
         @Override
         public void run() {
-            if (viewPager.getAdapter() != null) {
+            if (viewPager.getAdapter() != null && quoteList != null && !quoteList.isEmpty()) {
                 int itemCount = viewPager.getAdapter().getItemCount();
-                currentPage = (currentPage + 1) % itemCount;
-                viewPager.setCurrentItem(currentPage, true);
-                sliderHandler.postDelayed(this, SLIDE_DELAY);
+                if (itemCount > 0) {
+                    currentPage = (currentPage + 1) % itemCount;
+                    viewPager.setCurrentItem(currentPage, true);
+                    sliderHandler.postDelayed(this, SLIDE_DELAY);
+                }
             }
         }
     };
@@ -806,11 +822,18 @@ public class StudentDashboardActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
         loadStudentInfo();
         
-        // Refresh quotes to get latest from server
-        loadQuotes();
+        // Only refresh quotes if we don't have any cached quotes
+        List<QuoteDto> cachedQuotes = appConfigRepository.getQuotes();
+        if (cachedQuotes.isEmpty()) {
+            loadQuotes();
+        } else {
+            // Just restart the slider with existing quotes
+            if (quoteList != null && !quoteList.isEmpty()) {
+                sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
+            }
+        }
         
         // Restore highlighting state if it should be highlighted
         restoreMoodTrackerHighlighting();
