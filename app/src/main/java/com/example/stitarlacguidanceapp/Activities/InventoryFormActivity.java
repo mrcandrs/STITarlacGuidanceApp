@@ -333,6 +333,10 @@ public class InventoryFormActivity extends AppCompatActivity {
         JSONArray siblingsArray = new JSONArray();
         for (int i = 0; i < root.siblingContainer.getChildCount(); i++) {
             View view = root.siblingContainer.getChildAt(i);
+            // Skip TextView labels, only process actual sibling row views
+            if (view instanceof TextView) {
+                continue;
+            }
             SiblingRowBinding binding = SiblingRowBinding.bind(view);
             if (binding != null) {
                 String name = safeText(binding.edtSiblingName);
@@ -362,6 +366,10 @@ public class InventoryFormActivity extends AppCompatActivity {
         JSONArray workArray = new JSONArray();
         for (int i = 0; i < root.workContainer.getChildCount(); i++) {
             View view = root.workContainer.getChildAt(i);
+            // Skip TextView labels, only process actual work row views
+            if (view instanceof TextView) {
+                continue;
+            }
             WorkRowBinding binding = WorkRowBinding.bind(view);
             if (binding != null) {
                 String position = safeText(binding.edtWorkTitle);
@@ -822,6 +830,10 @@ public class InventoryFormActivity extends AppCompatActivity {
         // Validate siblings data if any - example check for name and age numeric
         for (int i = 0; i < root.siblingContainer.getChildCount(); i++) {
             View view = root.siblingContainer.getChildAt(i);
+            // Skip TextView labels, only process actual sibling row views
+            if (view instanceof TextView) {
+                continue;
+            }
             SiblingRowBinding binding = SiblingRowBinding.bind(view);
             String sibName = safeText(binding.edtSiblingName);
             String sibAge = safeText(binding.edtSiblingAge);
@@ -841,6 +853,10 @@ public class InventoryFormActivity extends AppCompatActivity {
         // Validate Work Experience entries
         for (int i = 0; i < root.workContainer.getChildCount(); i++) {
             View view = root.workContainer.getChildAt(i);
+            // Skip TextView labels, only process actual work row views
+            if (view instanceof TextView) {
+                continue;
+            }
             WorkRowBinding binding = WorkRowBinding.bind(view);
 
             String position = safeText(binding.edtWorkTitle);
