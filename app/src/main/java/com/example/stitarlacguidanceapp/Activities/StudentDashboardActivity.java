@@ -41,6 +41,7 @@ import com.bumptech.glide.Glide;
 import com.example.stitarlacguidanceapp.ApiClient;
 import com.example.stitarlacguidanceapp.DuplicateCheckResponse;
 import com.example.stitarlacguidanceapp.Models.Quote;
+import com.example.stitarlacguidanceapp.Models.QuoteDto;
 import com.example.stitarlacguidanceapp.Models.StudentUpdateRequest;
 import com.example.stitarlacguidanceapp.Models.MoodCooldownResponse;
 import com.example.stitarlacguidanceapp.NotificationHelper;
@@ -48,6 +49,8 @@ import com.example.stitarlacguidanceapp.QuoteAdapter;
 import com.example.stitarlacguidanceapp.R;
 import com.example.stitarlacguidanceapp.StudentApi;
 import com.example.stitarlacguidanceapp.MoodTrackerApi;
+import com.example.stitarlacguidanceapp.MaintenanceApi;
+import com.example.stitarlacguidanceapp.AppConfigRepository;
 import okhttp3.ResponseBody;
 import com.example.stitarlacguidanceapp.databinding.ActivityRegistrationBinding;
 import com.example.stitarlacguidanceapp.databinding.ActivityStudentDashboardBinding;
@@ -59,6 +62,7 @@ import com.google.gson.Gson;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.ArrayList;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -101,6 +105,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
     
     // NotificationHelper instance
     private NotificationHelper notificationHelper;
+    
+    // AppConfigRepository for caching quotes
+    private AppConfigRepository appConfigRepository;
 
 
     private final ActivityResultLauncher<Intent> imagePickerLauncher =
@@ -125,6 +132,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
 
         // Initialize NotificationHelper
         notificationHelper = new NotificationHelper(this);
+        
+        // Initialize AppConfigRepository
+        appConfigRepository = new AppConfigRepository(this);
 
         //load the student's info in profile
         loadStudentInfo();
@@ -163,21 +173,79 @@ public class StudentDashboardActivity extends AppCompatActivity {
         root.cvSettings.setOnClickListener(v -> settings());
 
 
-        //viewPager for insiprational quotes
+        //viewPager for inspirational quotes
         viewPager = findViewById(R.id.viewPager);
-
-        quoteList = Arrays.asList(
-                new Quote("Believe you can and you're halfway there.", "Theodore Roosevelt"),
-                new Quote("Push yourself, because no one else is going to do it for you.", "Unknown"),
-                new Quote("Don’t watch the clock; do what it does. Keep going.", "Sam Levenson"),
-                new Quote("Wake up with determination. Go to bed with satisfaction.", "George Lorimer"),
-                new Quote("Success is not for the lazy.", "Unknown")
-        );
+        
+        // Load quotes from API
+        loadQuotes();
+    }
+    
+    private void loadQuotes() {
+        // First try to load from cache
+        List<QuoteDto> cachedQuotes = appConfigRepository.getQuotes();
+        if (!cachedQuotes.isEmpty()) {
+            setupQuotesViewPager(convertQuoteDtosToQuotes(cachedQuotes));
+        }
+        
+        // Then fetch from API
+        MaintenanceApi maintenanceApi = ApiClient.getClient().create(MaintenanceApi.class);
+        Call<List<QuoteDto>> call = maintenanceApi.getQuotes();
+        
+        call.enqueue(new Callback<List<QuoteDto>>() {
+            @Override
+            public void onResponse(Call<List<QuoteDto>> call, Response<List<QuoteDto>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+                    // Save quotes to cache
+                    appConfigRepository.saveQuotes(response.body());
+                    // Update the viewpager with new quotes
+                    setupQuotesViewPager(convertQuoteDtosToQuotes(response.body()));
+                } else {
+                    // If API fails and no cached quotes, use hardcoded fallback
+                    if (cachedQuotes.isEmpty()) {
+                        setupQuotesViewPager(getHardcodedQuotes());
+                    }
+                }
+            }
+            
+            @Override
+            public void onFailure(Call<List<QuoteDto>> call, Throwable t) {
+                Log.e("Quotes", "Failed to load quotes from API: " + t.getMessage());
+                // If API fails and no cached quotes, use hardcoded fallback
+                if (cachedQuotes.isEmpty()) {
+                    setupQuotesViewPager(getHardcodedQuotes());
+                }
+            }
+        });
+    }
+    
+    private void setupQuotesViewPager(List<Quote> quotes) {
+        if (quotes.isEmpty()) {
+            quotes = getHardcodedQuotes();
+        }
+        
+        quoteList = quotes;
         QuoteAdapter adapter = new QuoteAdapter(quoteList);
         viewPager.setAdapter(adapter);
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
     }
     
+    private List<Quote> convertQuoteDtosToQuotes(List<QuoteDto> quoteDtos) {
+        List<Quote> quotes = new ArrayList<>();
+        for (QuoteDto dto : quoteDtos) {
+            quotes.add(new Quote(dto.text, dto.author));
+        }
+        return quotes;
+    }
+    
+    private List<Quote> getHardcodedQuotes() {
+        return Arrays.asList(
+                new Quote("Believe you can and you're halfway there.", "Theodore Roosevelt"),
+                new Quote("Push yourself, because no one else is going to do it for you.", "Unknown"),
+                new Quote("Don't watch the clock; do what it does. Keep going.", "Sam Levenson"),
+                new Quote("Wake up with determination. Go to bed with satisfaction.", "George Lorimer"),
+                new Quote("Success is not for the lazy.", "Unknown")
+        );
+    }
 
     //for edit inventory form
     private void editInventoryForm() {
@@ -740,6 +808,9 @@ public class StudentDashboardActivity extends AppCompatActivity {
         super.onResume();
         sliderHandler.postDelayed(sliderRunnable, SLIDE_DELAY);
         loadStudentInfo();
+        
+        // Refresh quotes to get latest from server
+        loadQuotes();
         
         // Restore highlighting state if it should be highlighted
         restoreMoodTrackerHighlighting();
